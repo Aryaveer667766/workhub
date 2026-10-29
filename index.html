@@ -24,16 +24,9 @@
                     },
                     colors: {
                         brand: {
-                            50: '#fffdf5',
-                            100: '#fff8e1',
-                            200: '#ffebb8',
-                            300: '#ffd67a',
-                            400: '#ffc142',
-                            500: '#eab308', /* Primary Gold */
-                            600: '#ca8a04', /* Dark Gold */
-                            800: '#1a1a1a', /* Charcoal */
-                            900: '#111111', /* Logo Background Black */
-                            950: '#0a0a0a', /* Deepest Black */
+                            50: '#fffdf5', 100: '#fff8e1', 200: '#ffebb8', 300: '#ffd67a',
+                            400: '#ffc142', 500: '#eab308', /* Primary Gold */
+                            600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a',
                         }
                     },
                     animation: {
@@ -42,6 +35,7 @@
                         'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'fade-in': 'fadeIn 0.5s ease-out forwards',
                         'glow': 'glow 3s ease-in-out infinite alternate',
+                        'marquee': 'marquee 30s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -59,6 +53,10 @@
                         glow: {
                             '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
                             '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' }
                         }
                     }
                 }
@@ -70,24 +68,15 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background-color: #0a0a0a;
-        }
+        body { -webkit-font-smoothing: antialiased; background-color: #0a0a0a; }
 
-        /* Glassmorphism for Dark Theme */
-        .glass-nav {
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        /* Glassmorphism */
+        .glass-nav { background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(234, 179, 8, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
-        }
+        .hero-gradient { background: radial-gradient(circle at top right, rgba(234, 179, 8, 0.15) 0%, transparent 50%), radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.03) 0%, transparent 40%); }
+
+        /* Marquee Mask */
+        .mask-marquee { -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
 
         /* Modal Animations */
         .modal-overlay { opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -95,25 +84,28 @@
         .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
 
+        /* Custom Scrollbar for Modal */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(234,179,8,0.5); }
+
         /* Intersection Observer Animations */
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
         .delay-100 { transition-delay: 100ms; }
         .delay-200 { transition-delay: 200ms; }
         .delay-300 { transition-delay: 300ms; }
 
-        /* Custom Input Focus Ring */
-        .input-ring:focus-within { box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.15); }
-
         /* Loading Spinner */
         .spinner {
-            width: 20px; height: 20px;
-            border: 2px solid rgba(10,10,10,0.3);
-            border-radius: 50%;
-            border-top-color: #0a0a0a;
-            animation: spin 0.8s linear infinite; display: none;
+            width: 20px; height: 20px; border: 2px solid rgba(10,10,10,0.3); border-radius: 50%;
+            border-top-color: #0a0a0a; animation: spin 0.8s linear infinite; display: none;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Select Input Styling */
+        select option { background-color: #111; color: #fff; padding: 10px; }
     </style>
 </head>
 <body class="text-slate-200 relative overflow-x-hidden">
@@ -122,28 +114,20 @@
     <nav class="glass-nav fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <!-- Direct Inline Exact Logo Match -->
+                <!-- Exact SVG Logo -->
                 <a href="#" class="flex items-center gap-3 group">
                     <div class="h-10 w-10 flex-shrink-0 animate-glow">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full group-hover:scale-105 transition-transform duration-300">
-                            <!-- Doorway -->
                             <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
-                            <!-- Inner glow representing light -->
                             <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
-                            <!-- Rays -->
                             <line x1="73" y1="12" x2="73" y2="4" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
                             <line x1="56" y1="18" x2="50" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
                             <line x1="90" y1="18" x2="96" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
-                            <!-- Ground Line -->
                             <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-                            <!-- Stick Figure -->
                             <circle cx="35" cy="52" r="5" fill="#ffffff"/>
-                            <!-- Body & Legs -->
                             <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Arms -->
                             <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <!-- Briefcase -->
                             <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
                         </svg>
                     </div>
@@ -156,13 +140,13 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#how-it-works" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">How It Works</a>
-                    <a href="#benefits" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">Benefits</a>
+                    <a href="#advantage" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">The Advantage</a>
                     <a href="#trust" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">Security</a>
                     
-                    <div class="h-6 w-px bg-slate-800"></div>
+                    <div class="h-6 w-px bg-white/10"></div>
                     
                     <button onclick="openAuth('login')" class="text-sm font-semibold text-white hover:text-brand-500 transition-colors">Log In</button>
-                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_20px_rgba(234,179,8,0.4)]">Join Network</button>
+                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_25px_rgba(234,179,8,0.4)] hover:-translate-y-0.5">Join Network</button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -177,75 +161,110 @@
     <div id="mobileMenu" class="fixed inset-0 z-40 bg-brand-950 transform translate-x-full transition-transform duration-300 md:hidden pt-24 px-6 border-l border-white/5">
         <div class="flex flex-col space-y-6 text-lg font-semibold">
             <a href="#how-it-works" class="text-white" onclick="closeMobileMenu()">How It Works</a>
-            <a href="#benefits" class="text-white" onclick="closeMobileMenu()">Benefits</a>
+            <a href="#advantage" class="text-white" onclick="closeMobileMenu()">The Advantage</a>
             <button onclick="openAuth('login'); closeMobileMenu();" class="text-left text-brand-500">Log In</button>
             <button onclick="openAuth('register-employee'); closeMobileMenu();" class="w-full py-4 bg-brand-500 text-brand-950 font-bold rounded-xl text-center">Join Network</button>
         </div>
     </div>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden hero-gradient min-h-[90vh] flex flex-col justify-center bg-brand-950">
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden hero-gradient min-h-[90vh] flex flex-col justify-center">
         <!-- Abstract Background Shapes -->
-        <div class="absolute top-1/4 left-10 w-72 h-72 bg-brand-500/10 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-pulse-slow"></div>
-        <div class="absolute bottom-1/4 right-10 w-72 h-72 bg-white/5 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-pulse-slow" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/4 left-10 w-96 h-96 bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-60 animate-pulse-slow"></div>
+        <div class="absolute bottom-1/4 right-10 w-96 h-96 bg-white/5 rounded-full mix-blend-screen filter blur-[120px] opacity-60 animate-pulse-slow" style="animation-delay: 2s;"></div>
 
         <div class="max-w-7xl mx-auto relative z-10 text-center">
             <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-medium text-sm mb-8 animate-slide-up backdrop-blur-sm">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-medium text-sm mb-8 animate-slide-up backdrop-blur-sm shadow-lg">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
                 </span>
-                Manual verification ensures 100% authentic profiles
+                100% Manually Verified Profiles
             </div>
 
             <!-- Headline -->
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1] animate-slide-up delay-100">
                 The premium network for <br class="hidden md:block" />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-brand-600">verified talent.</span>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-500 to-brand-600">verified talent.</span>
             </h1>
             
             <!-- Subheadline -->
             <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-inter leading-relaxed animate-slide-up delay-200">
-                WorkHub connects growing companies with thoroughly vetted professionals. 
-                Privacy-first, manually verified, and designed for serious careers.
+                WorkHub connects forward-thinking companies with thoroughly vetted professionals. 
+                Privacy-first, rigorously verified, and designed for serious career growth.
             </p>
             
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up delay-300">
-                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.25)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] flex items-center justify-center gap-2 group">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 animate-slide-up delay-300">
+                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.25)] hover:shadow-[0_0_35px_rgba(234,179,8,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2 group">
                     Join as Professional
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                <button onclick="openAuth('register-employer')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-white bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center justify-center gap-2">
+                <button onclick="openAuth('register-employer')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-white bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1">
                     Hire Talent <span class="text-slate-400 font-normal ml-1">— Free Setup</span>
                 </button>
             </div>
+            
+            <!-- Infinite Marquee (Trusted By) -->
+            <div class="mt-24 pt-10 border-t border-white/5 max-w-5xl mx-auto animate-slide-up delay-300 opacity-70">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Trusted by innovative companies</p>
+                <div class="overflow-hidden whitespace-nowrap relative w-full mask-marquee">
+                    <div class="animate-marquee inline-block flex items-center gap-16 pr-16">
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="triangle" class="w-6 h-6"></i> Vertex</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="hexagon" class="w-6 h-6"></i> Nexus</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="circle-dashed" class="w-6 h-6"></i> OmniCorp</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="box" class="w-6 h-6"></i> BlockTech</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="wind" class="w-6 h-6"></i> Aether</span>
+                    </div>
+                    <div class="animate-marquee inline-block flex items-center gap-16 pr-16" aria-hidden="true">
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="triangle" class="w-6 h-6"></i> Vertex</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="hexagon" class="w-6 h-6"></i> Nexus</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="circle-dashed" class="w-6 h-6"></i> OmniCorp</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="box" class="w-6 h-6"></i> BlockTech</span>
+                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="wind" class="w-6 h-6"></i> Aether</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Stats/Trust Bar -->
-            <div class="mt-20 pt-10 border-t border-white/10 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 reveal">
-                <div class="text-center">
-                    <p class="text-3xl font-extrabold text-white mb-1">100%</p>
-                    <p class="text-sm font-medium text-slate-400">Manually Verified</p>
+    <!-- NEW SECTION: The Advantage -->
+    <section id="advantage" class="py-24 bg-[#0a0a0a] relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-sm mb-3">Why WorkHub</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">The Premium Standard</h3>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-100">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shield" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Absolute Privacy</h4>
+                    <p class="text-slate-400 font-inter leading-relaxed">We never expose your email or phone number publicly. Employers must request access securely.</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl font-extrabold text-white mb-1">₹99</p>
-                    <p class="text-sm font-medium text-slate-400">One-time Fee</p>
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-200">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="check-square" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Zero Spam</h4>
+                    <p class="text-slate-400 font-inter leading-relaxed">Our nominal verification fee ensures only serious professionals join, giving you higher visibility.</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl font-extrabold text-white mb-1">0</p>
-                    <p class="text-sm font-medium text-slate-400">Fake Profiles</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-3xl font-extrabold text-white mb-1"><i data-lucide="lock" class="w-8 h-8 mx-auto text-brand-500"></i></p>
-                    <p class="text-sm font-medium text-slate-400">Strict Privacy</p>
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-300">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="zap" class="w-7 h-7"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Direct Placement</h4>
+                    <p class="text-slate-400 font-inter leading-relaxed">Once verified, our internal coordination team actively matches you with high-intent employers.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- How it Works Section -->
-    <section id="how-it-works" class="py-24 bg-brand-900 relative">
+    <section id="how-it-works" class="py-24 bg-[#111] relative border-y border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20 reveal">
                 <h2 class="text-brand-500 font-bold tracking-wide uppercase text-sm mb-3">Workflow</h2>
@@ -255,7 +274,7 @@
             
             <div class="grid md:grid-cols-2 gap-12 lg:gap-16">
                 <!-- Employee Flow Card -->
-                <div class="bg-brand-950 rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal delay-100 shadow-2xl">
+                <div class="bg-[#0a0a0a] rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal delay-100 shadow-2xl">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-700 text-brand-500">
                         <i data-lucide="user-check" class="w-48 h-48"></i>
                     </div>
@@ -271,21 +290,21 @@
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">1</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Create Profile</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Register and showcase your skills, education, and experience.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Register and showcase your skills and qualification.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">2</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Verification Fee (₹99)</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Submit the nominal fee and UTR for manual platform verification to prove intent.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Submit the fee and UTR for platform verification.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">3</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Secure Connections</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Your contact details remain hidden until the verification team approves an employer's request.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Your contact details are strictly hidden until platform approval.</p>
                                 </div>
                             </div>
                         </div>
@@ -309,84 +328,23 @@
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">1</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Free Registration</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Create your company account instantly. No credit card required.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Create your company account instantly.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">2</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Browse Verified Talent</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Search our directory. You only see candidates who have passed our verification.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Search the directory of 100% verified candidates.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">3</div>
                                 <div>
                                     <p class="text-lg font-bold text-white">Request Access</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Click to request contact details. Once approved by our team, you can reach out directly.</p>
+                                    <p class="text-slate-400 mt-1 font-inter">Request contact details securely via the platform.</p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Trust / Security Section -->
-    <section id="trust" class="py-24 bg-brand-950 border-t border-white/5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-16 items-center">
-                <div class="reveal">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-500/10 border border-brand-500/20 rounded-2xl text-brand-500 mb-6">
-                        <i data-lucide="shield-check" class="w-8 h-8"></i>
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Your data is never publicly exposed.</h2>
-                    <p class="text-lg text-slate-400 font-inter mb-8 leading-relaxed">
-                        Unlike traditional job boards, WorkHub does not display employee phone numbers or email addresses in the public directory. 
-                    </p>
-                    
-                    <ul class="space-y-5">
-                        <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle-2" class="w-6 h-6 text-brand-500 flex-shrink-0 mt-0.5"></i>
-                            <div>
-                                <span class="font-bold text-white block">Platform-Controlled Sharing</span>
-                                <span class="text-slate-400 font-inter text-sm">Employers must request access, and our verification team reviews it before releasing details.</span>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i data-lucide="check-circle-2" class="w-6 h-6 text-brand-500 flex-shrink-0 mt-0.5"></i>
-                            <div>
-                                <span class="font-bold text-white block">No Scraping Allowed</span>
-                                <span class="text-slate-400 font-inter text-sm">Database security rules strictly prevent unauthorized access to sensitive fields.</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <!-- Mockup/Visual -->
-                <div class="relative reveal delay-200">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-brand-500/20 to-brand-900 transform rotate-3 rounded-3xl"></div>
-                    <div class="bg-[#111] border border-white/10 p-6 rounded-3xl shadow-2xl relative z-10">
-                        <div class="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
-                            <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center"><i data-lucide="user" class="text-slate-500"></i></div>
-                            <div>
-                                <div class="h-4 w-32 bg-white/10 rounded animate-pulse"></div>
-                                <div class="h-3 w-24 bg-white/5 rounded mt-2"></div>
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center p-4 bg-black/40 rounded-xl border border-white/5">
-                                <div class="flex items-center gap-3 text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i> Email Address</div>
-                                <span class="text-xs font-bold text-brand-500 uppercase tracking-wider bg-brand-500/10 border border-brand-500/20 px-2 py-1 rounded">Hidden</span>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-black/40 rounded-xl border border-white/5">
-                                <div class="flex items-center gap-3 text-slate-400"><i data-lucide="phone" class="w-4 h-4"></i> Phone Number</div>
-                                <span class="text-xs font-bold text-brand-500 uppercase tracking-wider bg-brand-500/10 border border-brand-500/20 px-2 py-1 rounded">Hidden</span>
-                            </div>
-                            <button disabled class="w-full py-3 mt-2 bg-white/5 text-slate-500 rounded-xl font-semibold flex items-center justify-center gap-2 cursor-not-allowed border border-white/5">
-                                <i data-lucide="lock" class="w-4 h-4"></i> Request Access Securely
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -395,10 +353,10 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-brand-950 border-t border-white/10 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+    <footer class="bg-[#0a0a0a] border-t border-white/10 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-3 group">
-                <div class="h-6 w-6">
+                <div class="h-8 w-8">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
@@ -413,14 +371,15 @@
                         <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
                     </svg>
                 </div>
-                <span class="font-bold text-white">WorkHub</span>
+                <span class="font-bold text-white text-xl tracking-tight">WorkHub</span>
             </div>
-            <div class="text-slate-500 font-inter text-sm">
-                &copy; 2026 WorkHub. All rights reserved.
+            <div class="text-slate-500 font-inter text-sm text-center">
+                &copy; 2026 WorkHub. All rights reserved. <br class="sm:hidden"/> 
+                <span class="hidden sm:inline"> | </span> Where Talent Meets Opportunity.
             </div>
             <div class="flex gap-6 text-sm font-semibold text-slate-400">
                 <a href="#" class="hover:text-brand-500 transition">Privacy Policy</a>
-                <a href="#" class="hover:text-brand-500 transition">Terms of Service</a>
+                <a href="#" class="hover:text-brand-500 transition">Terms</a>
             </div>
         </div>
     </footer>
@@ -428,39 +387,39 @@
     <!-- Auth Modal Container -->
     <div id="authModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
         
-        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden relative max-h-[90vh] flex flex-col">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-xl overflow-hidden relative max-h-[90vh] flex flex-col">
             <!-- Modal Header -->
             <div class="px-8 pt-8 pb-6 text-center relative border-b border-white/5 shrink-0">
                 <button onclick="closeAuth()" class="absolute top-6 right-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
-                <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="key" class="w-6 h-6" id="authIcon"></i>
+                <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="key" class="w-7 h-7" id="authIcon"></i>
                 </div>
-                <h2 id="authTitle" class="text-2xl font-bold text-white">Welcome</h2>
+                <h2 id="authTitle" class="text-3xl font-extrabold text-white tracking-tight">Welcome</h2>
                 <p id="authSubtitle" class="text-slate-400 mt-2 font-inter text-sm">Sign in to continue</p>
             </div>
 
-            <!-- Error Banner -->
-            <div id="authError" class="hidden mx-8 mt-6 p-4 bg-red-950/30 text-red-400 rounded-xl text-sm border border-red-900/50 flex items-start gap-3">
-                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                <span id="authErrorMsg" class="font-inter"></span>
+            <!-- Error/Success Banner -->
+            <div id="authAlert" class="hidden mx-8 mt-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all">
+                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" id="authAlertIcon"></i>
+                <span id="authAlertMsg" class="font-inter font-medium leading-relaxed"></span>
             </div>
 
             <!-- Scrollable Form Area -->
-            <div class="p-8 overflow-y-auto flex-1 font-inter custom-scrollbar">
-                <form id="authForm" class="space-y-5" onsubmit="handleAuth(event)">
+            <div class="p-8 overflow-y-auto flex-1 font-inter custom-scrollbar relative">
+                <form id="authForm" class="space-y-6" onsubmit="handleAuth(event)">
                     <!-- Dynamic Fields Injected Here via JS -->
                     <div id="formFields" class="space-y-5"></div>
                     
-                    <button type="submit" id="submitBtn" class="w-full py-4 mt-4 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2 group relative overflow-hidden">
+                    <button type="submit" id="submitBtn" class="w-full py-4 mt-6 bg-brand-500 text-brand-950 rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.25)] flex justify-center items-center gap-2 group relative overflow-hidden">
                         <span id="submitText">Log In</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform text-brand-950" id="submitArrow"></i>
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform text-brand-950" id="submitArrow"></i>
                         <div class="spinner absolute right-4" id="submitLoader"></div>
                     </button>
                 </form>
 
-                <div class="mt-8 text-center text-sm text-slate-400 border-t border-white/5 pt-6" id="authToggle">
+                <div class="mt-8 text-center text-sm text-slate-400 border-t border-white/5 pt-6 leading-loose" id="authToggle">
                     <!-- Toggle injected here -->
                 </div>
             </div>
@@ -471,8 +430,11 @@
     <script type="module">
         lucide.createIcons();
         
+        // Ensure you import sendPasswordResetEmail from the SDK
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, onAuthStateChanged, getDoc } from './firebase.js';
 
+        // Scroll Animations
         const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -482,23 +444,23 @@
                 }
             });
         }, observerOptions);
-
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+        // Navbar Scroll
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 20) {
                 nav.style.background = 'rgba(10, 10, 10, 0.95)';
                 nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
             } else {
-                nav.style.background = 'rgba(10, 10, 10, 0.85)';
+                nav.style.background = 'rgba(10, 10, 10, 0.75)';
                 nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
             }
         });
 
+        // Mobile Menu
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
-        
         mobileMenuBtn.addEventListener('click', () => {
             const isClosed = mobileMenu.classList.contains('translate-x-full');
             if (isClosed) {
@@ -509,13 +471,13 @@
             }
             lucide.createIcons();
         });
-
         window.closeMobileMenu = () => {
             mobileMenu.classList.add('translate-x-full');
             mobileMenuBtn.innerHTML = '<i data-lucide="menu" class="h-6 w-6"></i>';
             lucide.createIcons();
         }
 
+        // Routing
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
@@ -530,13 +492,14 @@
             }
         });
 
+        // Modal Logic
         let currentAuthMode = 'login';
         
         window.openAuth = (mode) => {
             currentAuthMode = mode;
             document.getElementById('authModal').classList.add('active');
             document.body.style.overflow = 'hidden';
-            document.getElementById('authError').classList.add('hidden');
+            hideAlert();
             renderFormFields();
         };
 
@@ -549,9 +512,49 @@
             if (e.target === document.getElementById('authModal')) window.closeAuth();
         });
 
-        // Dark Theme Input Styling
-        const inputClass = "w-full px-4 py-3.5 bg-black border border-white/10 rounded-xl focus:bg-[#1a1a1a] focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all duration-200 font-medium text-white placeholder-slate-600";
+        function showAlert(msg, isSuccess = false) {
+            const alertDiv = document.getElementById('authAlert');
+            const alertIcon = document.getElementById('authAlertIcon');
+            const alertMsg = document.getElementById('authAlertMsg');
+            
+            alertDiv.className = `mx-8 mt-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all ${isSuccess ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50' : 'bg-red-950/30 text-red-400 border-red-900/50'}`;
+            alertIcon.setAttribute('data-lucide', isSuccess ? 'check-circle-2' : 'alert-circle');
+            alertMsg.innerText = msg;
+            alertDiv.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function hideAlert() {
+            document.getElementById('authAlert').classList.add('hidden');
+        }
+
+        // Inputs styling
+        const inputClass = "w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl focus:bg-[#151515] focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all duration-200 font-medium text-white placeholder-slate-600";
         const labelClass = "block text-sm font-bold text-slate-300 mb-1.5";
+
+        window.triggerPasswordReset = async () => {
+            const emailInput = document.getElementById('email');
+            const email = emailInput ? emailInput.value.trim() : '';
+            
+            if (!email) {
+                showAlert("Please enter your email address in the field below to reset your password.");
+                return;
+            }
+            
+            const btn = document.getElementById('forgotPwdBtn');
+            btn.innerText = "Sending..."; btn.disabled = true;
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showAlert("Password reset link sent! Please check your email inbox (and spam folder).", true);
+            } catch (error) {
+                let msg = error.message.replace('Firebase:', '').trim();
+                if(error.code === 'auth/user-not-found') msg = "No account found with this email.";
+                showAlert(msg);
+            } finally {
+                btn.innerText = "Forgot Password?"; btn.disabled = false;
+            }
+        };
 
         function renderFormFields() {
             const fieldsDiv = document.getElementById('formFields');
@@ -564,9 +567,7 @@
             let html = '';
             
             if (currentAuthMode === 'login') {
-                title.innerText = "Welcome Back"; 
-                subtitle.innerText = "Sign in to access your dashboard"; 
-                submitText.innerText = "Log In";
+                title.innerText = "Welcome Back"; subtitle.innerText = "Sign in to access your dashboard"; submitText.innerText = "Secure Log In";
                 icon.setAttribute('data-lucide', 'log-in');
                 
                 html = `
@@ -574,52 +575,72 @@
                         <label class="${labelClass}">Email Address</label>
                         <input type="email" id="email" required placeholder="name@example.com" class="${inputClass}">
                     </div>
-                    <div class="space-y-1">
-                        <label class="${labelClass}">Password</label>
+                    <div class="space-y-1 relative">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="text-sm font-bold text-slate-300 block mb-0">Password</label>
+                            <button type="button" id="forgotPwdBtn" onclick="triggerPasswordReset()" class="text-xs font-bold text-brand-500 hover:text-brand-400 transition-colors">Forgot Password?</button>
+                        </div>
                         <input type="password" id="password" required placeholder="••••••••" class="${inputClass}">
                     </div>
                 `;
-                toggle.innerHTML = `New to WorkHub? <br class="sm:hidden" /> <button type="button" onclick="openAuth('register-employee')" class="text-brand-500 font-bold hover:text-brand-400 transition">Join as Professional</button> <span class="text-slate-600 mx-1">|</span> <button type="button" onclick="openAuth('register-employer')" class="text-brand-500 font-bold hover:text-brand-400 transition">Employer</button>`;
+                toggle.innerHTML = `New to WorkHub?<br class="sm:hidden"/> <button type="button" onclick="openAuth('register-employee')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Join as Professional</button> <span class="text-slate-700 mx-2">|</span> <button type="button" onclick="openAuth('register-employer')" class="text-brand-500 font-bold hover:text-brand-400 transition">Employer Setup</button>`;
             
             } else if (currentAuthMode === 'register-employee') {
-                title.innerText = "Join as Professional"; 
-                subtitle.innerText = "Create your profile to get discovered"; 
-                submitText.innerText = "Continue to Payment";
+                title.innerText = "Join as Professional"; subtitle.innerText = "Create your verified profile to get discovered"; submitText.innerText = "Continue to Verification";
                 icon.setAttribute('data-lucide', 'user-plus');
                 
                 html = `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Full Name</label>
+                            <label class="${labelClass}">Full Legal Name</label>
                             <input type="text" id="fullName" required placeholder="John Doe" class="${inputClass}">
                         </div>
                         <div class="space-y-1">
-                            <label class="${labelClass}">Phone Number</label>
+                            <label class="${labelClass}">Mobile Number</label>
                             <input type="tel" id="phone" required placeholder="+91..." class="${inputClass}">
                         </div>
                         <div class="space-y-1">
-                            <label class="${labelClass}">City</label>
-                            <input type="text" id="city" required placeholder="e.g. Mumbai" class="${inputClass}">
+                            <label class="${labelClass}">Current City</label>
+                            <input type="text" id="city" required placeholder="e.g. Mumbai, Delhi" class="${inputClass}">
                         </div>
+                        
+                        <div class="sm:col-span-2 space-y-1">
+                            <label class="${labelClass}">Highest Qualification</label>
+                            <div class="relative">
+                                <select id="qualification" required class="${inputClass} appearance-none pr-10 cursor-pointer">
+                                    <option value="" disabled selected>Select your qualification...</option>
+                                    <option value="10th Pass (Matriculation)">10th Pass (Matriculation)</option>
+                                    <option value="12th Pass (Intermediate)">12th Pass (Intermediate)</option>
+                                    <option value="Diploma / Certification">Diploma / Certification</option>
+                                    <option value="Bachelor's Degree (UG)">Bachelor's Degree (UG)</option>
+                                    <option value="Master's Degree (PG)">Master's Degree (PG)</option>
+                                    <option value="Doctorate (PhD)">Doctorate (PhD)</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+
                         <div class="sm:col-span-2 space-y-1">
                             <label class="${labelClass}">Top Skills (Comma separated)</label>
-                            <input type="text" id="skills" required placeholder="React, Node.js, Project Management" class="${inputClass}">
+                            <input type="text" id="skills" required placeholder="React, Operations, Design, etc." class="${inputClass}">
                         </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Experience Level</label>
-                            <select id="experience" required class="${inputClass} appearance-none">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Fresher">Fresher (0 years)</option>
-                                <option value="1-3 Years">1-3 Years</option>
-                                <option value="3-5 Years">3-5 Years</option>
-                                <option value="5+ Years">5+ Years</option>
-                            </select>
+                        <div class="sm:col-span-2 space-y-1">
+                            <label class="${labelClass}">Total Experience Level</label>
+                            <div class="relative">
+                                <select id="experience" required class="${inputClass} appearance-none pr-10 cursor-pointer">
+                                    <option value="" disabled selected>Select experience...</option>
+                                    <option value="Fresher">Fresher (0 years)</option>
+                                    <option value="1-3 Years">1 to 3 Years</option>
+                                    <option value="3-5 Years">3 to 5 Years</option>
+                                    <option value="5+ Years">5+ Years</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none"></i>
+                            </div>
                         </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Highest Qualification</label>
-                            <input type="text" id="qualification" required placeholder="B.Tech, MBA, etc." class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 border-t border-white/5 pt-4 mt-2"></div>
+                        
+                        <div class="sm:col-span-2 border-t border-white/5 pt-5 mt-1"></div>
+                        
                         <div class="sm:col-span-2 space-y-1">
                             <label class="${labelClass}">Email Address</label>
                             <input type="email" id="email" required placeholder="name@example.com" class="${inputClass}">
@@ -630,18 +651,16 @@
                         </div>
                     </div>
                 `;
-                toggle.innerHTML = `Already have an account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition">Log In</button>`;
+                toggle.innerHTML = `Already have a professional account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
             
             } else if (currentAuthMode === 'register-employer') {
-                title.innerText = "Hire Top Talent"; 
-                subtitle.innerText = "Set up your free employer account"; 
-                submitText.innerText = "Create Employer Account";
+                title.innerText = "Hire Top Talent"; subtitle.innerText = "Set up your free employer account"; submitText.innerText = "Create Employer Account";
                 icon.setAttribute('data-lucide', 'building');
                 
                 html = `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Company Name</label>
+                            <label class="${labelClass}">Company / Business Name</label>
                             <input type="text" id="companyName" required placeholder="Acme Corp" class="${inputClass}">
                         </div>
                         <div class="sm:col-span-2 space-y-1">
@@ -649,14 +668,14 @@
                             <input type="text" id="fullName" required placeholder="Jane Doe" class="${inputClass}">
                         </div>
                         <div class="space-y-1">
-                            <label class="${labelClass}">Phone Number</label>
+                            <label class="${labelClass}">Business Phone</label>
                             <input type="tel" id="phone" required placeholder="+91..." class="${inputClass}">
                         </div>
                         <div class="space-y-1">
                             <label class="${labelClass}">Industry</label>
-                            <input type="text" id="industry" required placeholder="IT, Healthcare..." class="${inputClass}">
+                            <input type="text" id="industry" required placeholder="IT, Healthcare, Retail..." class="${inputClass}">
                         </div>
-                        <div class="sm:col-span-2 border-t border-white/5 pt-4 mt-2"></div>
+                        <div class="sm:col-span-2 border-t border-white/5 pt-5 mt-1"></div>
                         <div class="sm:col-span-2 space-y-1">
                             <label class="${labelClass}">Work Email</label>
                             <input type="email" id="email" required placeholder="jane@acmecorp.com" class="${inputClass}">
@@ -667,7 +686,7 @@
                         </div>
                     </div>
                 `;
-                toggle.innerHTML = `Already have an account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition">Log In</button>`;
+                toggle.innerHTML = `Already have an employer account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
             }
             fieldsDiv.innerHTML = html;
             lucide.createIcons();
@@ -680,10 +699,8 @@
             const submitText = document.getElementById('submitText');
             const arrow = document.getElementById('submitArrow');
             const loader = document.getElementById('submitLoader');
-            const errorDiv = document.getElementById('authError');
-            const errorMsg = document.getElementById('authErrorMsg');
             
-            errorDiv.classList.add('hidden');
+            hideAlert();
             btn.disabled = true;
             btn.classList.add('opacity-90', 'cursor-not-allowed');
             submitText.classList.add('opacity-0');
@@ -715,7 +732,7 @@
                             city: document.getElementById('city').value.trim(),
                             skills: document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(Boolean),
                             experienceLevel: document.getElementById('experience').value,
-                            qualification: document.getElementById('qualification').value.trim(),
+                            qualification: document.getElementById('qualification').value,
                             createdAt: serverTimestamp()
                         });
                         window.location.href = 'employee.html';
@@ -730,13 +747,11 @@
                     }
                 }
             } catch (error) {
-                let friendlyMsg = error.message;
-                if (error.code === 'auth/email-already-in-use') friendlyMsg = "This email is already registered. Please log in.";
-                if (error.code === 'auth/invalid-credential') friendlyMsg = "Incorrect email or password.";
-                if (error.code === 'auth/weak-password') friendlyMsg = "Password should be at least 6 characters.";
+                let msg = error.message.replace('Firebase:', '').trim();
+                if (error.code === 'auth/email-already-in-use') msg = "This email is already registered. Please log in.";
+                if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password. Please try again.";
                 
-                errorMsg.innerText = friendlyMsg.replace('Firebase:', '').trim();
-                errorDiv.classList.remove('hidden');
+                showAlert(msg);
                 
                 btn.disabled = false;
                 btn.classList.remove('opacity-90', 'cursor-not-allowed');
