@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WorkHub | Where Talent Meets Opportunity</title>
     
-    <!-- Fonts -->
+    <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tailwind Config for Custom Colors (Black & Gold Theme) -->
+    <!-- Tailwind Config for Black & Gold Premium Theme -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,39 +24,26 @@
                     },
                     colors: {
                         brand: {
-                            50: '#fffdf5', 100: '#fff8e1', 200: '#ffebb8', 300: '#ffd67a',
-                            400: '#ffc142', 500: '#eab308', /* Primary Gold */
-                            600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a',
+                            500: '#eab308', /* Primary Gold */
+                            600: '#ca8a04', 
+                            800: '#1a1a1a', 
+                            900: '#111111', 
+                            950: '#0a0a0a',
                         }
                     },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'glow': 'glow 3s ease-in-out infinite alternate',
                         'marquee': 'marquee 30s linear infinite',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(40px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
                         glow: {
                             '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
-                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                            '100%': { filter: 'drop-shadow(0 0 20px rgba(234, 179, 8, 0.8))' }
                         },
                         marquee: {
-                            '0%': { transform: 'translateX(0%)' },
-                            '100%': { transform: 'translateX(-100%)' }
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' } /* Translates exactly half the width for a seamless loop */
                         }
                     }
                 }
@@ -68,47 +55,59 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { -webkit-font-smoothing: antialiased; background-color: #0a0a0a; }
+        body { 
+            -webkit-font-smoothing: antialiased; 
+            background-color: #050505; 
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
 
-        /* Glassmorphism */
-        .glass-nav { background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        /* Glassmorphism Navigation */
+        .glass-nav { 
+            background: rgba(5, 5, 5, 0.7); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+        }
 
-        .hero-gradient { background: radial-gradient(circle at top right, rgba(234, 179, 8, 0.15) 0%, transparent 50%), radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.03) 0%, transparent 40%); }
+        /* Hero Background Grid & Gradients */
+        .hero-bg {
+            background-image: 
+                radial-gradient(circle at 80% -20%, rgba(234, 179, 8, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 20% 120%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            background-position: center;
+        }
 
-        /* Marquee Mask */
-        .mask-marquee { -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        /* Marquee Fading Edges */
+        .mask-marquee { 
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); 
+            mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); 
+        }
 
-        /* Modal Animations */
-        .modal-overlay { opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* Bulletproof Modal Transitions */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(10px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
 
-        /* Custom Scrollbar for Modal */
+        /* Custom Scrollbars */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(234,179,8,0.5); }
 
-        /* Intersection Observer Animations */
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* Scroll Reveal Utility */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 20px; height: 20px; border: 2px solid rgba(10,10,10,0.3); border-radius: 50%;
-            border-top-color: #0a0a0a; animation: spin 0.8s linear infinite; display: none;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Select Input Styling */
-        select option { background-color: #111; color: #fff; padding: 10px; }
+        
+        /* Select Form Styling Fix for Dark Mode */
+        select option { background-color: #111; color: #fff; }
     </style>
 </head>
-<body class="text-slate-200 relative overflow-x-hidden">
+<body class="relative">
 
     <!-- Navigation -->
     <nav class="glass-nav fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
@@ -139,14 +138,13 @@
                 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#how-it-works" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">How It Works</a>
-                    <a href="#advantage" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">The Advantage</a>
-                    <a href="#trust" class="text-sm font-semibold text-slate-300 hover:text-brand-500 transition-colors">Security</a>
+                    <a href="#how-it-works" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">How It Works</a>
+                    <a href="#advantage" class="text-sm font-bold text-slate-400 hover:text-white transition-colors">The Advantage</a>
                     
-                    <div class="h-6 w-px bg-white/10"></div>
+                    <div class="h-5 w-px bg-white/10"></div>
                     
-                    <button onclick="openAuth('login')" class="text-sm font-semibold text-white hover:text-brand-500 transition-colors">Log In</button>
-                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_25px_rgba(234,179,8,0.4)] hover:-translate-y-0.5">Join Network</button>
+                    <button onclick="openAuth('login')" class="text-sm font-bold text-white hover:text-brand-500 transition-colors">Log In</button>
+                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] hover:-translate-y-0.5">Join Network</button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -158,24 +156,21 @@
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobileMenu" class="fixed inset-0 z-40 bg-brand-950 transform translate-x-full transition-transform duration-300 md:hidden pt-24 px-6 border-l border-white/5">
+    <div id="mobileMenu" class="fixed inset-0 z-40 bg-[#050505] transform translate-x-full transition-transform duration-300 md:hidden pt-24 px-6 border-l border-white/5">
         <div class="flex flex-col space-y-6 text-lg font-semibold">
             <a href="#how-it-works" class="text-white" onclick="closeMobileMenu()">How It Works</a>
             <a href="#advantage" class="text-white" onclick="closeMobileMenu()">The Advantage</a>
             <button onclick="openAuth('login'); closeMobileMenu();" class="text-left text-brand-500">Log In</button>
-            <button onclick="openAuth('register-employee'); closeMobileMenu();" class="w-full py-4 bg-brand-500 text-brand-950 font-bold rounded-xl text-center">Join Network</button>
+            <button onclick="openAuth('register-employee'); closeMobileMenu();" class="w-full py-4 bg-brand-500 text-black font-extrabold rounded-xl text-center">Join Network</button>
         </div>
     </div>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden hero-gradient min-h-[90vh] flex flex-col justify-center">
-        <!-- Abstract Background Shapes -->
-        <div class="absolute top-1/4 left-10 w-96 h-96 bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-60 animate-pulse-slow"></div>
-        <div class="absolute bottom-1/4 right-10 w-96 h-96 bg-white/5 rounded-full mix-blend-screen filter blur-[120px] opacity-60 animate-pulse-slow" style="animation-delay: 2s;"></div>
-
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 overflow-hidden hero-bg min-h-[95vh] flex flex-col justify-center">
+        
         <div class="max-w-7xl mx-auto relative z-10 text-center">
-            <!-- Badge -->
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-medium text-sm mb-8 animate-slide-up backdrop-blur-sm shadow-lg">
+            <!-- Trust Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-bold text-xs uppercase tracking-widest mb-8 reveal backdrop-blur-sm">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
@@ -184,97 +179,109 @@
             </div>
 
             <!-- Headline -->
-            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1] animate-slide-up delay-100">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1] reveal" style="transition-delay: 100ms;">
                 The premium network for <br class="hidden md:block" />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-500 to-brand-600">verified talent.</span>
             </h1>
             
             <!-- Subheadline -->
-            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-inter leading-relaxed animate-slide-up delay-200">
-                WorkHub connects forward-thinking companies with thoroughly vetted professionals. 
-                Privacy-first, rigorously verified, and designed for serious career growth.
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto font-inter leading-relaxed reveal" style="transition-delay: 200ms;">
+                WorkHub connects industry-leading companies with rigorously vetted professionals. 
+                Privacy-first, manually verified, and engineered for serious career growth.
             </p>
             
             <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 animate-slide-up delay-300">
-                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-brand-950 bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.25)] hover:shadow-[0_0_35px_rgba(234,179,8,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2 group">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal" style="transition-delay: 300ms;">
+                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-base font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:shadow-[0_0_40px_rgba(234,179,8,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2 group">
                     Join as Professional
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
                 <button onclick="openAuth('register-employer')" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-white bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1">
-                    Hire Talent <span class="text-slate-400 font-normal ml-1">— Free Setup</span>
+                    Hire Talent <span class="text-slate-500 font-medium ml-1">— Free Setup</span>
                 </button>
             </div>
             
-            <!-- Infinite Marquee (Trusted By) -->
-            <div class="mt-24 pt-10 border-t border-white/5 max-w-5xl mx-auto animate-slide-up delay-300 opacity-70">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Trusted by innovative companies</p>
-                <div class="overflow-hidden whitespace-nowrap relative w-full mask-marquee">
-                    <div class="animate-marquee inline-block flex items-center gap-16 pr-16">
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="triangle" class="w-6 h-6"></i> Vertex</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="hexagon" class="w-6 h-6"></i> Nexus</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="circle-dashed" class="w-6 h-6"></i> OmniCorp</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="box" class="w-6 h-6"></i> BlockTech</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="wind" class="w-6 h-6"></i> Aether</span>
-                    </div>
-                    <div class="animate-marquee inline-block flex items-center gap-16 pr-16" aria-hidden="true">
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="triangle" class="w-6 h-6"></i> Vertex</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="hexagon" class="w-6 h-6"></i> Nexus</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="circle-dashed" class="w-6 h-6"></i> OmniCorp</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="box" class="w-6 h-6"></i> BlockTech</span>
-                        <span class="text-2xl font-bold text-slate-600 flex items-center gap-2"><i data-lucide="wind" class="w-6 h-6"></i> Aether</span>
+            <!-- Infinite Marquee: Real Industry Leaders -->
+            <div class="mt-28 pt-10 border-t border-white/5 max-w-5xl mx-auto reveal" style="transition-delay: 400ms;">
+                <p class="text-[0.65rem] font-bold text-slate-500 uppercase tracking-[0.2em] mb-8">Professionals hired by industry leaders</p>
+                
+                <div class="relative w-full overflow-hidden mask-marquee flex">
+                    <!-- The container that moves. Width is 200% to hold two identical sets -->
+                    <div class="flex w-[200%] animate-marquee items-center justify-around">
+                        <!-- SET 1 -->
+                        <div class="flex-1 flex justify-around items-center">
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
+                        </div>
+                        <!-- SET 2 (Duplicate for seamless loop) -->
+                        <div class="flex-1 flex justify-around items-center">
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
+                            <span class="text-2xl md:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- NEW SECTION: The Advantage -->
+    <!-- The Advantage Section -->
     <section id="advantage" class="py-24 bg-[#0a0a0a] relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16 reveal">
-                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-sm mb-3">Why WorkHub</h2>
-                <h3 class="text-3xl md:text-4xl font-bold text-white">The Premium Standard</h3>
+                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-3">The WorkHub Advantage</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-white">The Premium Standard</h3>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-100">
-                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="shield" class="w-7 h-7"></i>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-[#151515] transition-all duration-500 group reveal">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-black transition-all">
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
                     </div>
                     <h4 class="text-xl font-bold text-white mb-3">Absolute Privacy</h4>
-                    <p class="text-slate-400 font-inter leading-relaxed">We never expose your email or phone number publicly. Employers must request access securely.</p>
+                    <p class="text-slate-400 font-inter text-sm leading-relaxed">We never expose your email or phone number publicly. Employers must securely request access through our Verification Team.</p>
                 </div>
-                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-200">
-                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <!-- Card 2 -->
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-[#151515] transition-all duration-500 group reveal" style="transition-delay: 100ms;">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-black transition-all">
                         <i data-lucide="check-square" class="w-7 h-7"></i>
                     </div>
                     <h4 class="text-xl font-bold text-white mb-3">Zero Spam</h4>
-                    <p class="text-slate-400 font-inter leading-relaxed">Our nominal verification fee ensures only serious professionals join, giving you higher visibility.</p>
+                    <p class="text-slate-400 font-inter text-sm leading-relaxed">Our mandatory verification barrier ensures only serious, high-intent professionals join the network, giving you higher visibility.</p>
                 </div>
-                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-white/5 transition-all duration-500 group reveal delay-300">
-                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <!-- Card 3 -->
+                <div class="bg-[#111] border border-white/5 p-8 rounded-3xl hover:border-brand-500/30 hover:bg-[#151515] transition-all duration-500 group reveal" style="transition-delay: 200ms;">
+                    <div class="w-14 h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-black transition-all">
                         <i data-lucide="zap" class="w-7 h-7"></i>
                     </div>
                     <h4 class="text-xl font-bold text-white mb-3">Direct Placement</h4>
-                    <p class="text-slate-400 font-inter leading-relaxed">Once verified, our internal coordination team actively matches you with high-intent employers.</p>
+                    <p class="text-slate-400 font-inter text-sm leading-relaxed">Once verified, our internal coordination team actively matches your profile with hiring partners looking for your exact skills.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How it Works Section -->
-    <section id="how-it-works" class="py-24 bg-[#111] relative border-y border-white/5">
+    <!-- Workflow Section -->
+    <section id="how-it-works" class="py-24 bg-[#050505] relative border-y border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-20 reveal">
-                <h2 class="text-brand-500 font-bold tracking-wide uppercase text-sm mb-3">Workflow</h2>
-                <h3 class="text-3xl md:text-4xl font-bold text-white">Engineered for Trust</h3>
-                <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto font-inter">A transparent process that protects candidate privacy while giving employers access to high-intent talent.</p>
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-3">Clear Process</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-white">Engineered for Trust</h3>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-12 lg:gap-16">
-                <!-- Employee Flow Card -->
-                <div class="bg-[#0a0a0a] rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal delay-100 shadow-2xl">
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+                <!-- Professional Flow -->
+                <div class="bg-[#111] rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal shadow-2xl">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-700 text-brand-500">
                         <i data-lucide="user-check" class="w-48 h-48"></i>
                     </div>
@@ -283,36 +290,36 @@
                         <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-500/10 rounded-xl border border-brand-500/20 text-brand-500 mb-8">
                             <i data-lucide="user" class="w-6 h-6"></i>
                         </div>
-                        <h4 class="text-2xl font-bold text-white mb-8">For Professionals</h4>
+                        <h4 class="text-2xl font-extrabold text-white mb-8">For Professionals</h4>
                         
-                        <div class="space-y-8">
+                        <div class="space-y-6">
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">1</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-sm">1</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Create Profile</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Register and showcase your skills and qualification.</p>
+                                    <p class="text-base font-bold text-white">Create Profile</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Register and showcase your verified skills.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">2</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-sm">2</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Verification Fee (₹99)</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Submit the fee and UTR for platform verification.</p>
+                                    <p class="text-base font-bold text-white">Platform Verification (₹99)</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Submit the one-time fee to prove high intent.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center font-bold text-sm">3</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-sm">3</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Secure Connections</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Your contact details are strictly hidden until platform approval.</p>
+                                    <p class="text-base font-bold text-white">Secure Connections</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Your contact details are unlocked only upon approval.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Employer Flow Card -->
-                <div class="bg-[#151515] rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal delay-200 shadow-2xl">
+                <!-- Employer Flow -->
+                <div class="bg-[#111] rounded-3xl p-8 lg:p-10 border border-white/5 relative overflow-hidden group hover:border-brand-500/30 transition-all duration-500 reveal shadow-2xl" style="transition-delay: 100ms;">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-700 text-white">
                         <i data-lucide="building-2" class="w-48 h-48"></i>
                     </div>
@@ -321,28 +328,28 @@
                         <div class="inline-flex items-center justify-center w-12 h-12 bg-white/5 rounded-xl border border-white/10 text-white mb-8">
                             <i data-lucide="building" class="w-6 h-6"></i>
                         </div>
-                        <h4 class="text-2xl font-bold text-white mb-8">For Employers</h4>
+                        <h4 class="text-2xl font-extrabold text-white mb-8">For Employers</h4>
                         
-                        <div class="space-y-8">
+                        <div class="space-y-6">
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">1</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">1</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Free Registration</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Create your company account instantly.</p>
+                                    <p class="text-base font-bold text-white">Free Registration</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Set up your company account instantly.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">2</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">2</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Browse Verified Talent</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Search the directory of 100% verified candidates.</p>
+                                    <p class="text-base font-bold text-white">Browse Verified Talent</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Search a directory of 100% verified candidates.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">3</div>
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-sm">3</div>
                                 <div>
-                                    <p class="text-lg font-bold text-white">Request Access</p>
-                                    <p class="text-slate-400 mt-1 font-inter">Request contact details securely via the platform.</p>
+                                    <p class="text-base font-bold text-white">Request Access</p>
+                                    <p class="text-slate-400 text-sm mt-1 font-inter">Request contact details securely via the platform.</p>
                                 </div>
                             </div>
                         </div>
@@ -353,16 +360,13 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#0a0a0a] border-t border-white/10 py-12">
+    <footer class="bg-[#050505] border-t border-white/5 py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-3 group">
-                <div class="h-8 w-8">
+            <div class="flex items-center gap-3">
+                <div class="h-6 w-6">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
-                        <line x1="73" y1="12" x2="73" y2="4" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="56" y1="18" x2="50" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
-                        <line x1="90" y1="18" x2="96" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
                         <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                         <circle cx="35" cy="52" r="5" fill="#ffffff"/>
                         <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -371,25 +375,27 @@
                         <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
                     </svg>
                 </div>
-                <span class="font-bold text-white text-xl tracking-tight">WorkHub</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">WorkHub</span>
             </div>
-            <div class="text-slate-500 font-inter text-sm text-center">
-                &copy; 2026 WorkHub. All rights reserved. <br class="sm:hidden"/> 
-                <span class="hidden sm:inline"> | </span> Where Talent Meets Opportunity.
+            <div class="text-slate-500 font-inter text-xs text-center font-medium">
+                &copy; 2026 WorkHub. All rights reserved. <span class="hidden sm:inline"> | </span> <br class="sm:hidden"/> Where Talent Meets Opportunity.
             </div>
-            <div class="flex gap-6 text-sm font-semibold text-slate-400">
+            <div class="flex gap-6 text-xs font-bold text-slate-400">
                 <a href="#" class="hover:text-brand-500 transition">Privacy Policy</a>
                 <a href="#" class="hover:text-brand-500 transition">Terms</a>
             </div>
         </div>
     </footer>
 
-    <!-- Auth Modal Container -->
+    <!-- Auth Modal Overlay -->
+    <!-- Important: The overlay is fixed, the inner container manages scrolling so the header stays sticky -->
     <div id="authModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
         
-        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-xl overflow-hidden relative max-h-[90vh] flex flex-col">
-            <!-- Modal Header -->
-            <div class="px-8 pt-8 pb-6 text-center relative border-b border-white/5 shrink-0">
+        <!-- Modal Content Container -->
+        <div class="modal-content bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-xl flex flex-col max-h-[90vh]">
+            
+            <!-- Sticky Modal Header -->
+            <div class="px-8 pt-8 pb-6 text-center relative border-b border-white/5 flex-shrink-0 bg-[#0a0a0a] rounded-t-3xl z-10">
                 <button onclick="closeAuth()" class="absolute top-6 right-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -400,27 +406,28 @@
                 <p id="authSubtitle" class="text-slate-400 mt-2 font-inter text-sm">Sign in to continue</p>
             </div>
 
-            <!-- Error/Success Banner -->
-            <div id="authAlert" class="hidden mx-8 mt-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all">
-                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" id="authAlertIcon"></i>
-                <span id="authAlertMsg" class="font-inter font-medium leading-relaxed"></span>
-            </div>
+            <!-- Scrollable Form Body -->
+            <div class="p-8 overflow-y-auto custom-scrollbar flex-1 relative bg-[#0a0a0a] rounded-b-3xl">
+                
+                <!-- Alert Banner -->
+                <div id="authAlert" class="hidden mb-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" id="authAlertIcon"></i>
+                    <span id="authAlertMsg" class="font-inter font-medium leading-relaxed"></span>
+                </div>
 
-            <!-- Scrollable Form Area -->
-            <div class="p-8 overflow-y-auto flex-1 font-inter custom-scrollbar relative">
                 <form id="authForm" class="space-y-6" onsubmit="handleAuth(event)">
-                    <!-- Dynamic Fields Injected Here via JS -->
+                    <!-- Dynamic Fields Injected Here -->
                     <div id="formFields" class="space-y-5"></div>
                     
-                    <button type="submit" id="submitBtn" class="w-full py-4 mt-6 bg-brand-500 text-brand-950 rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.25)] flex justify-center items-center gap-2 group relative overflow-hidden">
+                    <button type="submit" id="submitBtn" class="w-full py-4 mt-6 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2 group relative overflow-hidden">
                         <span id="submitText">Log In</span>
-                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform text-brand-950" id="submitArrow"></i>
-                        <div class="spinner absolute right-4" id="submitLoader"></div>
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform text-black" id="submitArrow"></i>
+                        <svg class="spinner absolute right-4 w-5 h-5 border-black/30 border-t-black" id="submitLoader" viewBox="0 0 24 24"></svg>
                     </button>
                 </form>
 
                 <div class="mt-8 text-center text-sm text-slate-400 border-t border-white/5 pt-6 leading-loose" id="authToggle">
-                    <!-- Toggle injected here -->
+                    <!-- Toggle injected via JS -->
                 </div>
             </div>
         </div>
@@ -430,11 +437,11 @@
     <script type="module">
         lucide.createIcons();
         
-        // Ensure you import sendPasswordResetEmail from the SDK
+        // Import Auth functions including Password Reset
         import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, onAuthStateChanged, getDoc } from './firebase.js';
 
-        // Scroll Animations
+        // Scroll Animations (Intersection Observer)
         const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -446,19 +453,19 @@
         }, observerOptions);
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // Navbar Scroll
+        // Navbar Sticky Scroll
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 20) {
-                nav.style.background = 'rgba(10, 10, 10, 0.95)';
+                nav.style.background = 'rgba(5, 5, 5, 0.95)';
                 nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
             } else {
-                nav.style.background = 'rgba(10, 10, 10, 0.75)';
+                nav.style.background = 'rgba(5, 5, 5, 0.7)';
                 nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
             }
         });
 
-        // Mobile Menu
+        // Mobile Menu Logic
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         mobileMenuBtn.addEventListener('click', () => {
@@ -477,7 +484,7 @@
             lucide.createIcons();
         }
 
-        // Routing
+        // Authentication State Routing
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
@@ -492,7 +499,7 @@
             }
         });
 
-        // Modal Logic
+        // Modal UI Logic
         let currentAuthMode = 'login';
         
         window.openAuth = (mode) => {
@@ -508,16 +515,18 @@
             document.body.style.overflow = '';
         };
 
+        // Click outside to close
         document.getElementById('authModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('authModal')) window.closeAuth();
         });
 
+        // Alert Helper Functions
         function showAlert(msg, isSuccess = false) {
             const alertDiv = document.getElementById('authAlert');
             const alertIcon = document.getElementById('authAlertIcon');
             const alertMsg = document.getElementById('authAlertMsg');
             
-            alertDiv.className = `mx-8 mt-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all ${isSuccess ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50' : 'bg-red-950/30 text-red-400 border-red-900/50'}`;
+            alertDiv.className = `mb-6 p-4 rounded-xl text-sm border flex items-start gap-3 transition-all ${isSuccess ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50' : 'bg-red-950/30 text-red-400 border-red-900/50'}`;
             alertIcon.setAttribute('data-lucide', isSuccess ? 'check-circle-2' : 'alert-circle');
             alertMsg.innerText = msg;
             alertDiv.classList.remove('hidden');
@@ -528,10 +537,11 @@
             document.getElementById('authAlert').classList.add('hidden');
         }
 
-        // Inputs styling
-        const inputClass = "w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl focus:bg-[#151515] focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all duration-200 font-medium text-white placeholder-slate-600";
+        // Shared Input Styling
+        const inputClass = "w-full px-4 py-3.5 bg-[#111] border border-white/10 rounded-xl focus:bg-[#1a1a1a] focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all duration-200 font-medium text-white placeholder-slate-600";
         const labelClass = "block text-sm font-bold text-slate-300 mb-1.5";
 
+        // Forgot Password Flow
         window.triggerPasswordReset = async () => {
             const emailInput = document.getElementById('email');
             const email = emailInput ? emailInput.value.trim() : '';
@@ -549,13 +559,16 @@
                 showAlert("Password reset link sent! Please check your email inbox (and spam folder).", true);
             } catch (error) {
                 let msg = error.message.replace('Firebase:', '').trim();
-                if(error.code === 'auth/user-not-found') msg = "No account found with this email.";
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
+                    msg = "No account found with this email.";
+                }
                 showAlert(msg);
             } finally {
                 btn.innerText = "Forgot Password?"; btn.disabled = false;
             }
         };
 
+        // Form Builder
         function renderFormFields() {
             const fieldsDiv = document.getElementById('formFields');
             const title = document.getElementById('authTitle');
@@ -692,6 +705,7 @@
             lucide.createIcons();
         }
 
+        // Submission Handler
         window.handleAuth = async (e) => {
             e.preventDefault();
             
@@ -750,6 +764,7 @@
                 let msg = error.message.replace('Firebase:', '').trim();
                 if (error.code === 'auth/email-already-in-use') msg = "This email is already registered. Please log in.";
                 if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password. Please try again.";
+                if (error.code === 'auth/weak-password') msg = "Password must be at least 6 characters long.";
                 
                 showAlert(msg);
                 
