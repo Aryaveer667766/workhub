@@ -4,191 +4,431 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employer Dashboard | WorkHub</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }</style>
-</head>
-<body class="text-slate-900 antialiased h-screen flex overflow-hidden">
+    
+    <!-- Tailwind Config for Custom Colors (Black & Gold Theme) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fffdf5', 100: '#fff8e1', 200: '#ffebb8', 300: '#ffd67a',
+                            400: '#ffc142', 500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a',
+                            900: '#111111', 950: '#0a0a0a',
+                        }
+                    },
+                    animation: {
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
+                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-    <aside class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col">
-        <div class="h-20 flex items-center px-6 border-b border-slate-800"><i data-lucide="building-2" class="h-6 w-6 text-indigo-400 mr-2"></i><span class="text-xl font-bold text-white tracking-tight">WorkHub</span></div>
-        <div class="p-4 flex-1">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            background-color: #0a0a0a;
+        }
+        
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="text-slate-200 h-screen flex overflow-hidden font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-[#111] border-r border-white/5 flex-shrink-0 hidden md:flex flex-col z-20 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-20 flex items-center px-6 border-b border-white/5 bg-[#0a0a0a]">
+            <!-- Exact Logo SVG -->
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                        <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
+                        <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
+                        <line x1="73" y1="12" x2="73" y2="4" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="56" y1="18" x2="50" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="90" y1="18" x2="96" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="35" cy="52" r="5" fill="#ffffff"/>
+                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-tight text-white leading-tight uppercase">WorkHub</span>
+                    <span class="text-[0.65rem] font-bold text-brand-500 tracking-widest uppercase">Employer Portal</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 flex-1 mt-2">
             <nav class="space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-indigo-500/10 text-indigo-400 rounded-xl font-medium"><i data-lucide="users" class="w-5 h-5"></i> Talent Directory</a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl font-medium transition" onclick="toggleView('requests')"><i data-lucide="inbox" class="w-5 h-5"></i> My Requests</a>
+                <button onclick="switchTab('directory')" id="nav-directory" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-semibold transition-all">
+                    <i data-lucide="users" class="w-5 h-5"></i> Talent Directory
+                </button>
+                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-all border border-transparent">
+                    <i data-lucide="inbox" class="w-5 h-5"></i> My Access Requests
+                </button>
             </nav>
         </div>
-        <div class="p-4 border-t border-slate-800">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition"><i data-lucide="log-out" class="w-5 h-5"></i> Log Out</button>
+        
+        <div class="p-4 border-t border-white/5 bg-[#0a0a0a]">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-all">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Secure Logout
+            </button>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto" id="mainContent" style="display: none;">
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center px-8 justify-between sticky top-0 z-10">
-            <h1 class="text-xl font-semibold text-slate-800" id="pageTitle">Talent Directory</h1>
-            <div class="font-medium text-slate-900 bg-slate-100 px-4 py-2 rounded-lg text-sm" id="companyNameLabel">Loading...</div>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative bg-[#0a0a0a]" id="mainContent" style="display: none;">
+        
+        <!-- Abstract Glow Background -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-20 pointer-events-none"></div>
+
+        <header class="h-20 glass-panel flex items-center px-8 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-md shadow-black">
+            <h1 class="text-xl font-bold text-white flex items-center gap-3" id="headerTitle">
+                <i data-lucide="users" class="w-5 h-5 text-brand-500"></i> Talent Directory
+            </h1>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm font-bold text-white" id="companyNameLabel">Loading...</p>
+                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">Hiring Partner</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center font-bold text-brand-500 shadow-lg shadow-brand-500/10">
+                    <i data-lucide="building" class="w-5 h-5"></i>
+                </div>
+            </div>
         </header>
 
-        <!-- Directory View -->
-        <div id="directoryView" class="p-8 max-w-6xl mx-auto">
-            <div class="flex gap-4 mb-8">
-                <input type="text" id="searchCity" placeholder="Filter by City..." class="px-4 py-2 border border-slate-300 rounded-lg outline-none focus:border-indigo-500 flex-1">
-                <select id="searchExp" class="px-4 py-2 border border-slate-300 rounded-lg outline-none bg-white w-48">
-                    <option value="">Any Experience</option><option value="Fresher">Fresher</option><option value="1-3 Years">1-3 Years</option><option value="3-5 Years">3-5 Years</option><option value="5+ Years">5+ Years</option>
-                </select>
-                <button onclick="loadDirectory()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700">Filter</button>
-            </div>
-            
-            <div id="employeeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Cards injected here -->
-            </div>
-        </div>
+        <div class="p-6 md:p-8 max-w-7xl mx-auto relative z-10">
 
-        <!-- Requests View -->
-        <div id="requestsView" class="p-8 max-w-5xl mx-auto" style="display: none;">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600">
-                        <tr><th class="p-4">Candidate</th><th class="p-4">Status</th><th class="p-4">Contact Details (If Approved)</th></tr>
-                    </thead>
-                    <tbody id="requestsTableBody" class="divide-y divide-slate-100"></tbody>
-                </table>
+            <!-- ================= DIRECTORY TAB ================= -->
+            <div id="directoryTab" class="animate-slide-up">
+                
+                <!-- Search & Filters -->
+                <div class="bg-[#111] p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-4 mb-8 shadow-xl">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                        <input type="text" id="searchKeyword" placeholder="Search by skills or name..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
+                    </div>
+                    <div class="flex gap-4 w-full md:w-auto">
+                        <select id="searchCity" class="flex-1 md:w-48 bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none">
+                            <option value="">Any City</option>
+                            <!-- Dynamically populated -->
+                        </select>
+                        <select id="searchExp" class="flex-1 md:w-48 bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none">
+                            <option value="">Any Experience</option>
+                            <option value="Fresher">Fresher (0 years)</option>
+                            <option value="1-3 Years">1-3 Years</option>
+                            <option value="3-5 Years">3-5 Years</option>
+                            <option value="5+ Years">5+ Years</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Employee Grid -->
+                <div id="employeeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards injected via JS -->
+                </div>
             </div>
+
+            <!-- ================= REQUESTS TAB ================= -->
+            <div id="requestsTab" class="hidden animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="p-6 border-b border-white/5 bg-[#1a1a1a]">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="unlock" class="w-5 h-5 text-brand-500"></i> Unlocked Candidates
+                        </h2>
+                        <p class="text-sm text-slate-400 font-inter mt-1">Candidates you have requested to contact, reviewed by the Verification Team.</p>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                            <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                                <tr>
+                                    <th class="p-5">Candidate Name</th>
+                                    <th class="p-5">Review Status</th>
+                                    <th class="p-5">Secure Contact Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTableBody" class="divide-y divide-white/5">
+                                <!-- Requests injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
+    <!-- Scripts -->
     <script type="module">
         lucide.createIcons();
         import { auth, db, doc, getDoc, collection, getDocs, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
 
         let currentUser = null;
-        let requestedUids = new Set();
+        let requestedUids = new Set(); // To keep track of who we already requested
+        let allProfiles = []; // Cache for filtering
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
+            
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists() || userDoc.data().role !== 'employer') {
-                await signOut(auth); window.location.href = 'index.html'; return;
+                await signOut(auth); 
+                window.location.href = 'index.html'; 
+                return;
             }
             
             currentUser = user;
             const employerDoc = await getDoc(doc(db, "employerProfiles", user.uid));
-            document.getElementById('companyNameLabel').innerText = employerDoc.data().companyName;
+            if(employerDoc.exists()) {
+                document.getElementById('companyNameLabel').innerText = employerDoc.data().companyName;
+            }
             document.getElementById('mainContent').style.display = 'block';
 
-            // Listen to employer's requests to disable duplicate buttons
+            // Real-time listener on employer's own contact requests
             const q = query(collection(db, "contactRequests"), where("employerUid", "==", user.uid));
             onSnapshot(q, (snap) => {
                 requestedUids.clear();
-                snap.forEach(doc => requestedUids.add(doc.data().employeeUid));
-                loadDirectory(); // Reload directory to update button states
-                loadRequests();  // Update requests table
+                snap.forEach(d => requestedUids.add(d.data().employeeUid));
+                loadRequests(); // Update Requests Tab
+                renderDirectory(); // Update button states in Directory Tab
             });
+
+            // Initial fetch of directory
+            fetchDirectory();
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            signOut(auth).then(() => window.location.href = 'index.html'); 
+        });
 
-        window.toggleView = (view) => {
-            if (view === 'requests') {
-                document.getElementById('directoryView').style.display = 'none';
-                document.getElementById('requestsView').style.display = 'block';
-                document.getElementById('pageTitle').innerText = 'My Contact Requests';
+        // ================= TAB SWITCHING =================
+        window.switchTab = (tab) => {
+            const btnD = document.getElementById('nav-directory');
+            const btnR = document.getElementById('nav-requests');
+            const iconHTML = tab === 'directory' 
+                ? '<i data-lucide="users" class="w-5 h-5 text-brand-500"></i> Talent Directory' 
+                : '<i data-lucide="inbox" class="w-5 h-5 text-brand-500"></i> My Access Requests';
+            
+            document.getElementById('headerTitle').innerHTML = iconHTML;
+            lucide.createIcons();
+
+            document.getElementById('directoryTab').style.display = tab === 'directory' ? 'block' : 'none';
+            document.getElementById('requestsTab').style.display = tab === 'requests' ? 'block' : 'none';
+            
+            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
+            const inactiveClass = ['text-slate-400', 'border-transparent'];
+            
+            if (tab === 'directory') {
+                btnD.classList.add(...activeClass); btnD.classList.remove(...inactiveClass);
+                btnR.classList.add(...inactiveClass); btnR.classList.remove(...activeClass);
             } else {
-                document.getElementById('requestsView').style.display = 'none';
-                document.getElementById('directoryView').style.display = 'block';
-                document.getElementById('pageTitle').innerText = 'Talent Directory';
+                btnR.classList.add(...activeClass); btnR.classList.remove(...inactiveClass);
+                btnD.classList.add(...inactiveClass); btnD.classList.remove(...activeClass);
             }
         };
 
-        window.loadDirectory = async () => {
-            const cityF = document.getElementById('searchCity').value.toLowerCase();
+        // ================= DIRECTORY LOGIC =================
+        async function fetchDirectory() {
+            const snap = await getDocs(collection(db, "employeeProfiles"));
+            allProfiles = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // Populate City Filter dynamically based on available users
+            const cities = [...new Set(allProfiles.map(p => p.city))].filter(Boolean).sort();
+            const citySelect = document.getElementById('searchCity');
+            cities.forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city; opt.textContent = city;
+                citySelect.appendChild(opt);
+            });
+
+            renderDirectory();
+        }
+
+        function renderDirectory() {
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+            const cityF = document.getElementById('searchCity').value;
             const expF = document.getElementById('searchExp').value;
             
-            const snap = await getDocs(collection(db, "employeeProfiles"));
             const grid = document.getElementById('employeeGrid');
             grid.innerHTML = '';
             
-            snap.forEach(docSnap => {
-                const data = docSnap.data();
-                if(cityF && !data.city.toLowerCase().includes(cityF)) return;
-                if(expF && data.experienceLevel !== expF) return;
+            const filtered = allProfiles.filter(p => {
+                const matchKeyword = p.fullName?.toLowerCase().includes(keyword) || (p.skills && p.skills.join(' ').toLowerCase().includes(keyword));
+                const matchCity = !cityF || p.city === cityF;
+                const matchExp = !expF || p.experienceLevel === expF;
+                return matchKeyword && matchCity && matchExp;
+            });
 
-                const hasRequested = requestedUids.has(docSnap.id);
-                const btnHtml = hasRequested 
-                    ? `<button disabled class="w-full py-2 mt-4 bg-slate-100 text-slate-500 rounded-lg font-medium cursor-not-allowed">Request Pending/Approved</button>`
-                    : `<button onclick="requestContact('${docSnap.id}')" class="w-full py-2 mt-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-100 rounded-lg font-medium transition">Request Contact Details</button>`;
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-12 text-center text-slate-500 font-medium bg-[#111] rounded-2xl border border-white/5">No candidates found matching your criteria.</div>`;
+                return;
+            }
 
-                const skillsHtml = data.skills.map(s => `<span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium">${s}</span>`).join('');
+            filtered.forEach(data => {
+                const hasRequested = requestedUids.has(data.id);
                 
+                const btnHtml = hasRequested 
+                    ? `<button disabled class="w-full py-3 mt-4 bg-white/5 text-slate-500 border border-white/5 rounded-xl font-bold cursor-not-allowed flex justify-center items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4"></i> Request Pending
+                       </button>`
+                    : `<button onclick="requestContact('${data.id}')" class="w-full py-3 mt-4 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4"></i> Request Secure Access
+                       </button>`;
+
+                // Create skill tags (limit to 5)
+                const skillsList = data.skills || [];
+                const skillsHtml = skillsList.slice(0, 5).map(s => 
+                    `<span class="bg-[#1a1a1a] border border-white/10 text-slate-300 px-2.5 py-1 rounded text-xs font-bold tracking-wide">${s}</span>`
+                ).join('');
+                const extraSkills = skillsList.length > 5 ? `<span class="text-xs text-slate-500 font-bold px-1">+${skillsList.length - 5} more</span>` : '';
+
                 grid.innerHTML += `
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
-                        <div class="flex justify-between items-start mb-4">
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/10 shadow-xl hover:border-brand-500/30 transition-all duration-300 flex flex-col group">
+                        <div class="flex justify-between items-start mb-5">
                             <div>
-                                <h3 class="font-bold text-lg text-slate-900">${data.fullName}</h3>
-                                <p class="text-sm text-slate-500">${data.qualification}</p>
+                                <h3 class="font-extrabold text-xl text-white group-hover:text-brand-500 transition-colors">${data.fullName}</h3>
+                                <p class="text-sm text-slate-400 mt-1">${data.qualification || 'Professional'}</p>
                             </div>
-                            <div class="bg-indigo-50 text-indigo-700 p-2 rounded-lg"><i data-lucide="user" class="w-5 h-5"></i></div>
+                            <div class="bg-brand-500/10 text-brand-500 border border-brand-500/20 p-2.5 rounded-xl"><i data-lucide="user-circle" class="w-6 h-6"></i></div>
                         </div>
-                        <div class="space-y-2 mb-4 flex-1">
-                            <div class="flex items-center text-sm text-slate-600 gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> ${data.city}</div>
-                            <div class="flex items-center text-sm text-slate-600 gap-2"><i data-lucide="briefcase" class="w-4 h-4"></i> ${data.experienceLevel}</div>
+                        
+                        <div class="space-y-3 mb-5 flex-1 border-t border-white/5 pt-4">
+                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i> ${data.city || 'Not specified'}
+                            </div>
+                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
+                                <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i> ${data.experienceLevel || 'Not specified'}
+                            </div>
                         </div>
-                        <div class="flex flex-wrap gap-1 mb-4">${skillsHtml}</div>
+                        
+                        <div class="mb-4">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Verified Skills</p>
+                            <div class="flex flex-wrap gap-2 items-center">
+                                ${skillsHtml} ${extraSkills}
+                            </div>
+                        </div>
+                        
                         ${btnHtml}
                     </div>
                 `;
             });
             lucide.createIcons();
-        };
+        }
+
+        // Event listeners for filters
+        document.getElementById('searchKeyword').addEventListener('input', renderDirectory);
+        document.getElementById('searchCity').addEventListener('change', renderDirectory);
+        document.getElementById('searchExp').addEventListener('change', renderDirectory);
 
         window.requestContact = async (employeeUid) => {
-            if(!confirm("Submit contact request to Admin for this candidate?")) return;
+            if(!confirm("Request to securely unlock this candidate's contact details? Our Verification Team will review your request.")) return;
             try {
                 await addDoc(collection(db, "contactRequests"), {
-                    employerUid: currentUser.uid, employeeUid: employeeUid,
-                    status: 'pending', createdAt: serverTimestamp()
+                    employerUid: currentUser.uid, 
+                    employeeUid: employeeUid,
+                    status: 'pending', 
+                    createdAt: serverTimestamp()
                 });
-                alert("Request submitted. Awaiting admin approval.");
-            } catch(e) { alert(e.message); }
+                // Snapshot listener will auto-update the UI to show "Pending"
+            } catch(e) { alert("Error: " + e.message); }
         };
 
+        // ================= REQUESTS LOGIC =================
         window.loadRequests = async () => {
             const table = document.getElementById('requestsTableBody');
             table.innerHTML = '';
+            
+            // Get all requests for this employer
             const reqsSnap = await getDocs(query(collection(db, "contactRequests"), where("employerUid", "==", currentUser.uid)));
             
+            if (reqsSnap.empty) {
+                table.innerHTML = '<tr><td colspan="3" class="p-12 text-center text-slate-500 font-medium">You have not requested access to any candidates yet.</td></tr>';
+                return;
+            }
+
             for (let docSnap of reqsSnap.docs) {
                 const req = docSnap.data();
                 
-                // Fetch public profile just for the name
+                // Fetch public profile to display the name
                 const empSnap = await getDoc(doc(db, "employeeProfiles", req.employeeUid));
-                const empName = empSnap.exists() ? empSnap.data().fullName : 'Unknown';
+                const empName = empSnap.exists() ? empSnap.data().fullName : 'Unknown Professional';
 
-                let contactHtml = `<span class="text-slate-400 italic">Hidden until approved</span>`;
-                let statusBadge = `<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">Pending Review</span>`;
+                let contactHtml = `<div class="text-slate-500 italic font-medium flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i> Hidden pending review</div>`;
+                let statusBadge = `<span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider animate-pulse">Awaiting Review</span>`;
 
                 if (req.status === 'approved') {
-                    statusBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">Approved</span>`;
-                    // Fetch from contactShares
+                    statusBadge = `<span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Access Granted</span>`;
+                    
+                    // Because it's approved, the Admin created a record in 'contactShares' that we are allowed to read via Security Rules.
                     const sharesSnap = await getDocs(query(collection(db, "contactShares"), where("employerUid", "==", currentUser.uid), where("employeeUid", "==", req.employeeUid)));
+                    
                     if (!sharesSnap.empty) {
                         const shareData = sharesSnap.docs[0].data();
                         contactHtml = `
-                            <div class="text-sm text-slate-700">
-                                <div><i data-lucide="phone" class="w-3 h-3 inline"></i> ${shareData.phone}</div>
-                                <div><i data-lucide="mail" class="w-3 h-3 inline"></i> ${shareData.email}</div>
+                            <div class="flex flex-col gap-2">
+                                <a href="tel:${shareData.phone}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#1a1a1a] w-max px-3 py-1.5 rounded-lg border border-white/5">
+                                    <i data-lucide="phone" class="w-4 h-4 text-brand-500"></i> ${shareData.phone}
+                                </a>
+                                <a href="mailto:${shareData.email}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#1a1a1a] w-max px-3 py-1.5 rounded-lg border border-white/5">
+                                    <i data-lucide="mail" class="w-4 h-4 text-brand-500"></i> ${shareData.email}
+                                </a>
                             </div>
                         `;
                     }
                 } else if (req.status === 'rejected') {
-                    statusBadge = `<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Rejected</span>`;
+                    statusBadge = `<span class="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Request Denied</span>`;
+                    contactHtml = `<span class="text-red-500/50 italic font-medium">Access revoked by system</span>`;
                 }
 
                 table.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-medium text-slate-900">${empName}</td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4">${contactHtml}</td>
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-5">
+                            <span class="font-bold text-white text-base">${empName}</span>
+                            <div class="text-xs text-slate-500 font-mono mt-1">UID: ...${req.employeeUid.slice(-8)}</div>
+                        </td>
+                        <td class="p-5">${statusBadge}</td>
+                        <td class="p-5">${contactHtml}</td>
                     </tr>
                 `;
             }
