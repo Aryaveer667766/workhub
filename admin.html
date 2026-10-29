@@ -3,140 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control | WorkHub</title>
+    <title>Control Center | WorkHub Verification Team</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Custom Colors (Black & Gold Theme) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            500: '#eab308', /* Primary Gold */
+                            600: '#ca8a04', 
+                            900: '#111111', 
+                            950: '#0a0a0a', 
+                        }
+                    },
+                    animation: {
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
+                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            background-color: #0a0a0a;
+        }
+        
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom Scrollbar for tables */
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-900 h-screen flex overflow-hidden">
-    <aside class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col">
-        <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800"><span class="text-lg font-bold text-white uppercase tracking-wider">Admin Portal</span></div>
-        <nav class="flex-1 p-4 space-y-1">
-            <button onclick="switchTab('payments')" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium"><i data-lucide="indian-rupee" class="w-5 h-5"></i> Payment Verifications</button>
-            <button onclick="switchTab('contacts')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-lg font-medium transition"><i data-lucide="shield-check" class="w-5 h-5"></i> Contact Requests</button>
-        </nav>
-        <div class="p-4 border-t border-slate-800">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
+<body class="text-slate-200 h-screen flex overflow-hidden font-sans">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-[#111] border-r border-white/5 flex-shrink-0 flex flex-col z-20">
+        <div class="h-20 flex items-center px-6 border-b border-white/5 bg-[#0a0a0a]">
+            <!-- Exact Logo SVG -->
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                        <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
+                        <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
+                        <line x1="73" y1="12" x2="73" y2="4" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="56" y1="18" x2="50" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="90" y1="18" x2="96" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="35" cy="52" r="5" fill="#ffffff"/>
+                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-bold tracking-tight text-white leading-tight uppercase">Control Center</span>
+                    <span class="text-[0.65rem] font-bold text-brand-500 tracking-widest uppercase">Verification Team</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 flex-1">
+            <nav class="space-y-2">
+                <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-semibold transition-all">
+                    <i data-lucide="indian-rupee" class="w-5 h-5"></i> UTR Verifications
+                </button>
+                <button onclick="switchTab('contacts')" id="nav-contacts" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-all border border-transparent">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i> Access Requests
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-white/5">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-all">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Secure Logout
+            </button>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto" id="mainContent" style="display:none;">
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
-            <h1 class="text-xl font-semibold text-slate-800" id="headerTitle">Payment Verifications</h1>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative bg-[#0a0a0a]" id="mainContent" style="display:none;">
+        
+        <header class="h-20 glass-panel flex items-center px-8 justify-between sticky top-0 z-10 border-x-0 border-t-0 shadow-sm shadow-black">
+            <h1 class="text-xl font-bold text-white flex items-center gap-3" id="headerTitle">
+                <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> UTR Verifications
+            </h1>
+            <div class="flex items-center gap-3 bg-brand-500/10 px-4 py-2 rounded-full border border-brand-500/20">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-xs font-bold text-brand-500 tracking-wider uppercase">Live Connection Active</span>
+            </div>
         </header>
 
-        <div class="p-8">
+        <div class="p-8 max-w-7xl mx-auto relative z-10">
+            
             <!-- Payments Tab -->
-            <div id="paymentsTab" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs tracking-wider">
-                        <tr><th class="p-4">Employee UID</th><th class="p-4">UTR Number</th><th class="p-4">Amount</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th></tr>
-                    </thead>
-                    <tbody id="paymentsBody" class="divide-y divide-slate-100"></tbody>
-                </table>
+            <div id="paymentsTab" class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                        <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                            <tr>
+                                <th class="p-5">Professional UID</th>
+                                <th class="p-5">Submitted UTR</th>
+                                <th class="p-5">Amount</th>
+                                <th class="p-5">Status</th>
+                                <th class="p-5 text-right">Verification Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsBody" class="divide-y divide-white/5">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Contacts Tab -->
-            <div id="contactsTab" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden" style="display: none;">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs tracking-wider">
-                        <tr><th class="p-4">Employer UID</th><th class="p-4">Requested Candidate UID</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th></tr>
-                    </thead>
-                    <tbody id="contactsBody" class="divide-y divide-slate-100"></tbody>
-                </table>
+            <div id="contactsTab" class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden" style="display: none;">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                        <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                            <tr>
+                                <th class="p-5">Requesting Employer UID</th>
+                                <th class="p-5">Target Professional UID</th>
+                                <th class="p-5">Status</th>
+                                <th class="p-5 text-right">Security Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactsBody" class="divide-y divide-white/5">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            
         </div>
     </main>
 
+    <!-- Scripts -->
     <script type="module">
         lucide.createIcons();
         import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
 
         let currentUser = null;
 
+        // Security / Auth Check
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
+            
             const userDoc = await getDoc(doc(db, "users", user.uid));
+            
+            // Strictly enforce verification team access (role must be 'admin')
             if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                alert("Unauthorized Access. Only administrators can access this portal.");
-                await signOut(auth); window.location.href = 'index.html'; return;
+                alert("Restricted Access: You do not have Verification Team clearance.");
+                await signOut(auth); 
+                window.location.href = 'index.html'; 
+                return;
             }
+            
             currentUser = user;
             document.getElementById('mainContent').style.display = 'block';
 
-            // Realtime Payments Listener
+            // Realtime Listeners for Live Queue
+            
+            // 1. Pending Payments Queue
             onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
                 const tbody = document.getElementById('paymentsBody');
                 tbody.innerHTML = '';
-                if(snap.empty) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No pending payments to verify.</td></tr>'; return; }
+                
+                if(snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium">No pending verifications in queue.</td></tr>'; 
+                    return; 
+                }
+                
                 snap.forEach(docSnap => {
                     const data = docSnap.data();
                     tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="p-4 font-mono text-xs">${data.employeeUid}</td>
-                            <td class="p-4 font-bold text-slate-900">${data.utr}</td>
-                            <td class="p-4">₹${data.amount}</td>
-                            <td class="p-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-semibold">Pending</span></td>
-                            <td class="p-4 text-right">
-                                <button onclick="decidePayment('${docSnap.id}', 'approved')" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium mr-2">Approve</button>
-                                <button onclick="decidePayment('${docSnap.id}', 'rejected')" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">Reject</button>
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="p-5 font-mono text-xs text-slate-400">...${data.employeeUid.slice(-8)}</td>
+                            <td class="p-5 font-mono font-bold text-white tracking-widest bg-black/40 rounded">${data.utr}</td>
+                            <td class="p-5 text-brand-500 font-bold">₹${data.amount}</td>
+                            <td class="p-5"><span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Pending</span></td>
+                            <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <button onclick="decidePayment('${docSnap.id}', 'approved')" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
+                                    <i data-lucide="check" class="w-4 h-4"></i> Verify & Approve
+                                </button>
+                                <button onclick="decidePayment('${docSnap.id}', 'rejected')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
+                                    <i data-lucide="x" class="w-4 h-4"></i> Reject
+                                </button>
                             </td>
                         </tr>
                     `;
                 });
+                lucide.createIcons();
             });
 
-            // Realtime Contact Requests Listener
+            // 2. Pending Contact Requests Queue
             onSnapshot(query(collection(db, "contactRequests"), where("status", "==", "pending")), (snap) => {
                 const tbody = document.getElementById('contactsBody');
                 tbody.innerHTML = '';
-                if(snap.empty) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500">No pending contact requests.</td></tr>'; return; }
+                
+                if(snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-12 text-center text-slate-500 font-medium">No pending access requests.</td></tr>'; 
+                    return; 
+                }
+                
                 snap.forEach(docSnap => {
                     const data = docSnap.data();
                     tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="p-4 font-mono text-xs">${data.employerUid}</td>
-                            <td class="p-4 font-mono text-xs">${data.employeeUid}</td>
-                            <td class="p-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-semibold">Pending</span></td>
-                            <td class="p-4 text-right">
-                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}')" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium mr-2">Share Data</button>
-                                <button onclick="rejectContact('${docSnap.id}')" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">Reject</button>
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="p-5 font-mono text-xs text-slate-400">...${data.employerUid.slice(-8)}</td>
+                            <td class="p-5 font-mono text-xs text-slate-400">...${data.employeeUid.slice(-8)}</td>
+                            <td class="p-5"><span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Awaiting Review</span></td>
+                            <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}')" class="px-4 py-2 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-lg hover:bg-brand-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
+                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release Secure Data
+                                </button>
+                                <button onclick="rejectContact('${docSnap.id}')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
+                                    <i data-lucide="shield-ban" class="w-4 h-4"></i> Deny Access
+                                </button>
                             </td>
                         </tr>
                     `;
                 });
+                lucide.createIcons();
             });
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            signOut(auth).then(() => window.location.href = 'index.html'); 
+        });
 
+        // Tab Switching Logic
         window.switchTab = (tab) => {
+            const btnP = document.getElementById('nav-payments');
+            const btnC = document.getElementById('nav-contacts');
+            const iconHTML = tab === 'payments' ? '<i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> UTR Verifications' : '<i data-lucide="shield-check" class="w-5 h-5 text-brand-500"></i> Access Requests';
+            
+            document.getElementById('headerTitle').innerHTML = iconHTML;
+            lucide.createIcons();
+
             document.getElementById('paymentsTab').style.display = tab === 'payments' ? 'block' : 'none';
             document.getElementById('contactsTab').style.display = tab === 'contacts' ? 'block' : 'none';
-            document.getElementById('headerTitle').innerText = tab === 'payments' ? 'Payment Verifications' : 'Contact Requests';
+            
+            // Reset styles
+            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
+            const inactiveClass = ['text-slate-400', 'border-transparent'];
+            
+            if (tab === 'payments') {
+                btnP.classList.add(...activeClass); btnP.classList.remove(...inactiveClass);
+                btnC.classList.add(...inactiveClass); btnC.classList.remove(...activeClass);
+            } else {
+                btnC.classList.add(...activeClass); btnC.classList.remove(...inactiveClass);
+                btnP.classList.add(...inactiveClass); btnP.classList.remove(...activeClass);
+            }
         };
 
+        // Handlers
         window.decidePayment = async (docId, decision) => {
-            if(!confirm(`Are you sure you want to mark this UTR as ${decision}?`)) return;
+            if(!confirm(`Confirm action: Mark this UTR submission as ${decision.toUpperCase()}?`)) return;
             try {
                 await updateDoc(doc(db, "payments", docId), {
                     status: decision,
                     reviewedAt: serverTimestamp(),
                     reviewedBy: currentUser.uid
                 });
-            } catch(e) { alert(e.message); }
+            } catch(e) { alert("Action failed: " + e.message); }
         };
 
         window.approveContact = async (reqId, employerUid, employeeUid) => {
-            if(!confirm("This will expose private user contact details to the employer. Proceed?")) return;
+            if(!confirm("SECURITY WARNING: This action will expose the professional's private contact details to the requesting employer. Proceed?")) return;
             try {
-                // 1. Fetch private user document as Admin
+                // Fetch private professional data
                 const userDoc = await getDoc(doc(db, "users", employeeUid));
-                if (!userDoc.exists()) throw new Error("Employee private data not found.");
+                if (!userDoc.exists()) throw new Error("Professional's private record not found.");
                 
                 const privateData = userDoc.data();
 
-                // 2. Create the shared record that Employer can securely read
+                // Create secure share document
                 await addDoc(collection(db, "contactShares"), {
                     employerUid: employerUid,
                     employeeUid: employeeUid,
@@ -146,18 +321,25 @@
                     sharedAt: serverTimestamp()
                 });
 
-                // 3. Mark request as approved
+                // Update request status
                 await updateDoc(doc(db, "contactRequests", reqId), {
                     status: 'approved',
                     reviewedAt: serverTimestamp(),
                     reviewedBy: currentUser.uid
                 });
-            } catch (e) { alert("Error: " + e.message); }
+                
+            } catch (e) { alert("Action failed: " + e.message); }
         };
 
         window.rejectContact = async (reqId) => {
-            if(!confirm("Reject this contact request?")) return;
-            await updateDoc(doc(db, "contactRequests", reqId), { status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
+            if(!confirm("Deny this contact request?")) return;
+            try {
+                await updateDoc(doc(db, "contactRequests", reqId), { 
+                    status: 'rejected', 
+                    reviewedAt: serverTimestamp(), 
+                    reviewedBy: currentUser.uid 
+                });
+            } catch(e) { alert("Action failed: " + e.message); }
         };
     </script>
 </body>
