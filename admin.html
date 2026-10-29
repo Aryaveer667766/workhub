@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control | WorkHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-100 text-slate-900 h-screen flex overflow-hidden">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col">
+        <div class="h-16 flex items-center px-6 bg-slate-950 border-b border-slate-800"><span class="text-lg font-bold text-white uppercase tracking-wider">Admin Portal</span></div>
+        <nav class="flex-1 p-4 space-y-1">
+            <button onclick="switchTab('payments')" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium"><i data-lucide="indian-rupee" class="w-5 h-5"></i> Payment Verifications</button>
+            <button onclick="switchTab('contacts')" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-lg font-medium transition"><i data-lucide="shield-check" class="w-5 h-5"></i> Contact Requests</button>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg transition"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto" id="mainContent" style="display:none;">
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center px-8 shadow-sm">
+            <h1 class="text-xl font-semibold text-slate-800" id="headerTitle">Payment Verifications</h1>
+        </header>
+
+        <div class="p-8">
+            <!-- Payments Tab -->
+            <div id="paymentsTab" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs tracking-wider">
+                        <tr><th class="p-4">Employee UID</th><th class="p-4">UTR Number</th><th class="p-4">Amount</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th></tr>
+                    </thead>
+                    <tbody id="paymentsBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <!-- Contacts Tab -->
+            <div id="contactsTab" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden" style="display: none;">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs tracking-wider">
+                        <tr><th class="p-4">Employer UID</th><th class="p-4">Requested Candidate UID</th><th class="p-4">Status</th><th class="p-4 text-right">Actions</th></tr>
+                    </thead>
+                    <tbody id="contactsBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        lucide.createIcons();
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                alert("Unauthorized Access. Only administrators can access this portal.");
+                await signOut(auth); window.location.href = 'index.html'; return;
+            }
+            currentUser = user;
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Realtime Payments Listener
+            onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
+                const tbody = document.getElementById('paymentsBody');
+                tbody.innerHTML = '';
+                if(snap.empty) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No pending payments to verify.</td></tr>'; return; }
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-4 font-mono text-xs">${data.employeeUid}</td>
+                            <td class="p-4 font-bold text-slate-900">${data.utr}</td>
+                            <td class="p-4">₹${data.amount}</td>
+                            <td class="p-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-semibold">Pending</span></td>
+                            <td class="p-4 text-right">
+                                <button onclick="decidePayment('${docSnap.id}', 'approved')" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium mr-2">Approve</button>
+                                <button onclick="decidePayment('${docSnap.id}', 'rejected')" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+
+            // Realtime Contact Requests Listener
+            onSnapshot(query(collection(db, "contactRequests"), where("status", "==", "pending")), (snap) => {
+                const tbody = document.getElementById('contactsBody');
+                tbody.innerHTML = '';
+                if(snap.empty) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500">No pending contact requests.</td></tr>'; return; }
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-4 font-mono text-xs">${data.employerUid}</td>
+                            <td class="p-4 font-mono text-xs">${data.employeeUid}</td>
+                            <td class="p-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-semibold">Pending</span></td>
+                            <td class="p-4 text-right">
+                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}')" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium mr-2">Share Data</button>
+                                <button onclick="rejectContact('${docSnap.id}')" class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+        window.switchTab = (tab) => {
+            document.getElementById('paymentsTab').style.display = tab === 'payments' ? 'block' : 'none';
+            document.getElementById('contactsTab').style.display = tab === 'contacts' ? 'block' : 'none';
+            document.getElementById('headerTitle').innerText = tab === 'payments' ? 'Payment Verifications' : 'Contact Requests';
+        };
+
+        window.decidePayment = async (docId, decision) => {
+            if(!confirm(`Are you sure you want to mark this UTR as ${decision}?`)) return;
+            try {
+                await updateDoc(doc(db, "payments", docId), {
+                    status: decision,
+                    reviewedAt: serverTimestamp(),
+                    reviewedBy: currentUser.uid
+                });
+            } catch(e) { alert(e.message); }
+        };
+
+        window.approveContact = async (reqId, employerUid, employeeUid) => {
+            if(!confirm("This will expose private user contact details to the employer. Proceed?")) return;
+            try {
+                // 1. Fetch private user document as Admin
+                const userDoc = await getDoc(doc(db, "users", employeeUid));
+                if (!userDoc.exists()) throw new Error("Employee private data not found.");
+                
+                const privateData = userDoc.data();
+
+                // 2. Create the shared record that Employer can securely read
+                await addDoc(collection(db, "contactShares"), {
+                    employerUid: employerUid,
+                    employeeUid: employeeUid,
+                    phone: privateData.phone,
+                    email: privateData.email,
+                    sharedBy: currentUser.uid,
+                    sharedAt: serverTimestamp()
+                });
+
+                // 3. Mark request as approved
+                await updateDoc(doc(db, "contactRequests", reqId), {
+                    status: 'approved',
+                    reviewedAt: serverTimestamp(),
+                    reviewedBy: currentUser.uid
+                });
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        window.rejectContact = async (reqId) => {
+            if(!confirm("Reject this contact request?")) return;
+            await updateDoc(doc(db, "contactRequests", reqId), { status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
+        };
+    </script>
+</body>
+</html>
