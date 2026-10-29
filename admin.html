@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Center | WorkHub Verification Team</title>
+    <title>Command Center | WorkHub Verification Team</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,19 +24,26 @@
                     },
                     colors: {
                         brand: {
-                            500: '#eab308', /* Primary Gold */
-                            600: '#ca8a04', 
-                            900: '#111111', 
-                            950: '#0a0a0a', 
+                            400: '#ffc142', 500: '#eab308', 600: '#ca8a04', 900: '#111111', 950: '#0a0a0a', 
                         }
                     },
                     animation: {
                         'glow': 'glow 3s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
                     },
                     keyframes: {
                         glow: {
                             '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
                             '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
                         }
                     }
                 }
@@ -48,33 +55,27 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            background-color: #0a0a0a;
-        }
-        
-        .glass-panel {
-            background: rgba(17, 17, 17, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Custom Scrollbar for tables */
+        body { -webkit-font-smoothing: antialiased; background-color: #0a0a0a; }
+        .glass-panel { background: rgba(17, 17, 17, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Modal Transitions */
+        .modal-overlay { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
     </style>
 </head>
 <body class="text-slate-200 h-screen flex overflow-hidden font-sans">
 
     <!-- Sidebar -->
-    <aside class="w-72 bg-[#111] border-r border-white/5 flex-shrink-0 flex flex-col z-20">
-        <div class="h-20 flex items-center px-6 border-b border-white/5 bg-[#0a0a0a]">
-            <!-- Exact Logo SVG -->
-            <div class="flex items-center gap-3">
-                <div class="h-8 w-8 flex-shrink-0 animate-glow">
+    <aside class="w-72 bg-[#111] border-r border-white/5 flex-shrink-0 flex flex-col z-20 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-24 flex items-center px-6 border-b border-white/5 bg-[#0a0a0a]">
+            <div class="flex items-center gap-4">
+                <div class="h-10 w-10 flex-shrink-0 animate-glow">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
@@ -90,26 +91,35 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-lg font-bold tracking-tight text-white leading-tight uppercase">Control Center</span>
+                    <span class="text-xl font-bold tracking-tight text-white leading-tight uppercase">Command</span>
                     <span class="text-[0.65rem] font-bold text-brand-500 tracking-widest uppercase">Verification Team</span>
                 </div>
             </div>
         </div>
         
-        <div class="p-4 flex-1">
-            <nav class="space-y-2">
-                <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-semibold transition-all">
-                    <i data-lucide="indian-rupee" class="w-5 h-5"></i> UTR Verifications
-                </button>
-                <button onclick="switchTab('contacts')" id="nav-contacts" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-all border border-transparent">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i> Access Requests
-                </button>
-            </nav>
+        <div class="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-1 mt-2">
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-4">Analytics & Users</p>
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Main Dashboard
+            </button>
+            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <i data-lucide="users" class="w-5 h-5"></i> User Directory
+            </button>
+
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Verification Queues</p>
+            <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent justify-between">
+                <div class="flex items-center gap-3"><i data-lucide="indian-rupee" class="w-5 h-5"></i> UTR Approvals</div>
+                <span id="badge-payments" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="switchTab('contacts')" id="nav-contacts" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent justify-between">
+                <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5"></i> Access Requests</div>
+                <span id="badge-contacts" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
         </div>
         
-        <div class="p-4 border-t border-white/5">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-all">
-                <i data-lucide="log-out" class="w-5 h-5"></i> Secure Logout
+        <div class="p-4 border-t border-white/5 bg-[#0a0a0a]">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-bold transition-all border border-transparent hover:border-red-500/20">
+                <i data-lucide="power" class="w-5 h-5"></i> Terminate Session
             </button>
         </div>
     </aside>
@@ -117,88 +127,378 @@
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto relative bg-[#0a0a0a]" id="mainContent" style="display:none;">
         
-        <header class="h-20 glass-panel flex items-center px-8 justify-between sticky top-0 z-10 border-x-0 border-t-0 shadow-sm shadow-black">
-            <h1 class="text-xl font-bold text-white flex items-center gap-3" id="headerTitle">
-                <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> UTR Verifications
-            </h1>
-            <div class="flex items-center gap-3 bg-brand-500/10 px-4 py-2 rounded-full border border-brand-500/20">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-xs font-bold text-brand-500 tracking-wider uppercase">Live Connection Active</span>
+        <header class="h-24 glass-panel flex items-center px-10 justify-between sticky top-0 z-10 border-x-0 border-t-0 shadow-lg shadow-black">
+            <div>
+                <h1 class="text-2xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
+                    <i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Main Dashboard
+                </h1>
+                <p class="text-slate-400 text-sm font-inter mt-1">Platform overview and real-time statistics</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-bold text-white" id="currentAdminName">System Operator</p>
+                    <p class="text-xs text-emerald-500 font-bold tracking-widest uppercase flex items-center justify-end gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Access Granted</p>
+                </div>
             </div>
         </header>
 
-        <div class="p-8 max-w-7xl mx-auto relative z-10">
+        <div class="p-8 md:p-10 max-w-[1600px] mx-auto relative z-10">
             
-            <!-- Payments Tab -->
-            <div id="paymentsTab" class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-sm whitespace-nowrap font-inter">
-                        <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
-                            <tr>
-                                <th class="p-5">Professional UID</th>
-                                <th class="p-5">Submitted UTR</th>
-                                <th class="p-5">Amount</th>
-                                <th class="p-5">Status</th>
-                                <th class="p-5 text-right">Verification Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentsBody" class="divide-y divide-white/5">
-                            <!-- Injected dynamically -->
-                        </tbody>
-                    </table>
+            <!-- ================= DASHBOARD TAB ================= -->
+            <div id="dashboardTab" class="animate-slide-up space-y-8">
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="indian-rupee" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Total Revenue</p>
+                        <h3 class="text-4xl font-extrabold text-brand-500 flex items-center gap-2">₹<span id="metric-revenue">0</span></h3>
+                        <p class="text-xs text-slate-500 mt-3 font-inter flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> From approved UTRs</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="briefcase" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Professionals</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-employees">0</h3>
+                        <p class="text-xs text-slate-500 mt-3 font-inter flex items-center gap-1"><i data-lucide="users" class="w-3 h-3 text-brand-500"></i> Registered job seekers</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="building" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Employers</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-employers">0</h3>
+                        <p class="text-xs text-slate-500 mt-3 font-inter flex items-center gap-1"><i data-lucide="building-2" class="w-3 h-3 text-indigo-400"></i> Registered companies</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-2xl border border-emerald-500/20 shadow-xl relative overflow-hidden group shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><i data-lucide="activity" class="w-24 h-24 text-emerald-500"></i></div>
+                        <p class="text-emerald-500 text-sm font-bold uppercase tracking-wider mb-2">Total Verifications</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-verifications">0</h3>
+                        <p class="text-xs text-slate-500 mt-3 font-inter">UTRs + Access Shares approved</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Contacts Tab -->
-            <div id="contactsTab" class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden" style="display: none;">
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-sm whitespace-nowrap font-inter">
-                        <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
-                            <tr>
-                                <th class="p-5">Requesting Employer UID</th>
-                                <th class="p-5">Target Professional UID</th>
-                                <th class="p-5">Status</th>
-                                <th class="p-5 text-right">Security Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="contactsBody" class="divide-y divide-white/5">
-                            <!-- Injected dynamically -->
-                        </tbody>
-                    </table>
+            <!-- ================= USERS DIRECTORY TAB ================= -->
+            <div id="usersTab" class="hidden animate-slide-up space-y-6">
+                
+                <!-- Controls -->
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#111] p-4 rounded-2xl border border-white/10">
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                        <input type="text" id="userSearch" placeholder="Search by name, email, or UID..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <select id="roleFilter" class="w-full md:w-auto bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold">
+                            <option value="all">All Roles</option>
+                            <option value="employee">Professionals</option>
+                            <option value="employer">Employers</option>
+                            <option value="admin">System Ops</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar max-h-[600px]">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter relative">
+                            <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold sticky top-0 z-10 shadow-md">
+                                <tr>
+                                    <th class="p-5">User Info</th>
+                                    <th class="p-5">System Role</th>
+                                    <th class="p-5">Account Status</th>
+                                    <th class="p-5 text-right">Advanced Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersBody" class="divide-y divide-white/5">
+                                <!-- Users injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PAYMENTS TAB ================= -->
+            <div id="paymentsTab" class="hidden animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                            <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                                <tr>
+                                    <th class="p-5">Professional UID</th>
+                                    <th class="p-5">Submitted UTR</th>
+                                    <th class="p-5">Amount</th>
+                                    <th class="p-5">Status</th>
+                                    <th class="p-5 text-right">Verification Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= CONTACTS TAB ================= -->
+            <div id="contactsTab" class="hidden animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                            <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                                <tr>
+                                    <th class="p-5">Requesting Employer UID</th>
+                                    <th class="p-5">Target Professional UID</th>
+                                    <th class="p-5">Status</th>
+                                    <th class="p-5 text-right">Security Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
         </div>
     </main>
 
+    <!-- MODAL: Detailed UTR Verification -->
+    <div id="utrModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden relative flex flex-col">
+            <div class="px-8 pt-8 pb-6 border-b border-white/5 flex justify-between items-start">
+                <div>
+                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Confirm Verification</h2>
+                    <p class="text-slate-400 mt-1 font-inter text-sm">Please verify the transaction details carefully.</p>
+                </div>
+                <button onclick="closeUtrModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-8 space-y-4 font-inter">
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center">
+                    <span class="text-slate-400 text-sm">Professional UID</span>
+                    <span class="text-white font-mono text-sm font-bold truncate max-w-[200px]" id="modal-uid"></span>
+                </div>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center">
+                    <span class="text-slate-400 text-sm">Amount Paid</span>
+                    <span class="text-brand-500 font-bold text-lg" id="modal-amount"></span>
+                </div>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-brand-500/30 flex justify-between items-center shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                    <span class="text-brand-500 text-sm font-bold">Reported UTR</span>
+                    <span class="text-white font-mono text-lg font-bold tracking-widest bg-black px-3 py-1 rounded" id="modal-utr"></span>
+                </div>
+                
+                <div class="flex gap-4 mt-8 pt-4 border-t border-white/5">
+                    <button id="btn-reject-utr" class="flex-1 py-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl font-bold hover:bg-red-500/20 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i> Reject
+                    </button>
+                    <button id="btn-approve-utr" class="flex-[2] py-4 bg-emerald-500 text-emerald-950 rounded-xl font-extrabold hover:bg-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex justify-center items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i> Approve & Verify
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module">
         lucide.createIcons();
-        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot, getDocs } from './firebase.js';
 
         let currentUser = null;
+        let allUsers = []; // For client-side search/filtering
+        let currentReviewPaymentId = null;
 
         // Security / Auth Check
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
             const userDoc = await getDoc(doc(db, "users", user.uid));
-            
-            // Strictly enforce verification team access (role must be 'admin')
             if (!userDoc.exists() || userDoc.data().role !== 'admin') {
                 alert("Restricted Access: You do not have Verification Team clearance.");
-                await signOut(auth); 
-                window.location.href = 'index.html'; 
-                return;
+                await signOut(auth); window.location.href = 'index.html'; return;
             }
             
             currentUser = user;
+            document.getElementById('currentAdminName').innerText = userDoc.data().fullName;
             document.getElementById('mainContent').style.display = 'block';
 
-            // Realtime Listeners for Live Queue
+            initDashboardMetrics();
+            initUsersListener();
+            initPaymentsListener();
+            initContactsListener();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth).then(() => window.location.href = 'index.html'); });
+
+        // Tab Switching Logic
+        window.switchTab = (tab) => {
+            const tabs = ['dashboard', 'users', 'payments', 'contacts'];
             
-            // 1. Pending Payments Queue
+            // Setup Header Texts
+            const headers = {
+                'dashboard': '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Main Dashboard',
+                'users': '<i data-lucide="users" class="w-6 h-6 text-brand-500"></i> User Directory',
+                'payments': '<i data-lucide="indian-rupee" class="w-6 h-6 text-brand-500"></i> UTR Verifications',
+                'contacts': '<i data-lucide="shield-check" class="w-6 h-6 text-brand-500"></i> Access Requests'
+            };
+            document.getElementById('headerTitle').innerHTML = headers[tab];
+            lucide.createIcons();
+
+            // Toggle Visibilities
+            tabs.forEach(t => {
+                document.getElementById(t + 'Tab').style.display = (t === tab) ? 'block' : 'none';
+                
+                // Style nav buttons
+                const btn = document.getElementById('nav-' + t);
+                if(t === tab) {
+                    btn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.remove('text-slate-400', 'border-transparent');
+                } else {
+                    btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
+            });
+        };
+
+        // ================= DASHBOARD METRICS =================
+        async function initDashboardMetrics() {
+            // Watch approved payments for revenue
+            onSnapshot(query(collection(db, "payments"), where("status", "==", "approved")), (snap) => {
+                let revenue = 0;
+                snap.forEach(d => revenue += (d.data().amount || 0));
+                document.getElementById('metric-revenue').innerText = revenue.toLocaleString('en-IN');
+            });
+
+            // Watch total approved contact shares + approved payments
+            onSnapshot(collection(db, "contactShares"), (snap) => {
+                const sharesCount = snap.size;
+                getDocs(query(collection(db, "payments"), where("status", "==", "approved"))).then(paySnap => {
+                    document.getElementById('metric-verifications').innerText = sharesCount + paySnap.size;
+                });
+            });
+        }
+
+        // ================= USERS MANAGEMENT =================
+        function initUsersListener() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                // Update Dashboard Metrics
+                const emps = allUsers.filter(u => u.role === 'employee').length;
+                const emps_ers = allUsers.filter(u => u.role === 'employer').length;
+                document.getElementById('metric-employees').innerText = emps;
+                document.getElementById('metric-employers').innerText = emps_ers;
+
+                renderUsers();
+            });
+
+            document.getElementById('userSearch').addEventListener('input', renderUsers);
+            document.getElementById('roleFilter').addEventListener('change', renderUsers);
+        }
+
+        function renderUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const roleF = document.getElementById('roleFilter').value;
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = '';
+
+            let filtered = allUsers.filter(u => {
+                const matchSearch = u.fullName?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search) || u.id.toLowerCase().includes(search);
+                const matchRole = roleF === 'all' || u.role === roleF;
+                return matchSearch && matchRole;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-12 text-center text-slate-500 font-medium">No matching users found.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(u => {
+                const roleBadge = u.role === 'admin' ? '<span class="px-2.5 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-xs font-bold uppercase tracking-wider">System Op</span>'
+                                : u.role === 'employer' ? '<span class="px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Employer</span>'
+                                : '<span class="px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-md text-xs font-bold uppercase tracking-wider">Professional</span>';
+                
+                const statusBadge = (u.accountStatus === 'suspended') 
+                                ? '<span class="text-red-500 flex items-center gap-1 font-bold text-xs"><div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div> Suspended</span>'
+                                : '<span class="text-emerald-500 flex items-center gap-1 font-bold text-xs"><div class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> Active</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-4">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-white text-base">${u.fullName}</span>
+                                <span class="text-slate-400 text-sm">${u.email}</span>
+                                <span class="text-slate-600 font-mono text-[10px] mt-1 tracking-widest truncate max-w-[200px]">${u.id}</span>
+                            </div>
+                        </td>
+                        <td class="p-4">${roleBadge}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-right opacity-80 group-hover:opacity-100 transition-opacity flex flex-wrap justify-end gap-2 items-center h-full min-h-[80px]">
+                            ${u.role === 'employee' ? `
+                            <button onclick="forceVerifyUser('${u.id}')" class="px-3 py-1.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded hover:bg-brand-500 hover:text-brand-950 text-xs font-bold transition-all" title="Bypass UTR & Activate">
+                                <i data-lucide="zap" class="w-4 h-4 inline-block"></i> Force Activate
+                            </button>` : ''}
+                            
+                            <select onchange="changeRole('${u.id}', this.value)" class="bg-[#1a1a1a] border border-white/10 text-white text-xs font-bold rounded px-2 py-1.5 outline-none cursor-pointer">
+                                <option value="" disabled selected>Role...</option>
+                                <option value="employee">Professional</option>
+                                <option value="employer">Employer</option>
+                                <option value="admin">System Op</option>
+                            </select>
+
+                            <button onclick="toggleSuspend('${u.id}', '${u.accountStatus}')" class="px-3 py-1.5 bg-[#1a1a1a] text-slate-300 border border-white/10 rounded hover:bg-white/10 text-xs font-bold transition-all">
+                                <i data-lucide="${u.accountStatus === 'suspended' ? 'play' : 'pause'}" class="w-4 h-4 inline-block"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        window.changeRole = async (uid, newRole) => {
+            if(!newRole) return;
+            if(!confirm(`WARNING: Changing this user's role to ${newRole.toUpperCase()} will alter their access rights. Proceed?`)) {
+                renderUsers(); return; // reset select
+            }
+            try {
+                await updateDoc(doc(db, "users", uid), { role: newRole });
+                alert("Role updated successfully.");
+            } catch(e) { alert("Error: " + e.message); }
+        };
+
+        window.toggleSuspend = async (uid, currentStatus) => {
+            const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+            if(!confirm(`Are you sure you want to mark this account as ${newStatus.toUpperCase()}?`)) return;
+            try {
+                await updateDoc(doc(db, "users", uid), { accountStatus: newStatus });
+            } catch(e) { alert("Error: " + e.message); }
+        };
+
+        window.forceVerifyUser = async (uid) => {
+            if(!confirm("SYSTEM OVERRIDE: This will manually activate the professional's profile without a valid UTR payment. Proceed?")) return;
+            try {
+                // Creates an artificially approved payment record to unlock the employee dashboard instantly
+                await addDoc(collection(db, "payments"), {
+                    employeeUid: uid,
+                    amount: 0,
+                    currency: "INR",
+                    paymentMethod: "SYSTEM_OVERRIDE",
+                    utr: "MANUAL-VERIFICATION",
+                    status: 'approved',
+                    submittedAt: serverTimestamp(),
+                    reviewedAt: serverTimestamp(),
+                    reviewedBy: currentUser.uid,
+                    adminNotes: "Manually verified by Verification Team via Control Center"
+                });
+                alert("User profile forcefully activated.");
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        // ================= QUEUES: PAYMENTS & CONTACTS =================
+        function initPaymentsListener() {
             onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
+                const count = snap.size;
+                const badge = document.getElementById('badge-payments');
+                badge.innerText = count;
+                badge.style.display = count > 0 ? 'inline-block' : 'none';
+
                 const tbody = document.getElementById('paymentsBody');
                 tbody.innerHTML = '';
                 
@@ -214,13 +514,10 @@
                             <td class="p-5 font-mono text-xs text-slate-400">...${data.employeeUid.slice(-8)}</td>
                             <td class="p-5 font-mono font-bold text-white tracking-widest bg-black/40 rounded">${data.utr}</td>
                             <td class="p-5 text-brand-500 font-bold">₹${data.amount}</td>
-                            <td class="p-5"><span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Pending</span></td>
+                            <td class="p-5"><span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider animate-pulse">Pending</span></td>
                             <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                <button onclick="decidePayment('${docSnap.id}', 'approved')" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
-                                    <i data-lucide="check" class="w-4 h-4"></i> Verify & Approve
-                                </button>
-                                <button onclick="decidePayment('${docSnap.id}', 'rejected')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
-                                    <i data-lucide="x" class="w-4 h-4"></i> Reject
+                                <button onclick="openUtrModal('${docSnap.id}', '${data.employeeUid}', '${data.utr}', '${data.amount}')" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/30 hover:text-emerald-400 text-xs font-bold flex items-center gap-2 transition-all">
+                                    <i data-lucide="search" class="w-4 h-4"></i> Review UTR
                                 </button>
                             </td>
                         </tr>
@@ -228,9 +525,15 @@
                 });
                 lucide.createIcons();
             });
+        }
 
-            // 2. Pending Contact Requests Queue
+        function initContactsListener() {
             onSnapshot(query(collection(db, "contactRequests"), where("status", "==", "pending")), (snap) => {
+                const count = snap.size;
+                const badge = document.getElementById('badge-contacts');
+                badge.innerText = count;
+                badge.style.display = count > 0 ? 'inline-block' : 'none';
+
                 const tbody = document.getElementById('contactsBody');
                 tbody.innerHTML = '';
                 
@@ -248,10 +551,10 @@
                             <td class="p-5"><span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Awaiting Review</span></td>
                             <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                                 <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}')" class="px-4 py-2 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-lg hover:bg-brand-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
-                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release Secure Data
+                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release Data
                                 </button>
                                 <button onclick="rejectContact('${docSnap.id}')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
-                                    <i data-lucide="shield-ban" class="w-4 h-4"></i> Deny Access
+                                    <i data-lucide="shield-ban" class="w-4 h-4"></i> Deny
                                 </button>
                             </td>
                         </tr>
@@ -259,86 +562,63 @@
                 });
                 lucide.createIcons();
             });
-        });
+        }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            signOut(auth).then(() => window.location.href = 'index.html'); 
-        });
-
-        // Tab Switching Logic
-        window.switchTab = (tab) => {
-            const btnP = document.getElementById('nav-payments');
-            const btnC = document.getElementById('nav-contacts');
-            const iconHTML = tab === 'payments' ? '<i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> UTR Verifications' : '<i data-lucide="shield-check" class="w-5 h-5 text-brand-500"></i> Access Requests';
-            
-            document.getElementById('headerTitle').innerHTML = iconHTML;
-            lucide.createIcons();
-
-            document.getElementById('paymentsTab').style.display = tab === 'payments' ? 'block' : 'none';
-            document.getElementById('contactsTab').style.display = tab === 'contacts' ? 'block' : 'none';
-            
-            // Reset styles
-            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
-            const inactiveClass = ['text-slate-400', 'border-transparent'];
-            
-            if (tab === 'payments') {
-                btnP.classList.add(...activeClass); btnP.classList.remove(...inactiveClass);
-                btnC.classList.add(...inactiveClass); btnC.classList.remove(...activeClass);
-            } else {
-                btnC.classList.add(...activeClass); btnC.classList.remove(...inactiveClass);
-                btnP.classList.add(...inactiveClass); btnP.classList.remove(...activeClass);
-            }
+        // ================= UTR MODAL LOGIC =================
+        window.openUtrModal = (payId, uid, utr, amount) => {
+            currentReviewPaymentId = payId;
+            document.getElementById('modal-uid').innerText = uid;
+            document.getElementById('modal-utr').innerText = utr;
+            document.getElementById('modal-amount').innerText = `₹${amount}`;
+            document.getElementById('utrModal').classList.add('active');
         };
 
-        // Handlers
-        window.decidePayment = async (docId, decision) => {
-            if(!confirm(`Confirm action: Mark this UTR submission as ${decision.toUpperCase()}?`)) return;
+        window.closeUtrModal = () => {
+            currentReviewPaymentId = null;
+            document.getElementById('utrModal').classList.remove('active');
+        };
+
+        document.getElementById('btn-approve-utr').addEventListener('click', async () => {
+            if(!currentReviewPaymentId) return;
             try {
-                await updateDoc(doc(db, "payments", docId), {
-                    status: decision,
-                    reviewedAt: serverTimestamp(),
-                    reviewedBy: currentUser.uid
+                await updateDoc(doc(db, "payments", currentReviewPaymentId), {
+                    status: 'approved', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid
                 });
+                closeUtrModal();
             } catch(e) { alert("Action failed: " + e.message); }
-        };
+        });
 
-        window.approveContact = async (reqId, employerUid, employeeUid) => {
-            if(!confirm("SECURITY WARNING: This action will expose the professional's private contact details to the requesting employer. Proceed?")) return;
+        document.getElementById('btn-reject-utr').addEventListener('click', async () => {
+            if(!currentReviewPaymentId) return;
+            if(!confirm("Are you sure you want to REJECT this UTR submission?")) return;
             try {
-                // Fetch private professional data
+                await updateDoc(doc(db, "payments", currentReviewPaymentId), {
+                    status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid, adminNotes: 'Invalid UTR submitted.'
+                });
+                closeUtrModal();
+            } catch(e) { alert("Action failed: " + e.message); }
+        });
+
+        // ================= CONTACTS LOGIC =================
+        window.approveContact = async (reqId, employerUid, employeeUid) => {
+            if(!confirm("SECURITY WARNING: Exposing professional's private contact details to the requesting employer. Proceed?")) return;
+            try {
                 const userDoc = await getDoc(doc(db, "users", employeeUid));
                 if (!userDoc.exists()) throw new Error("Professional's private record not found.");
                 
                 const privateData = userDoc.data();
-
-                // Create secure share document
                 await addDoc(collection(db, "contactShares"), {
-                    employerUid: employerUid,
-                    employeeUid: employeeUid,
-                    phone: privateData.phone,
-                    email: privateData.email,
-                    sharedBy: currentUser.uid,
-                    sharedAt: serverTimestamp()
+                    employerUid, employeeUid, phone: privateData.phone, email: privateData.email,
+                    sharedBy: currentUser.uid, sharedAt: serverTimestamp()
                 });
-
-                // Update request status
-                await updateDoc(doc(db, "contactRequests", reqId), {
-                    status: 'approved',
-                    reviewedAt: serverTimestamp(),
-                    reviewedBy: currentUser.uid
-                });
-                
+                await updateDoc(doc(db, "contactRequests", reqId), { status: 'approved', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
             } catch (e) { alert("Action failed: " + e.message); }
         };
 
         window.rejectContact = async (reqId) => {
             if(!confirm("Deny this contact request?")) return;
             try {
-                await updateDoc(doc(db, "contactRequests", reqId), { 
-                    status: 'rejected', 
-                    reviewedAt: serverTimestamp(), 
-                    reviewedBy: currentUser.uid 
-                });
+                await updateDoc(doc(db, "contactRequests", reqId), { status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
             } catch(e) { alert("Action failed: " + e.message); }
         };
     </script>
