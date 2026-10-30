@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employer Dashboard | WorkHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hiring Partner | WorkHub</title>
     
-    <!-- Fonts -->
+    <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tailwind Config for Custom Colors (Black & Gold Theme) -->
+    <!-- Tailwind Config for Black & Gold Premium Theme -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,19 +24,21 @@
                     },
                     colors: {
                         brand: {
-                            50: '#fffdf5', 100: '#fff8e1', 200: '#ffebb8', 300: '#ffd67a',
-                            400: '#ffc142', 500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a',
-                            900: '#111111', 950: '#0a0a0a',
+                            500: '#eab308', /* Primary Gold */
+                            600: '#ca8a04', 
+                            800: '#1a1a1a', 
+                            900: '#111111', 
+                            950: '#0a0a0a',
                         }
                     },
                     animation: {
                         'glow': 'glow 3s ease-in-out infinite alternate',
-                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         glow: {
                             '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
-                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                            '100%': { filter: 'drop-shadow(0 0 20px rgba(234, 179, 8, 0.8))' }
                         },
                         slideUp: {
                             '0%': { transform: 'translateY(20px)', opacity: '0' },
@@ -54,30 +56,65 @@
     <style>
         body {
             -webkit-font-smoothing: antialiased;
-            background-color: #0a0a0a;
+            background-color: #050505;
+            color: #f8fafc;
         }
         
         .glass-panel {
-            background: rgba(17, 17, 17, 0.85);
+            background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+        .input-dark {
+            background: #111; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff; 
+            transition: all 0.2s;
+        }
+        .input-dark:focus {
+            border-color: #eab308; 
+            box-shadow: 0 0 0 1px #eab308; 
+            outline: none;
+            background: #1a1a1a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+        select option { background-color: #111; color: #fff; }
+        input, select { font-size: 16px !important; }
+        
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; }
+
+        /* Modal Transitions */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
     </style>
 </head>
-<body class="text-slate-200 h-screen flex overflow-hidden font-sans">
+<body class="h-screen flex overflow-hidden font-sans relative">
 
-    <!-- Sidebar -->
-    <aside class="w-72 bg-[#111] border-r border-white/5 flex-shrink-0 hidden md:flex flex-col z-20 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
-        <div class="h-20 flex items-center px-6 border-b border-white/5 bg-[#0a0a0a]">
-            <!-- Exact Logo SVG -->
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-6 h-6 text-brand-500"></i>
+            <span class="font-bold text-white tracking-tight">WorkHub</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar / Mobile Menu -->
+    <aside id="sidebar" class="fixed md:static top-0 left-0 w-72 h-full bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-16 md:h-20 flex items-center justify-between md:justify-start px-6 border-b border-white/5 bg-[#050505]">
             <div class="flex items-center gap-3">
-                <div class="h-8 w-8 flex-shrink-0 animate-glow">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow hidden md:block">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
@@ -93,98 +130,168 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-bold tracking-tight text-white leading-tight uppercase">WorkHub</span>
-                    <span class="text-[0.65rem] font-bold text-brand-500 tracking-widest uppercase">Employer Portal</span>
+                    <span class="text-lg md:text-xl font-bold tracking-tight text-white leading-tight uppercase">WorkHub</span>
+                    <span class="text-[0.6rem] font-bold text-brand-500 tracking-widest uppercase hidden md:block">Hiring Partner</span>
                 </div>
             </div>
+            <!-- Mobile Close Button -->
+            <button id="closeMenuBtn" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         
         <div class="p-4 flex-1 mt-2">
             <nav class="space-y-2">
-                <button onclick="switchTab('directory')" id="nav-directory" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-semibold transition-all">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Overview
+                </button>
+                <button onclick="switchTab('directory')" id="nav-directory" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                     <i data-lucide="users" class="w-5 h-5"></i> Talent Directory
                 </button>
-                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-all border border-transparent">
-                    <i data-lucide="inbox" class="w-5 h-5"></i> My Access Requests
+                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center justify-between px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                    <div class="flex items-center gap-3"><i data-lucide="inbox" class="w-5 h-5"></i> Access Requests</div>
+                    <span id="badge-requests" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                    <i data-lucide="building" class="w-5 h-5"></i> Company Profile
                 </button>
             </nav>
         </div>
         
-        <div class="p-4 border-t border-white/5 bg-[#0a0a0a]">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-all">
+        <div class="p-4 border-t border-white/5 bg-[#050505]">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 border border-transparent rounded-xl font-bold transition-all">
                 <i data-lucide="log-out" class="w-5 h-5"></i> Secure Logout
             </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto relative bg-[#0a0a0a]" id="mainContent" style="display: none;">
-        
-        <!-- Abstract Glow Background -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-20 pointer-events-none"></div>
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 hidden md:hidden"></div>
 
-        <header class="h-20 glass-panel flex items-center px-8 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-md shadow-black">
-            <h1 class="text-xl font-bold text-white flex items-center gap-3" id="headerTitle">
-                <i data-lucide="users" class="w-5 h-5 text-brand-500"></i> Talent Directory
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative bg-[#050505] pt-16 md:pt-0 custom-scrollbar" id="mainContent" style="display: none;">
+        
+        <!-- Background Glow -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[100px] opacity-20 pointer-events-none"></div>
+
+        <header class="hidden md:flex h-20 glass-panel items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
+            <h1 class="text-2xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
+                <i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Partner Overview
             </h1>
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <p class="text-sm font-bold text-white" id="companyNameLabel">Loading...</p>
-                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">Hiring Partner</p>
+                    <p class="text-sm font-bold text-white truncate max-w-[200px]" id="companyNameHeader">Loading...</p>
+                    <p class="text-xs text-brand-500 font-bold tracking-widest uppercase">Verified Employer</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center font-bold text-brand-500 shadow-lg shadow-brand-500/10">
-                    <i data-lucide="building" class="w-5 h-5"></i>
+                <div class="w-10 h-10 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center font-bold text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]" id="userInitial">
+                    <i data-lucide="building-2" class="w-5 h-5"></i>
                 </div>
             </div>
         </header>
 
-        <div class="p-6 md:p-8 max-w-7xl mx-auto relative z-10">
+        <div class="p-4 md:p-8 max-w-7xl mx-auto relative z-10">
+
+            <!-- ================= DASHBOARD TAB ================= -->
+            <div id="dashboardTab" class="tab-content active animate-slide-up space-y-6">
+                
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-br from-[#111] to-[#1a1a1a] border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
+                    <div class="absolute -right-10 -top-10 text-white/5 group-hover:scale-110 transition-transform duration-700">
+                        <i data-lucide="briefcase" class="w-48 h-48"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Welcome to your hiring hub.</h2>
+                        <p class="text-slate-400 font-inter max-w-lg leading-relaxed">Search our premium directory of 100% verified talent. When you find a match, request access to securely reveal their contact information.</p>
+                        <button onclick="switchTab('directory')" class="mt-6 px-6 py-3 bg-brand-500 text-black rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2">
+                            Browse Talent Directory <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/5 shadow-xl flex items-center justify-between group hover:border-brand-500/30 transition-all">
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Requests Sent</p>
+                            <h3 class="text-3xl font-extrabold text-white" id="stat-total">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
+                            <i data-lucide="file-text" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/5 shadow-xl flex items-center justify-between group hover:border-amber-500/30 transition-all">
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pending Verification</p>
+                            <h3 class="text-3xl font-extrabold text-amber-500" id="stat-pending">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-2xl border border-white/5 shadow-xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Unlocked Contacts</p>
+                            <h3 class="text-3xl font-extrabold text-emerald-500" id="stat-approved">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500">
+                            <i data-lucide="unlock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- ================= DIRECTORY TAB ================= -->
-            <div id="directoryTab" class="animate-slide-up">
+            <div id="directoryTab" class="tab-content animate-slide-up">
                 
                 <!-- Search & Filters -->
-                <div class="bg-[#111] p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-4 mb-8 shadow-xl">
+                <div class="bg-[#111] p-4 rounded-2xl border border-white/10 flex flex-col lg:flex-row gap-4 mb-8 shadow-xl relative z-20">
                     <div class="relative flex-1">
                         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
-                        <input type="text" id="searchKeyword" placeholder="Search by skills or name..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
+                        <input type="text" id="searchKeyword" placeholder="Search by skills, roles, or names..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm shadow-inner">
                     </div>
-                    <div class="flex gap-4 w-full md:w-auto">
-                        <select id="searchCity" class="flex-1 md:w-48 bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none">
-                            <option value="">Any City</option>
-                            <!-- Dynamically populated -->
-                        </select>
-                        <select id="searchExp" class="flex-1 md:w-48 bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none">
-                            <option value="">Any Experience</option>
-                            <option value="Fresher">Fresher (0 years)</option>
-                            <option value="1-3 Years">1-3 Years</option>
-                            <option value="3-5 Years">3-5 Years</option>
-                            <option value="5+ Years">5+ Years</option>
-                        </select>
+                    <div class="flex flex-col sm:flex-row gap-4 lg:w-auto">
+                        <div class="relative w-full sm:w-48">
+                            <select id="searchCity" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none cursor-pointer">
+                                <option value="">Any City</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                        </div>
+                        <div class="relative w-full sm:w-56">
+                            <select id="searchExp" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none cursor-pointer">
+                                <option value="">Any Experience</option>
+                                <option value="Fresher">Fresher (0 years)</option>
+                                <option value="1-3 Years">1-3 Years</option>
+                                <option value="3-5 Years">3-5 Years</option>
+                                <option value="5+ Years">5+ Years</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Employee Grid -->
-                <div id="employeeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="employeeGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10">
                     <!-- Cards injected via JS -->
                 </div>
             </div>
 
             <!-- ================= REQUESTS TAB ================= -->
-            <div id="requestsTab" class="hidden animate-slide-up">
+            <div id="requestsTab" class="tab-content animate-slide-up">
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
-                    <div class="p-6 border-b border-white/5 bg-[#1a1a1a]">
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="unlock" class="w-5 h-5 text-brand-500"></i> Unlocked Candidates
-                        </h2>
-                        <p class="text-sm text-slate-400 font-inter mt-1">Candidates you have requested to contact, reviewed by the Verification Team.</p>
+                    <div class="p-6 border-b border-white/5 bg-[#1a1a1a] flex justify-between items-center flex-wrap gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="inbox" class="w-5 h-5 text-brand-500"></i> Active Requests
+                            </h2>
+                            <p class="text-sm text-slate-400 font-inter mt-1">Track the status of candidates you've requested to contact.</p>
+                        </div>
                     </div>
+                    
                     <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
-                            <thead class="bg-[#1a1a1a] border-b border-white/10 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                        <!-- Mobile Card View & Desktop Table hybrid logic using CSS -->
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[600px]">
+                            <thead class="bg-[#151515] border-b border-white/5 text-slate-400 uppercase text-xs tracking-wider font-bold">
                                 <tr>
                                     <th class="p-5">Candidate Name</th>
-                                    <th class="p-5">Review Status</th>
+                                    <th class="p-5">System Status</th>
                                     <th class="p-5">Secure Contact Details</th>
                                 </tr>
                             </thead>
@@ -196,76 +303,239 @@
                 </div>
             </div>
 
+            <!-- ================= COMPANY PROFILE TAB ================= -->
+            <div id="profileTab" class="tab-content animate-slide-up">
+                <div class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden max-w-4xl mx-auto">
+                    <div class="p-6 md:p-8 border-b border-white/5 bg-[#151515]">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                            <i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Company Settings
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-2 font-inter">Update your company details. Providing a website helps verify your identity faster.</p>
+                    </div>
+                    
+                    <form id="profileForm" class="p-6 md:p-8 space-y-6">
+                        
+                        <div id="profileAlert" class="hidden p-4 rounded-xl text-sm border flex items-start gap-3 transition-all bg-emerald-950/30 text-emerald-400 border-emerald-900/50">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <span class="font-inter font-medium">Company profile successfully updated.</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Locked Email -->
+                            <div class="space-y-2 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Account Email (Locked)</label>
+                                <input type="email" id="editEmail" readonly class="w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/5 rounded-xl text-slate-500 font-medium cursor-not-allowed">
+                            </div>
+
+                            <!-- Editable Fields -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Company / Business Name</label>
+                                <input type="text" id="editCompanyName" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Industry</label>
+                                <input type="text" id="editIndustry" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium" placeholder="e.g. IT, Healthcare, Retail">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Contact Person (Your Name)</label>
+                                <input type="text" id="editFullName" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Mobile Number</label>
+                                <input type="tel" id="editPhone" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
+                            </div>
+
+                            <!-- Optional Website -->
+                            <div class="space-y-2 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Company Website <span class="text-slate-500 normal-case tracking-normal font-normal">(Optional)</span></label>
+                                <div class="relative">
+                                    <i data-lucide="globe" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                                    <input type="url" id="editWebsite" placeholder="https://www.yourcompany.com" class="w-full pl-12 pr-4 py-3.5 input-dark rounded-xl font-medium placeholder-slate-600">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/5 flex justify-end">
+                            <button type="submit" id="saveProfileBtn" class="w-full md:w-auto px-8 py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i> Save Details
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </main>
+
+    <!-- CUSTOM PREMIUM MODAL: Request Access -->
+    <div id="requestModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden relative flex flex-col">
+            
+            <div class="px-6 md:px-8 pt-8 pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div>
+                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
+                        <i data-lucide="lock" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-white">Request Secure Access</h2>
+                </div>
+                <button onclick="closeRequestModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="p-6 md:p-8 space-y-6 font-inter bg-[#111]">
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    To maintain privacy, candidate contact details (Email & Phone) are hidden. 
+                    Submitting this request will notify our Verification Team to securely release this candidate's information to <strong class="text-white" id="modalCompanyName">Your Company</strong>.
+                </p>
+                
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/5 text-slate-400 rounded-full flex items-center justify-center border border-white/10">
+                        <i data-lucide="user" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold text-lg" id="modalCandidateName">Candidate Name</p>
+                        <p class="text-brand-500 text-xs font-bold tracking-wider uppercase" id="modalCandidateRole">Qualification</p>
+                    </div>
+                </div>
+                
+                <button id="confirmRequestBtn" class="w-full py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i> Confirm & Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script type="module">
         lucide.createIcons();
-        import { auth, db, doc, getDoc, collection, getDocs, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+        import { auth, db, doc, getDoc, updateDoc, collection, getDocs, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
 
         let currentUser = null;
-        let requestedUids = new Set(); // To keep track of who we already requested
-        let allProfiles = []; // Cache for filtering
+        let profileDocRef = null;
+        let requestedUids = new Set(); 
+        let allProfiles = []; 
+        let targetRequestUid = null; // For the modal
 
+        // Mobile Menu Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+        function toggleMobileMenu() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        closeMenuBtn.addEventListener('click', toggleMobileMenu);
+        overlay.addEventListener('click', toggleMobileMenu);
+
+        // Security / Auth Check
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (!userDoc.exists() || userDoc.data().role !== 'employer') {
-                await signOut(auth); 
-                window.location.href = 'index.html'; 
-                return;
-            }
-            
-            currentUser = user;
-            const employerDoc = await getDoc(doc(db, "employerProfiles", user.uid));
-            if(employerDoc.exists()) {
-                document.getElementById('companyNameLabel').innerText = employerDoc.data().companyName;
-            }
-            document.getElementById('mainContent').style.display = 'block';
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists() || userDoc.data().role !== 'employer') {
+                    await signOut(auth); window.location.href = 'index.html'; return;
+                }
+                
+                currentUser = user;
+                const coreData = userDoc.data();
+                
+                // Fetch full employer profile
+                profileDocRef = doc(db, "employerProfiles", user.uid);
+                const empSnap = await getDoc(profileDocRef);
+                const empData = empSnap.exists() ? empSnap.data() : {};
+                
+                const compName = empData.companyName || 'Company';
 
-            // Real-time listener on employer's own contact requests
-            const q = query(collection(db, "contactRequests"), where("employerUid", "==", user.uid));
-            onSnapshot(q, (snap) => {
-                requestedUids.clear();
-                snap.forEach(d => requestedUids.add(d.data().employeeUid));
-                loadRequests(); // Update Requests Tab
-                renderDirectory(); // Update button states in Directory Tab
-            });
+                // Populate UI Headers
+                document.getElementById('companyNameHeader').innerText = compName;
+                document.getElementById('modalCompanyName').innerText = compName;
+                document.getElementById('mainContent').style.display = 'block';
 
-            // Initial fetch of directory
-            fetchDirectory();
+                // Populate Settings Form
+                document.getElementById('editEmail').value = coreData.email;
+                document.getElementById('editCompanyName').value = empData.companyName || '';
+                document.getElementById('editIndustry').value = empData.industry || '';
+                document.getElementById('editFullName').value = empData.fullName || coreData.fullName || '';
+                document.getElementById('editPhone').value = coreData.phone || '';
+                document.getElementById('editWebsite').value = empData.website || '';
+
+                // Setup Real-time Requests Listener
+                const q = query(collection(db, "contactRequests"), where("employerUid", "==", user.uid));
+                onSnapshot(q, (snap) => {
+                    requestedUids.clear();
+                    let pendingCount = 0;
+                    let approvedCount = 0;
+                    
+                    snap.forEach(d => {
+                        requestedUids.add(d.data().employeeUid);
+                        if(d.data().status === 'pending') pendingCount++;
+                        if(d.data().status === 'approved') approvedCount++;
+                    });
+                    
+                    // Update Dashboard Stats
+                    document.getElementById('stat-total').innerText = snap.size;
+                    document.getElementById('stat-pending').innerText = pendingCount;
+                    document.getElementById('stat-approved').innerText = approvedCount;
+
+                    // Update Badge
+                    const badge = document.getElementById('badge-requests');
+                    if(pendingCount > 0) {
+                        badge.innerText = pendingCount;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+
+                    loadRequestsTable(); 
+                    renderDirectory(); 
+                });
+
+                fetchDirectory();
+
+            } catch(e) { console.error("Auth Error", e); }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            signOut(auth).then(() => window.location.href = 'index.html'); 
-        });
-
-        // ================= TAB SWITCHING =================
+        // Tab Switching
         window.switchTab = (tab) => {
-            const btnD = document.getElementById('nav-directory');
-            const btnR = document.getElementById('nav-requests');
-            const iconHTML = tab === 'directory' 
-                ? '<i data-lucide="users" class="w-5 h-5 text-brand-500"></i> Talent Directory' 
-                : '<i data-lucide="inbox" class="w-5 h-5 text-brand-500"></i> My Access Requests';
+            const tabs = ['dashboard', 'directory', 'requests', 'profile'];
             
-            document.getElementById('headerTitle').innerHTML = iconHTML;
+            const headers = {
+                'dashboard': '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Partner Overview',
+                'directory': '<i data-lucide="users" class="w-6 h-6 text-brand-500"></i> Talent Directory',
+                'requests': '<i data-lucide="inbox" class="w-6 h-6 text-brand-500"></i> Access Requests',
+                'profile': '<i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Company Settings'
+            };
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl) titleEl.innerHTML = headers[tab];
             lucide.createIcons();
 
-            document.getElementById('directoryTab').style.display = tab === 'directory' ? 'block' : 'none';
-            document.getElementById('requestsTab').style.display = tab === 'requests' ? 'block' : 'none';
-            
-            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
-            const inactiveClass = ['text-slate-400', 'border-transparent'];
-            
-            if (tab === 'directory') {
-                btnD.classList.add(...activeClass); btnD.classList.remove(...inactiveClass);
-                btnR.classList.add(...inactiveClass); btnR.classList.remove(...activeClass);
-            } else {
-                btnR.classList.add(...activeClass); btnR.classList.remove(...inactiveClass);
-                btnD.classList.add(...inactiveClass); btnD.classList.remove(...activeClass);
-            }
+            tabs.forEach(t => {
+                document.getElementById(t + 'Tab').classList.remove('active');
+                const btn = document.getElementById('nav-' + t);
+                btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                btn.classList.add('text-slate-400', 'border-transparent');
+            });
+
+            document.getElementById(tab + 'Tab').classList.add('active');
+            const activeBtn = document.getElementById('nav-' + tab);
+            activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+            activeBtn.classList.remove('text-slate-400', 'border-transparent');
+
+            if(window.innerWidth < 768) toggleMobileMenu();
         };
 
         // ================= DIRECTORY LOGIC =================
@@ -273,7 +543,7 @@
             const snap = await getDocs(collection(db, "employeeProfiles"));
             allProfiles = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Populate City Filter dynamically based on available users
+            // Populate City Select
             const cities = [...new Set(allProfiles.map(p => p.city))].filter(Boolean).sort();
             const citySelect = document.getElementById('searchCity');
             cities.forEach(city => {
@@ -281,7 +551,6 @@
                 opt.value = city; opt.textContent = city;
                 citySelect.appendChild(opt);
             });
-
             renderDirectory();
         }
 
@@ -294,7 +563,7 @@
             grid.innerHTML = '';
             
             const filtered = allProfiles.filter(p => {
-                const matchKeyword = p.fullName?.toLowerCase().includes(keyword) || (p.skills && p.skills.join(' ').toLowerCase().includes(keyword));
+                const matchKeyword = p.fullName?.toLowerCase().includes(keyword) || (p.skills && p.skills.join(' ').toLowerCase().includes(keyword)) || p.qualification?.toLowerCase().includes(keyword);
                 const matchCity = !cityF || p.city === cityF;
                 const matchExp = !expF || p.experienceLevel === expF;
                 return matchKeyword && matchCity && matchExp;
@@ -308,78 +577,99 @@
             filtered.forEach(data => {
                 const hasRequested = requestedUids.has(data.id);
                 
+                // Add a "Saved/Bookmark" visual flair just for UI premium feel
                 const btnHtml = hasRequested 
-                    ? `<button disabled class="w-full py-3 mt-4 bg-white/5 text-slate-500 border border-white/5 rounded-xl font-bold cursor-not-allowed flex justify-center items-center gap-2">
+                    ? `<button disabled class="w-full py-3.5 mt-4 bg-white/5 text-slate-500 border border-white/5 rounded-xl font-bold cursor-not-allowed flex justify-center items-center gap-2">
                         <i data-lucide="clock" class="w-4 h-4"></i> Request Pending
                        </button>`
-                    : `<button onclick="requestContact('${data.id}')" class="w-full py-3 mt-4 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
+                    : `<button onclick="openRequestModal('${data.id}', '${data.fullName.replace(/'/g,"\\'")}', '${(data.qualification||'Professional').replace(/'/g,"\\'")}')" class="w-full py-3.5 mt-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
                         <i data-lucide="lock" class="w-4 h-4"></i> Request Secure Access
                        </button>`;
 
-                // Create skill tags (limit to 5)
                 const skillsList = data.skills || [];
-                const skillsHtml = skillsList.slice(0, 5).map(s => 
-                    `<span class="bg-[#1a1a1a] border border-white/10 text-slate-300 px-2.5 py-1 rounded text-xs font-bold tracking-wide">${s}</span>`
-                ).join('');
-                const extraSkills = skillsList.length > 5 ? `<span class="text-xs text-slate-500 font-bold px-1">+${skillsList.length - 5} more</span>` : '';
+                const skillsHtml = skillsList.slice(0, 4).map(s => `<span class="bg-black border border-white/10 text-slate-300 px-2.5 py-1 rounded text-[10px] font-bold tracking-wide">${s}</span>`).join('');
+                const extraSkills = skillsList.length > 4 ? `<span class="text-xs text-slate-500 font-bold px-1">+${skillsList.length - 4}</span>` : '';
 
                 grid.innerHTML += `
-                    <div class="bg-[#111] p-6 rounded-2xl border border-white/10 shadow-xl hover:border-brand-500/30 transition-all duration-300 flex flex-col group">
-                        <div class="flex justify-between items-start mb-5">
-                            <div>
+                    <div class="bg-[#111] p-6 md:p-8 rounded-3xl border border-white/5 shadow-xl hover:border-brand-500/30 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-500/5 rounded-full blur-2xl group-hover:bg-brand-500/10 transition-colors"></div>
+                        
+                        <div class="flex justify-between items-start mb-5 relative z-10">
+                            <div class="pr-2">
                                 <h3 class="font-extrabold text-xl text-white group-hover:text-brand-500 transition-colors">${data.fullName}</h3>
-                                <p class="text-sm text-slate-400 mt-1">${data.qualification || 'Professional'}</p>
+                                <p class="text-xs text-brand-500 font-bold tracking-widest uppercase mt-1.5">${data.qualification || 'Professional'}</p>
                             </div>
-                            <div class="bg-brand-500/10 text-brand-500 border border-brand-500/20 p-2.5 rounded-xl"><i data-lucide="user-circle" class="w-6 h-6"></i></div>
-                        </div>
-                        
-                        <div class="space-y-3 mb-5 flex-1 border-t border-white/5 pt-4">
-                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i> ${data.city || 'Not specified'}
-                            </div>
-                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
-                                <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i> ${data.experienceLevel || 'Not specified'}
+                            <div class="bg-white/5 text-slate-400 border border-white/10 p-2.5 rounded-xl group-hover:bg-brand-500/10 group-hover:border-brand-500/20 group-hover:text-brand-500 transition-colors shrink-0">
+                                <i data-lucide="user" class="w-5 h-5"></i>
                             </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Verified Skills</p>
+                        <div class="space-y-3 mb-6 flex-1 border-t border-white/5 pt-5 relative z-10">
+                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i> ${data.city || 'Location unspecified'}
+                            </div>
+                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
+                                <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i> ${data.experienceLevel || 'Experience unspecified'}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 relative z-10">
                             <div class="flex flex-wrap gap-2 items-center">
                                 ${skillsHtml} ${extraSkills}
                             </div>
                         </div>
                         
-                        ${btnHtml}
+                        <div class="relative z-10">${btnHtml}</div>
                     </div>
                 `;
             });
             lucide.createIcons();
         }
 
-        // Event listeners for filters
         document.getElementById('searchKeyword').addEventListener('input', renderDirectory);
         document.getElementById('searchCity').addEventListener('change', renderDirectory);
         document.getElementById('searchExp').addEventListener('change', renderDirectory);
 
-        window.requestContact = async (employeeUid) => {
-            if(!confirm("Request to securely unlock this candidate's contact details? Our Verification Team will review your request.")) return;
+        // ================= REQUEST MODAL LOGIC =================
+        window.openRequestModal = (uid, name, role) => {
+            targetRequestUid = uid;
+            document.getElementById('modalCandidateName').innerText = name;
+            document.getElementById('modalCandidateRole').innerText = role;
+            document.getElementById('requestModal').classList.add('active');
+        };
+
+        window.closeRequestModal = () => {
+            document.getElementById('requestModal').classList.remove('active');
+            targetRequestUid = null;
+        };
+
+        document.getElementById('confirmRequestBtn').addEventListener('click', async () => {
+            if(!targetRequestUid) return;
+            const btn = document.getElementById('confirmRequestBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> Submitting...';
+            
             try {
                 await addDoc(collection(db, "contactRequests"), {
                     employerUid: currentUser.uid, 
-                    employeeUid: employeeUid,
+                    employeeUid: targetRequestUid,
                     status: 'pending', 
                     createdAt: serverTimestamp()
                 });
-                // Snapshot listener will auto-update the UI to show "Pending"
-            } catch(e) { alert("Error: " + e.message); }
-        };
+                closeRequestModal();
+            } catch(e) { 
+                alert("Error: " + e.message); 
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        });
 
-        // ================= REQUESTS LOGIC =================
-        window.loadRequests = async () => {
+        // ================= REQUESTS TABLE LOGIC =================
+        window.loadRequestsTable = async () => {
             const table = document.getElementById('requestsTableBody');
             table.innerHTML = '';
             
-            // Get all requests for this employer
             const reqsSnap = await getDocs(query(collection(db, "contactRequests"), where("employerUid", "==", currentUser.uid)));
             
             if (reqsSnap.empty) {
@@ -393,39 +683,46 @@
                 // Fetch public profile to display the name
                 const empSnap = await getDoc(doc(db, "employeeProfiles", req.employeeUid));
                 const empName = empSnap.exists() ? empSnap.data().fullName : 'Unknown Professional';
+                const empQual = empSnap.exists() ? empSnap.data().qualification : 'Professional';
 
                 let contactHtml = `<div class="text-slate-500 italic font-medium flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i> Hidden pending review</div>`;
-                let statusBadge = `<span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-xs font-bold uppercase tracking-wider animate-pulse">Awaiting Review</span>`;
+                let statusBadge = `<span class="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-md text-[10px] font-bold uppercase tracking-widest animate-pulse">Awaiting Review</span>`;
 
                 if (req.status === 'approved') {
-                    statusBadge = `<span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Access Granted</span>`;
+                    statusBadge = `<span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-md text-[10px] font-bold uppercase tracking-widest">Access Granted</span>`;
                     
-                    // Because it's approved, the Admin created a record in 'contactShares' that we are allowed to read via Security Rules.
                     const sharesSnap = await getDocs(query(collection(db, "contactShares"), where("employerUid", "==", currentUser.uid), where("employeeUid", "==", req.employeeUid)));
                     
                     if (!sharesSnap.empty) {
                         const shareData = sharesSnap.docs[0].data();
                         contactHtml = `
                             <div class="flex flex-col gap-2">
-                                <a href="tel:${shareData.phone}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#1a1a1a] w-max px-3 py-1.5 rounded-lg border border-white/5">
+                                <a href="tel:${shareData.phone}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#0a0a0a] w-max px-3.5 py-2 rounded-lg border border-white/5 shadow-md">
                                     <i data-lucide="phone" class="w-4 h-4 text-brand-500"></i> ${shareData.phone}
                                 </a>
-                                <a href="mailto:${shareData.email}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#1a1a1a] w-max px-3 py-1.5 rounded-lg border border-white/5">
+                                <a href="mailto:${shareData.email}" class="flex items-center gap-2 text-white hover:text-brand-500 transition font-bold bg-[#0a0a0a] w-max px-3.5 py-2 rounded-lg border border-white/5 shadow-md">
                                     <i data-lucide="mail" class="w-4 h-4 text-brand-500"></i> ${shareData.email}
                                 </a>
                             </div>
                         `;
                     }
                 } else if (req.status === 'rejected') {
-                    statusBadge = `<span class="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-xs font-bold uppercase tracking-wider">Request Denied</span>`;
-                    contactHtml = `<span class="text-red-500/50 italic font-medium">Access revoked by system</span>`;
+                    statusBadge = `<span class="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-[10px] font-bold uppercase tracking-widest">Request Denied</span>`;
+                    contactHtml = `<span class="text-red-500/50 italic font-medium">Access revoked by verification team</span>`;
                 }
 
                 table.innerHTML += `
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-5">
-                            <span class="font-bold text-white text-base">${empName}</span>
-                            <div class="text-xs text-slate-500 font-mono mt-1">UID: ...${req.employeeUid.slice(-8)}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#111] border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-brand-500 group-hover:border-brand-500/30 transition-colors">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-white text-base block">${empName}</span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mt-0.5">${empQual}</span>
+                                </div>
+                            </div>
                         </td>
                         <td class="p-5">${statusBadge}</td>
                         <td class="p-5">${contactHtml}</td>
@@ -434,6 +731,63 @@
             }
             lucide.createIcons();
         };
+
+        // ================= PROFILE FORM SUBMIT =================
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            const ogHtml = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<div class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> Saving...';
+            
+            try {
+                // Update specific employer profile doc
+                await updateDoc(profileDocRef, {
+                    companyName: document.getElementById('editCompanyName').value.trim(),
+                    industry: document.getElementById('editIndustry').value.trim(),
+                    fullName: document.getElementById('editFullName').value.trim(),
+                    website: document.getElementById('editWebsite').value.trim()
+                });
+                
+                // Update core user doc (for phone updates)
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    phone: document.getElementById('editPhone').value.trim(),
+                    fullName: document.getElementById('editFullName').value.trim()
+                });
+
+                // Update Header immediately
+                document.getElementById('companyNameHeader').innerText = document.getElementById('editCompanyName').value.trim();
+                
+                const alertBox = document.getElementById('profileAlert');
+                alertBox.classList.remove('hidden');
+                setTimeout(() => alertBox.classList.add('hidden'), 4000);
+            } catch (err) {
+                alert("Failed to save settings: " + err.message);
+            } finally {
+                btn.disabled = false; btn.innerHTML = ogHtml;
+                lucide.createIcons();
+            }
+        });
+
+        // ================= SMOOTH ANIMATED LOGOUT =================
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 bg-[#050505] z-[9999] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center";
+            overlay.innerHTML = `
+                <div class="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                <p class="text-brand-500 font-bold tracking-widest uppercase text-sm">Securely Logging Out...</p>
+            `;
+            document.body.appendChild(overlay);
+            
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            });
+
+            setTimeout(() => {
+                signOut(auth).then(() => window.location.href = 'index.html');
+            }, 600);
+        });
+
     </script>
 </body>
 </html>
