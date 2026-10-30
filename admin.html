@@ -25,13 +25,12 @@
                     },
                     colors: {
                         brand: {
-                            400: '#ffc142', 500: '#eab308', 600: '#ca8a04', 900: '#111111', 950: '#0a0a0a', 
+                            500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a', 
                         }
                     },
                     animation: {
                         'glow': 'glow 3s ease-in-out infinite alternate',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'fade-in': 'fadeIn 0.3s ease-out forwards',
                         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
@@ -54,11 +53,10 @@
 
     <style>
         body { -webkit-font-smoothing: antialiased; background-color: #050505; color: #f8fafc; overflow: hidden; }
-        .glass-panel { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(234,179,8,0.5); }
         
         /* Modal Transitions */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -76,15 +74,29 @@
             0% { box-shadow: 0 0 0 2px #10b981; border-color: #10b981; }
             100% { box-shadow: 0 0 0 0 transparent; border-color: rgba(255,255,255,0.1); }
         }
+        
+        select option { background-color: #111; color: #fff; }
     </style>
 </head>
 <body class="h-screen flex font-sans relative">
 
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2">
+            <i data-lucide="shield" class="w-6 h-6 text-brand-500"></i>
+            <span class="font-bold text-white tracking-tight uppercase">Command Center</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
     <!-- Sidebar -->
-    <aside class="w-72 bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 flex flex-col z-20 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
-        <div class="h-20 flex items-center px-6 border-b border-white/5 bg-[#050505]">
-            <div class="flex items-center gap-4">
-                <div class="h-9 w-9 flex-shrink-0 animate-glow">
+    <aside id="sidebar" class="fixed md:static top-0 left-0 w-72 h-full bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-16 md:h-20 flex items-center justify-between md:justify-start px-6 border-b border-white/5 bg-[#050505]">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow hidden md:block">
+                    <!-- Logo SVG -->
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
@@ -100,10 +112,11 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-bold tracking-tight text-white leading-tight uppercase">Command</span>
-                    <span class="text-[0.6rem] font-bold text-brand-500 tracking-widest uppercase">System Admin</span>
+                    <span class="text-lg md:text-xl font-bold tracking-tight text-white leading-tight uppercase">Command</span>
+                    <span class="text-[0.6rem] font-bold text-brand-500 tracking-widest uppercase hidden md:block">System Admin</span>
                 </div>
             </div>
+            <button id="closeMenuBtn" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         
         <div class="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-1">
@@ -138,13 +151,14 @@
         </div>
     </aside>
 
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto relative bg-[#050505] custom-scrollbar" id="mainContent" style="display:none;">
+    <main class="flex-1 overflow-y-auto relative bg-[#050505] pt-16 md:pt-0 custom-scrollbar" id="mainContent" style="display:none;">
         
-        <!-- Abstract Glow Background -->
         <div class="absolute top-0 right-0 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-20 pointer-events-none z-0"></div>
 
-        <header class="h-20 glass-panel flex items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
+        <header class="hidden md:flex h-20 glass-panel items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
             <div>
                 <h1 class="text-xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
                     <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> Live Analytics
@@ -163,12 +177,11 @@
             </div>
         </header>
 
-        <div class="p-8 md:p-10 max-w-[1600px] mx-auto relative z-10">
+        <div class="p-4 md:p-10 max-w-[1600px] mx-auto relative z-10">
             
             <!-- ================= DASHBOARD TAB ================= -->
             <div id="dashboardTab" class="tab-content active animate-slide-up space-y-8">
-                <!-- Metrics Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                     <div class="bg-[#111] p-6 rounded-3xl border border-emerald-500/20 shadow-xl relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.05)]">
                         <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="radio" class="w-24 h-24 text-emerald-500"></i></div>
                         <p class="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -200,11 +213,10 @@
 
             <!-- ================= USERS DIRECTORY TAB ================= -->
             <div id="usersTab" class="tab-content animate-slide-up space-y-6">
-                <!-- Controls -->
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#111] p-4 rounded-2xl border border-white/5 shadow-lg">
                     <div class="relative w-full md:w-96">
                         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
-                        <input type="text" id="userSearch" placeholder="Search by name, email, or exact ID..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
+                        <input type="text" id="userSearch" placeholder="Search by name, email..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
                     </div>
                     <div class="flex gap-4 w-full md:w-auto">
                         <select id="roleFilter" class="w-full md:w-auto bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold">
@@ -216,7 +228,6 @@
                     </div>
                 </div>
 
-                <!-- Users Table -->
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar max-h-[650px]">
                         <table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1000px]">
@@ -229,9 +240,7 @@
                                     <th class="p-5 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="usersBody" class="divide-y divide-white/5">
-                                <!-- Users injected dynamically -->
-                            </tbody>
+                            <tbody id="usersBody" class="divide-y divide-white/5"></tbody>
                         </table>
                     </div>
                 </div>
@@ -241,7 +250,7 @@
             <div id="paymentsTab" class="tab-content animate-slide-up">
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
                             <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold">
                                 <tr>
                                     <th class="p-5">Professional Name</th>
@@ -261,7 +270,7 @@
             <div id="contactsTab" class="tab-content animate-slide-up">
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
                             <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold">
                                 <tr>
                                     <th class="p-5">Requesting Employer</th>
@@ -279,17 +288,17 @@
             <!-- ================= LOGS TAB ================= -->
             <div id="logsTab" class="tab-content animate-slide-up">
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
-                    <div class="p-6 border-b border-white/5 bg-[#151515] flex justify-between items-center">
+                    <div class="p-4 md:p-6 border-b border-white/5 bg-[#151515] flex justify-between items-center">
                         <div>
                             <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                 <i data-lucide="clipboard-list" class="w-5 h-5 text-brand-500"></i> Audit Trail
                             </h2>
-                            <p class="text-sm text-slate-400 font-inter mt-1">Immutable record of all administrative and security actions.</p>
+                            <p class="text-xs md:text-sm text-slate-400 font-inter mt-1">Immutable record of all administrative and security actions.</p>
                         </div>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar max-h-[600px]">
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter">
-                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10">
                                 <tr>
                                     <th class="p-5">Timestamp</th>
                                     <th class="p-5">Operator</th>
@@ -309,28 +318,27 @@
     <!-- MODAL: Detailed UTR Verification -->
     <div id="utrModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
-            <div class="px-8 pt-8 pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
                 <div>
-                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
-                        <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-alert" class="w-5 h-5 md:w-6 md:h-6"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-white">Verify Payment</h2>
-                    <p class="text-slate-400 mt-1 font-inter text-sm">Please verify the transaction details carefully.</p>
+                    <h2 class="text-xl md:text-2xl font-bold text-white">Verify Payment</h2>
                 </div>
                 <button onclick="closeUtrModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-8 space-y-4 font-inter">
-                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span class="text-slate-400 text-sm">Professional Name</span>
-                    <span class="text-white font-bold text-sm" id="modal-pay-name"></span>
+            <div class="p-6 md:p-8 space-y-4 font-inter">
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
+                    <span class="text-slate-400 text-xs md:text-sm">Professional Name</span>
+                    <span class="text-white font-bold text-sm truncate" id="modal-pay-name"></span>
                 </div>
-                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                    <span class="text-slate-400 text-sm">Amount Paid</span>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
+                    <span class="text-slate-400 text-xs md:text-sm">Amount Paid</span>
                     <span class="text-brand-500 font-bold text-lg" id="modal-amount"></span>
                 </div>
-                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-brand-500/30 flex justify-between items-center shadow-[0_0_15px_rgba(234,179,8,0.1)]">
-                    <span class="text-brand-500 text-sm font-bold">Reported UTR</span>
-                    <span class="text-white font-mono text-lg font-bold tracking-widest bg-black px-3 py-1 rounded" id="modal-utr"></span>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-brand-500/30 flex flex-col sm:flex-row justify-between sm:items-center gap-3 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                    <span class="text-brand-500 text-xs md:text-sm font-bold">Reported UTR</span>
+                    <span class="text-white font-mono text-base md:text-lg font-bold tracking-widest bg-black px-3 py-1 rounded break-all" id="modal-utr"></span>
                 </div>
                 
                 <div class="flex gap-4 mt-8 pt-4 border-t border-white/5">
@@ -338,7 +346,7 @@
                         <i data-lucide="x-circle" class="w-5 h-5"></i> Reject
                     </button>
                     <button id="btn-approve-utr" class="flex-[2] py-4 bg-emerald-500 text-emerald-950 rounded-xl font-extrabold hover:bg-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex justify-center items-center gap-2">
-                        <i data-lucide="check-circle-2" class="w-5 h-5"></i> Approve & Verify
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i> Verify
                     </button>
                 </div>
             </div>
@@ -348,64 +356,140 @@
     <!-- MODAL: Full Profile Inspector -->
     <div id="profileModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="px-8 pt-8 pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515] relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 text-white/5">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515] relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 text-white/5 pointer-events-none">
                     <i data-lucide="fingerprint" class="w-48 h-48"></i>
                 </div>
-                <div class="relative z-10 flex items-center gap-5">
-                    <div class="w-16 h-16 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-2xl font-bold text-brand-500" id="insp-initial"></div>
+                <div class="relative z-10 flex items-center gap-4 md:gap-5">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold text-brand-500" id="insp-initial"></div>
                     <div>
-                        <h2 class="text-2xl font-bold text-white flex items-center gap-3" id="insp-name">
+                        <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-3 flex-wrap" id="insp-name">
                             Name <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest" id="insp-role-badge">Role</span>
                         </h2>
-                        <p class="text-slate-400 mt-1 font-mono text-xs tracking-wider" id="insp-uid">UID</p>
                     </div>
                 </div>
                 <button onclick="closeProfileModal()" class="relative z-10 text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scrollbar font-inter space-y-6">
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar font-inter space-y-6">
                 <!-- Contact Block -->
                 <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Core Identity & Contact</p>
-                    <div class="grid grid-cols-2 gap-4">
+                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Core Identity & Contact</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
                             <span class="text-slate-500 text-xs block mb-1">Email Address</span>
-                            <span class="text-white font-bold text-sm" id="insp-email"></span>
+                            <span class="text-white font-bold text-sm break-all" id="insp-email"></span>
                         </div>
                         <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
                             <span class="text-slate-500 text-xs block mb-1">Phone Number</span>
                             <span class="text-white font-bold text-sm" id="insp-phone"></span>
                         </div>
-                        <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
+                        <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2">
                             <span class="text-slate-500 text-xs block mb-1">Account Created</span>
                             <span class="text-white font-bold text-sm" id="insp-created"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Extended Details (Dynamic based on role) -->
+                <!-- Extended Details -->
                 <div id="insp-extended-block">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Extended Profile Data</p>
-                    <div class="grid grid-cols-2 gap-4" id="insp-extended-grid">
-                        <!-- Injected via JS -->
+                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Extended Profile Data</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="insp-extended-grid">
+                        <!-- Injected dynamically -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts - Moved UI/Window functions OUTSIDE the module load so buttons never break -->
+    <script>
+        // Global UI State Management
+        window.switchTab = (tab) => {
+            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'logs'];
+            const headers = {
+                'dashboard': '<i data-lucide="activity" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Live Analytics',
+                'users': '<i data-lucide="users" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> User Directory',
+                'payments': '<i data-lucide="indian-rupee" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> UTR Verifications',
+                'contacts': '<i data-lucide="shield-check" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Access Requests',
+                'logs': '<i data-lucide="clipboard-list" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> System Logs'
+            };
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl) { titleEl.innerHTML = headers[tab]; }
+            if(window.lucide) { window.lucide.createIcons(); }
+
+            tabs.forEach(t => {
+                const el = document.getElementById(t + 'Tab');
+                const btn = document.getElementById('nav-' + t);
+                if(el) el.classList.remove('active');
+                if(btn) {
+                    btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
+            });
+            
+            const activeTab = document.getElementById(tab + 'Tab');
+            const activeBtn = document.getElementById('nav-' + tab);
+            if(activeTab) activeTab.classList.add('active');
+            if(activeBtn) {
+                activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+            }
+
+            // Auto-close mobile menu
+            if(window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if(sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }
+        };
+
+        window.closeUtrModal = () => { document.getElementById('utrModal').classList.remove('active'); };
+        window.closeProfileModal = () => { document.getElementById('profileModal').classList.remove('active'); };
+
+        // Mobile Menu Toggles
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+            function toggleMobileMenu() {
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                if (isClosed) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }
+            if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            if(closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMobileMenu);
+            if(overlay) overlay.addEventListener('click', toggleMobileMenu);
+            
+            if(window.lucide) { window.lucide.createIcons(); }
+        });
+    </script>
+
+    <!-- Firebase Database Module -->
     <script type="module">
-        lucide.createIcons();
-        import { auth, db, doc, getDoc, collection, updateDoc, deleteDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot, orderBy } from './firebase.js';
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+        
+        // ** CRITICAL FIX: Directly import missing commands to prevent the page from crashing **
+        import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         let currentUser = null;
         let allUsers = []; 
-        let userMap = {}; // UID to Name mapping for fast lookups
+        let userMap = {}; 
         let currentReviewPaymentId = null;
 
-        // Security / Auth Check
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -419,45 +503,40 @@
             document.getElementById('currentAdminName').innerText = currentUser.fullName;
             document.getElementById('mainContent').style.display = 'block';
 
-            // Fake Live Session counter for premium feel (oscillates around real user count)
+            // Fake Live Session counter
             setInterval(() => {
                 const base = Math.max(5, Math.floor(allUsers.length * 0.4));
                 const jitter = Math.floor(Math.random() * 7) - 3; 
                 document.getElementById('metric-live').innerText = base + jitter;
             }, 3500);
 
-            // Initialize all real-time listeners
             initUsersListener();
             initPaymentsListener();
             initContactsListener();
             initLogsListener();
         });
 
-        // ================= AUDIT LOGGING ENGINE =================
+        // ================= AUDIT LOGGING =================
         async function logAction(type, desc) {
             try {
                 await addDoc(collection(db, "auditLogs"), {
-                    timestamp: serverTimestamp(),
-                    adminName: currentUser.fullName,
-                    adminUid: currentUser.uid,
-                    type: type,
-                    description: desc
+                    timestamp: serverTimestamp(), adminName: currentUser.fullName,
+                    adminUid: currentUser.uid, type: type, description: desc
                 });
-            } catch (e) { console.error("Failed to write audit log:", e); }
+            } catch (e) { console.error(e); }
         }
 
         function initLogsListener() {
-            // Watch logs collection, sort descending by timestamp (handled client side for simplicity if no composite index)
             onSnapshot(collection(db, "auditLogs"), (snap) => {
                 const logs = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 logs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                 
                 const tbody = document.getElementById('logsBody');
+                if(!tbody) return;
                 tbody.innerHTML = '';
                 
                 logs.forEach(log => {
                     const date = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'Just now';
-                    
                     let badgeColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
                     if (log.type.includes('APPROVE') || log.type.includes('ACTIVATE')) badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
                     if (log.type.includes('REJECT') || log.type.includes('SUSPEND') || log.type.includes('DELETE')) badgeColor = 'bg-red-500/10 text-red-500 border-red-500/20';
@@ -466,9 +545,9 @@
                     tbody.innerHTML += `
                         <tr class="hover:bg-white/5 transition-colors">
                             <td class="p-4 text-slate-500 font-mono text-xs">${date}</td>
-                            <td class="p-4 font-bold text-white">${log.adminName}</td>
+                            <td class="p-4 font-bold text-white text-xs md:text-sm">${log.adminName}</td>
                             <td class="p-4"><span class="px-2.5 py-1 ${badgeColor} border rounded-md text-[10px] font-bold uppercase tracking-widest">${log.type}</span></td>
-                            <td class="p-4 text-slate-300 text-sm font-inter truncate max-w-md" title="${log.description}">${log.description}</td>
+                            <td class="p-4 text-slate-300 text-xs md:text-sm font-inter truncate max-w-xs md:max-w-md" title="${log.description.replace(/"/g, "'")}">${log.description}</td>
                         </tr>
                     `;
                 });
@@ -480,15 +559,11 @@
             onSnapshot(collection(db, "users"), (snap) => {
                 allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 
-                // Build Identity Map for fast lookups in other tables
                 userMap = {};
                 allUsers.forEach(u => userMap[u.id] = { name: u.fullName, email: u.email });
                 
-                // Update Dashboard Metrics
-                const emps = allUsers.filter(u => u.role === 'employee').length;
-                const emps_ers = allUsers.filter(u => u.role === 'employer').length;
-                document.getElementById('metric-employees').innerText = emps;
-                document.getElementById('metric-employers').innerText = emps_ers;
+                document.getElementById('metric-employees').innerText = allUsers.filter(u => u.role === 'employee').length;
+                document.getElementById('metric-employers').innerText = allUsers.filter(u => u.role === 'employer').length;
 
                 renderUsers();
             });
@@ -501,10 +576,11 @@
             const search = document.getElementById('userSearch').value.toLowerCase();
             const roleF = document.getElementById('roleFilter').value;
             const tbody = document.getElementById('usersBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
 
             let filtered = allUsers.filter(u => {
-                const matchSearch = u.fullName?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search) || u.id.toLowerCase().includes(search);
+                const matchSearch = u.fullName?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search);
                 const matchRole = roleF === 'all' || u.role === roleF;
                 return matchSearch && matchRole;
             });
@@ -515,7 +591,6 @@
             }
 
             filtered.forEach(u => {
-                // Dropdowns designed to instantly save on change
                 const roleSelect = `
                     <select onchange="instantUpdate('${u.id}', 'role', this)" class="bg-[#1a1a1a] border border-white/10 text-white text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full min-w-[120px]">
                         <option value="employee" ${u.role==='employee'?'selected':''}>Professional</option>
@@ -525,14 +600,14 @@
                 `;
 
                 const statusSelect = `
-                    <select onchange="instantUpdate('${u.id}', 'accountStatus', this)" class="bg-[#1a1a1a] border border-white/10 ${u.accountStatus === 'suspended' ? 'text-red-400' : 'text-emerald-400'} text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-white/30 transition-colors w-full">
+                    <select onchange="instantUpdate('${u.id}', 'accountStatus', this)" class="bg-[#1a1a1a] border border-white/10 ${u.accountStatus === 'suspended' ? 'text-red-400' : 'text-emerald-400'} text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-white/30 transition-colors w-full min-w-[120px]">
                         <option value="active" class="text-emerald-400" ${u.accountStatus==='active'?'selected':''}>Active</option>
                         <option value="suspended" class="text-red-400" ${u.accountStatus==='suspended'?'selected':''}>Suspended</option>
                     </select>
                 `;
 
                 const stageSelect = `
-                    <select onchange="instantUpdate('${u.id}', 'pipelineStage', this)" ${u.role !== 'employee' ? 'disabled opacity-50' : ''} class="bg-[#1a1a1a] border border-white/10 text-slate-300 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full">
+                    <select onchange="instantUpdate('${u.id}', 'pipelineStage', this)" ${u.role !== 'employee' ? 'disabled style="opacity:0.5"' : ''} class="bg-[#1a1a1a] border border-white/10 text-slate-300 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full min-w-[140px]">
                         <option value="1" ${u.pipelineStage==1?'selected':''}>1: Registered</option>
                         <option value="2" ${u.pipelineStage==2?'selected':''}>2: Action Req</option>
                         <option value="3" ${u.pipelineStage==3?'selected':''}>3: Under Review</option>
@@ -546,52 +621,48 @@
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="p-4">
                             <div class="flex flex-col">
-                                <span class="font-bold text-white text-base">${u.fullName}</span>
-                                <span class="text-slate-400 text-sm">${u.email}</span>
+                                <span class="font-bold text-white text-sm md:text-base">${u.fullName}</span>
+                                <span class="text-slate-400 text-xs md:text-sm">${u.email}</span>
                             </div>
                         </td>
-                        <td class="p-4 w-40">${roleSelect}</td>
-                        <td class="p-4 w-40">${statusSelect}</td>
-                        <td class="p-4 w-48">${stageSelect}</td>
+                        <td class="p-4">${roleSelect}</td>
+                        <td class="p-4">${statusSelect}</td>
+                        <td class="p-4">${stageSelect}</td>
                         <td class="p-4 text-right">
-                            <button onclick="openProfileModal('${u.id}', '${u.role}')" class="px-4 py-2 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-brand-500 hover:text-black hover:border-brand-500 text-xs font-bold transition-all flex justify-center items-center gap-2 ml-auto">
+                            <button onclick="openProfileModal('${u.id}', '${u.role}')" class="px-4 py-2 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-brand-500 hover:text-black hover:border-brand-500 text-xs font-bold transition-all inline-flex justify-center items-center gap-2">
                                 <i data-lucide="scan-face" class="w-4 h-4"></i> Inspect
                             </button>
                         </td>
                     </tr>
                 `;
             });
-            lucide.createIcons();
+            if(window.lucide) window.lucide.createIcons();
         }
 
         window.instantUpdate = async (uid, field, selectEl) => {
             const newValue = selectEl.value;
-            const userName = userMap[uid]?.name || uid;
+            const userName = userMap[uid]?.name || 'Unknown User';
             
             try {
-                // Special handling for Role Change (Auto-Prune from Directory)
                 if (field === 'role') {
-                    if(!confirm(`WARNING: Changing role to ${newValue.toUpperCase()} will permanently alter their access rights.`)) {
-                        renderUsers(); return; // Reset UI
+                    if(!confirm(`WARNING: Changing role to ${newValue.toUpperCase()} alters access rights. Proceed?`)) {
+                        renderUsers(); return; 
                     }
                     if (newValue !== 'employee') {
-                        // If they are no longer an employee, remove their public profile from directory
+                        // Securely remove from directory using imported deleteDoc
                         await deleteDoc(doc(db, "employeeProfiles", uid));
                         logAction("DIRECTORY_PRUNE", `Auto-removed ${userName} from Talent Directory due to role change.`);
                     }
                 }
 
-                // Apply update
                 const updateObj = {};
                 updateObj[field] = field === 'pipelineStage' ? parseInt(newValue) : newValue;
                 await updateDoc(doc(db, "users", uid), updateObj);
 
-                // Visual Success Feedback (Green Glow)
                 selectEl.classList.remove('select-success');
-                void selectEl.offsetWidth; // trigger reflow
+                void selectEl.offsetWidth; 
                 selectEl.classList.add('select-success');
                 
-                // Color adjust for status
                 if(field === 'accountStatus') {
                     selectEl.className = selectEl.className.replace(/text-(red|emerald)-400/g, '');
                     selectEl.classList.add(newValue === 'suspended' ? 'text-red-400' : 'text-emerald-400');
@@ -600,24 +671,23 @@
                 logAction(`UPDATE_${field.toUpperCase()}`, `Changed ${field} for ${userName} to [${newValue}].`);
             } catch (e) { 
                 alert("Database Error: " + e.message); 
-                renderUsers(); // Reset UI
+                renderUsers(); 
             }
         };
 
-        // ================= FULL PROFILE INSPECTOR =================
+        // ================= PROFILE INSPECTOR =================
         window.openProfileModal = async (uid, role) => {
             const u = allUsers.find(x => x.id === uid);
             if(!u) return;
 
             document.getElementById('insp-initial').innerText = u.fullName.charAt(0).toUpperCase();
             document.getElementById('insp-name').innerHTML = `${u.fullName} <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest align-middle ml-2">${u.role}</span>`;
-            document.getElementById('insp-uid').innerText = u.id;
             document.getElementById('insp-email').innerText = u.email;
             document.getElementById('insp-phone').innerText = u.phone || 'Not provided';
             document.getElementById('insp-created').innerText = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : 'Unknown';
 
             const extGrid = document.getElementById('insp-extended-grid');
-            extGrid.innerHTML = '<div class="col-span-2 text-center text-slate-500 text-sm py-4"><div class="w-5 h-5 border-2 border-slate-500/30 border-t-slate-500 rounded-full animate-spin mx-auto mb-2"></div>Fetching database...</div>';
+            extGrid.innerHTML = '<div class="col-span-1 sm:col-span-2 text-center text-slate-500 text-sm py-4"><div class="w-5 h-5 border-2 border-slate-500/30 border-t-slate-500 rounded-full animate-spin mx-auto mb-2"></div>Fetching database...</div>';
             document.getElementById('profileModal').classList.add('active');
 
             try {
@@ -630,9 +700,9 @@
                             <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">City</span><span class="text-white font-bold text-sm">${d.city || '-'}</span></div>
                             <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Qualification</span><span class="text-white font-bold text-sm">${d.qualification || '-'}</span></div>
                             <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Experience</span><span class="text-white font-bold text-sm">${d.experienceLevel || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 col-span-2"><span class="text-slate-500 text-xs block mb-1">Skills</span><div class="flex flex-wrap gap-2 mt-2">${(d.skills||[]).map(s=>`<span class="px-2 py-1 bg-black border border-white/10 rounded text-xs font-bold text-slate-300">${s}</span>`).join('')}</div></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Skills</span><div class="flex flex-wrap gap-2 mt-2">${(d.skills||[]).map(s=>`<span class="px-2 py-1 bg-black border border-white/10 rounded text-xs font-bold text-slate-300">${s}</span>`).join('')}</div></div>
                         `;
-                    } else { html = '<div class="col-span-2 text-slate-500 text-sm">No public directory profile found.</div>'; }
+                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No public directory profile found.</div>'; }
                 } else if (role === 'employer') {
                     const snap = await getDoc(doc(db, "employerProfiles", uid));
                     if(snap.exists()) {
@@ -640,33 +710,31 @@
                         html += `
                             <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Company Name</span><span class="text-white font-bold text-sm">${d.companyName || '-'}</span></div>
                             <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Industry</span><span class="text-white font-bold text-sm">${d.industry || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Website</span><span class="text-brand-500 font-bold text-sm">${d.website ? `<a href="${d.website}" target="_blank" class="hover:underline">${d.website}</a>` : '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Website</span><span class="text-brand-500 font-bold text-sm">${d.website ? `<a href="${d.website}" target="_blank" class="hover:underline">${d.website}</a>` : '-'}</span></div>
                         `;
-                    } else { html = '<div class="col-span-2 text-slate-500 text-sm">No employer data found.</div>'; }
+                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No employer data found.</div>'; }
                 } else {
-                    html = '<div class="col-span-2 text-slate-500 text-sm">System administrators do not have extended profiles.</div>';
+                    html = '<div class="sm:col-span-2 text-slate-500 text-sm">System administrators do not have extended profiles.</div>';
                 }
                 extGrid.innerHTML = html;
-            } catch(e) { extGrid.innerHTML = '<div class="col-span-2 text-red-500 text-sm">Failed to load extended data.</div>'; }
+            } catch(e) { extGrid.innerHTML = '<div class="sm:col-span-2 text-red-500 text-sm">Failed to load extended data.</div>'; }
         };
-
-        window.closeProfileModal = () => document.getElementById('profileModal').classList.remove('active');
 
         // ================= PAYMENTS (UTR) =================
         function initPaymentsListener() {
             onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
                 const count = snap.size;
                 const badge = document.getElementById('badge-payments');
-                badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none';
+                if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
 
-                // Dashboard metric for revenue
                 let rev = 0;
                 getDocs(query(collection(db, "payments"), where("status", "==", "approved"))).then(s => {
                     s.forEach(d => rev += (d.data().amount || 0));
                     document.getElementById('metric-revenue').innerText = rev.toLocaleString('en-IN');
-                });
+                }).catch(e => console.error(e));
 
                 const tbody = document.getElementById('paymentsBody');
+                if(!tbody) return;
                 tbody.innerHTML = '';
                 if(snap.empty) { 
                     tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium">Queue empty. No pending verifications.</td></tr>'; 
@@ -680,10 +748,10 @@
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-white/5 transition-colors group">
-                            <td class="p-5 font-bold text-white">${empName}</td>
+                            <td class="p-5 font-bold text-white text-xs md:text-sm">${empName}</td>
                             <td class="p-5 font-mono font-bold text-white tracking-widest bg-black/40 rounded">${data.utr}</td>
                             <td class="p-5 text-brand-500 font-bold">₹${data.amount}</td>
-                            <td class="p-5 text-slate-400 text-sm">${date}</td>
+                            <td class="p-5 text-slate-400 text-xs md:text-sm">${date}</td>
                             <td class="p-5 text-right">
                                 <button onclick="openUtrModal('${docSnap.id}', '${empName.replace(/'/g,"\\'")}', '${data.utr}', '${data.amount}', '${data.employeeUid}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-xs font-bold transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]">
                                     Review UTR
@@ -702,7 +770,6 @@
             document.getElementById('modal-amount').innerText = `₹${amount}`;
             document.getElementById('utrModal').classList.add('active');
         };
-        window.closeUtrModal = () => { currentReviewPaymentId = null; document.getElementById('utrModal').classList.remove('active'); };
 
         document.getElementById('btn-approve-utr').addEventListener('click', async () => {
             if(!currentReviewPaymentId) return;
@@ -713,12 +780,12 @@
                     status: 'approved', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid
                 });
                 
-                // Auto-advance user pipeline stage to 4 (Verified) upon approval
                 await updateDoc(doc(db, "users", currentReviewPaymentId.uid), { pipelineStage: 4 });
 
-                logAction("APPROVE_UTR", `Verified ₹99 payment for professional ${currentReviewPaymentId.name}. Auto-advanced pipeline to Stage 4.`);
+                logAction("APPROVE_UTR", `Verified ₹99 payment for professional ${currentReviewPaymentId.name}.`);
                 closeUtrModal();
-            } catch(e) { alert("Failed: " + e.message); } finally { btn.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i> Approve & Verify'; btn.disabled = false; lucide.createIcons(); }
+            } catch(e) { alert("Failed: " + e.message); } 
+            finally { btn.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i> Approve & Verify'; btn.disabled = false; if(window.lucide) window.lucide.createIcons(); }
         });
 
         document.getElementById('btn-reject-utr').addEventListener('click', async () => {
@@ -729,7 +796,6 @@
                     status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid, adminNotes: 'Invalid UTR submitted.'
                 });
                 
-                // Downgrade pipeline stage back to 1 (Registered)
                 await updateDoc(doc(db, "users", currentReviewPaymentId.uid), { pipelineStage: 1 });
 
                 logAction("REJECT_UTR", `Rejected invalid UTR from professional ${currentReviewPaymentId.name}.`);
@@ -742,9 +808,10 @@
             onSnapshot(query(collection(db, "contactRequests"), where("status", "==", "pending")), (snap) => {
                 const count = snap.size;
                 const badge = document.getElementById('badge-contacts');
-                badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none';
+                if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
 
                 const tbody = document.getElementById('contactsBody');
+                if(!tbody) return;
                 tbody.innerHTML = '';
                 if(snap.empty) { 
                     tbody.innerHTML = '<tr><td colspan="4" class="p-12 text-center text-slate-500 font-medium">Queue empty. No pending access requests.</td></tr>'; 
@@ -759,21 +826,21 @@
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-white/5 transition-colors group">
-                            <td class="p-5 font-bold text-white flex items-center gap-2"><i data-lucide="building" class="w-4 h-4 text-slate-500"></i> ${employerName}</td>
-                            <td class="p-5 font-bold text-white"><i data-lucide="user" class="w-4 h-4 text-slate-500 inline mr-1"></i> ${employeeName}</td>
-                            <td class="p-5 text-slate-400 text-sm">${date}</td>
+                            <td class="p-5 font-bold text-white text-xs md:text-sm flex items-center gap-2"><i data-lucide="building" class="w-4 h-4 text-slate-500"></i> ${employerName}</td>
+                            <td class="p-5 font-bold text-white text-xs md:text-sm"><i data-lucide="user" class="w-4 h-4 text-slate-500 inline mr-1"></i> ${employeeName}</td>
+                            <td class="p-5 text-slate-400 text-xs md:text-sm">${date}</td>
                             <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-xs font-bold flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release Data
+                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-[10px] md:text-xs font-bold flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release
                                 </button>
-                                <button onclick="rejectContact('${docSnap.id}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl hover:bg-red-500/20 text-xs font-bold flex items-center gap-2 transition-colors">
+                                <button onclick="rejectContact('${docSnap.id}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl hover:bg-red-500/20 text-[10px] md:text-xs font-bold flex items-center gap-2 transition-colors">
                                     <i data-lucide="shield-ban" class="w-4 h-4"></i> Deny
                                 </button>
                             </td>
                         </tr>
                     `;
                 });
-                lucide.createIcons();
+                if(window.lucide) window.lucide.createIcons();
             });
         }
 
@@ -802,31 +869,6 @@
             } catch(e) { alert("Failed: " + e.message); }
         };
 
-        // ================= TABS LOGIC =================
-        window.switchTab = (tab) => {
-            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'logs'];
-            const headers = {
-                'dashboard': '<i data-lucide="activity" class="w-6 h-6 text-brand-500"></i> Live Analytics',
-                'users': '<i data-lucide="users" class="w-6 h-6 text-brand-500"></i> User Directory',
-                'payments': '<i data-lucide="indian-rupee" class="w-6 h-6 text-brand-500"></i> UTR Verifications',
-                'contacts': '<i data-lucide="shield-check" class="w-6 h-6 text-brand-500"></i> Access Requests',
-                'logs': '<i data-lucide="clipboard-list" class="w-6 h-6 text-brand-500"></i> System Logs'
-            };
-            document.getElementById('headerTitle').innerHTML = headers[tab];
-            lucide.createIcons();
-
-            tabs.forEach(t => {
-                document.getElementById(t + 'Tab').classList.remove('active');
-                const btn = document.getElementById('nav-' + t);
-                btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
-                btn.classList.add('text-slate-400', 'border-transparent');
-            });
-            document.getElementById(tab + 'Tab').classList.add('active');
-            const btn = document.getElementById('nav-' + tab);
-            btn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
-            btn.classList.remove('text-slate-400', 'border-transparent');
-        };
-
         // ================= SMOOTH LOGOUT =================
         document.getElementById('logoutBtn').addEventListener('click', () => { 
             const overlay = document.createElement('div');
@@ -844,7 +886,6 @@
 
             setTimeout(() => {
                 logAction("LOGOUT", `System Operator session securely terminated.`);
-                // Small delay to ensure log writes before auth kills the connection
                 setTimeout(() => signOut(auth).then(() => window.location.href = 'index.html'), 300);
             }, 600);
         });
