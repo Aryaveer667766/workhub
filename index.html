@@ -344,7 +344,7 @@
                 <p id="authSubtitle" class="text-slate-400 mt-1 font-inter text-xs">Sign in to continue</p>
             </div>
 
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
+            <div class="p-6 pb-12 sm:pb-6 overflow-y-auto custom-scrollbar flex-1 relative">
                 <div id="authAlert" class="hidden mb-5 p-3 rounded-xl text-xs border flex items-start gap-2">
                     <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5" id="authAlertIcon"></i>
                     <span id="authAlertMsg" class="font-inter font-medium leading-relaxed"></span>
@@ -560,7 +560,17 @@
                 } else {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     const uid = cred.user.uid, fullName = document.getElementById('fullName').value.trim(), phone = document.getElementById('phone').value.trim();
-                    const userData = { uid: uid, email: email, fullName: fullName, phone: phone, role: currentAuthMode === 'register-employee' ? 'employee' : 'employer', accountStatus: 'active', createdAt: serverTimestamp() };
+                    const isEmployee = currentAuthMode === 'register-employee';
+                    const userData = {
+                        uid: uid,
+                        email: email,
+                        fullName: fullName,
+                        phone: phone,
+                        role: isEmployee ? 'employee' : 'employer',
+                        ...(isEmployee ? { pipelineStage: 1 } : {}),
+                        accountStatus: 'active',
+                        createdAt: serverTimestamp()
+                    };
                     await setDoc(doc(db, "users", uid), userData);
 
                     if (currentAuthMode === 'register-employee') {
