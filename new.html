@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Command Center | WorkHub Verification Team</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: { 500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a', }
+                    },
+                    animation: {
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'ring': 'ring 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        glow: { '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' }, '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        ring: { '0%, 100%': { transform: 'rotate(0deg)' }, '25%': { transform: 'rotate(15deg)' }, '75%': { transform: 'rotate(-15deg)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { -webkit-font-smoothing: antialiased; background-color: #050505; color: #f8fafc; overflow: hidden; }
+        .glass-panel { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; }
+
+        .select-success { animation: selectGlow 1.5s ease-out; }
+        @keyframes selectGlow { 0% { box-shadow: 0 0 0 2px #10b981; border-color: #10b981; } 100% { box-shadow: 0 0 0 0 transparent; border-color: rgba(255,255,255,0.1); } }
+        select option { background-color: #111; color: #fff; }
+    </style>
+</head>
+<body class="h-screen flex font-sans relative">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2">
+            <i data-lucide="shield" class="w-6 h-6 text-brand-500"></i>
+            <span class="font-bold text-white tracking-tight uppercase">Command Center</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static top-0 left-0 w-72 h-full bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-16 md:h-20 flex items-center justify-between md:justify-start px-6 border-b border-white/5 bg-[#050505]">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow hidden md:block">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                        <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
+                        <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
+                        <circle cx="35" cy="52" r="5" fill="#ffffff"/>
+                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5"/>
+                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3"/>
+                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg md:text-xl font-bold tracking-tight text-white leading-tight uppercase">Command</span>
+                    <span class="text-[0.6rem] font-bold text-brand-500 tracking-widest uppercase hidden md:block">System Admin</span>
+                </div>
+            </div>
+            <button id="closeMenuBtn" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        
+        <div class="p-4 flex-1 overflow-y-auto custom-scrollbar space-y-1">
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-2">Data & Analytics</p>
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
+                <i data-lucide="activity" class="w-5 h-5"></i> Live Analytics
+            </button>
+            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <i data-lucide="users" class="w-5 h-5"></i> User Directory
+            </button>
+
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Verification Queues</p>
+            <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <div class="flex items-center gap-3"><i data-lucide="indian-rupee" class="w-5 h-5"></i> UTR Approvals</div>
+                <span id="badge-payments" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="switchTab('contacts')" id="nav-contacts" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5"></i> Access Requests</div>
+                <span id="badge-contacts" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="switchTab('support')" id="nav-support" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <div class="flex items-center gap-3"><i data-lucide="life-buoy" class="w-5 h-5"></i> Helpdesk</div>
+                <span id="badge-support" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Security</p>
+            <button onclick="switchTab('logs')" id="nav-logs" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i> System Logs
+            </button>
+        </div>
+        
+        <div class="p-4 border-t border-white/5 bg-[#050505]">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-bold transition-all hover:border-red-500/20">
+                <i data-lucide="power" class="w-5 h-5"></i> Terminate Session
+            </button>
+        </div>
+    </aside>
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative bg-[#050505] pt-16 md:pt-0 custom-scrollbar" id="mainContent" style="display:none;">
+        
+        <div class="absolute top-0 right-0 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-20 pointer-events-none z-0"></div>
+
+        <!-- Premium Header with Audio Control -->
+        <header class="hidden md:flex h-20 glass-panel items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
+            <div>
+                <h1 class="text-xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
+                    <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> Live Analytics
+                </h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <!-- Audio Alert Toggle -->
+                <button id="audioToggleBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-600 text-slate-400 hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
+                    <i data-lucide="volume-x" class="w-4 h-4" id="audioIcon"></i> Alerts Off
+                </button>
+                
+                <div class="text-right">
+                    <p class="text-sm font-bold text-white" id="currentAdminName">System Operator</p>
+                    <p class="text-xs text-emerald-500 font-bold tracking-widest uppercase flex items-center justify-end gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-fast"></span> Access Granted
+                    </p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]" id="bellContainer">
+                    <i data-lucide="shield" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-[1600px] mx-auto relative z-10 h-full flex flex-col">
+            
+            <!-- ================= DASHBOARD TAB ================= -->
+            <div id="dashboardTab" class="tab-content active animate-slide-up space-y-8 flex-shrink-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-[#111] p-6 rounded-3xl border border-emerald-500/20 shadow-xl relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.05)]">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="radio" class="w-24 h-24 text-emerald-500"></i></div>
+                        <p class="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span> Live Sessions</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-live">0</h3>
+                        <p class="text-xs text-slate-400 mt-3 font-inter">Active users right now</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-3xl border border-brand-500/20 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5"><i data-lucide="indian-rupee" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-brand-500 text-xs font-bold uppercase tracking-widest mb-2">Total Revenue</p>
+                        <h3 class="text-4xl font-extrabold text-white flex items-center gap-2">₹<span id="metric-revenue">0</span></h3>
+                        <p class="text-xs text-slate-400 mt-3 font-inter">From approved UTRs</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5"><i data-lucide="users" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Professionals</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-employees">0</h3>
+                        <p class="text-xs text-slate-400 mt-3 font-inter">Registered job seekers</p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-5"><i data-lucide="building" class="w-24 h-24 text-white"></i></div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Employers</p>
+                        <h3 class="text-4xl font-extrabold text-white" id="metric-employers">0</h3>
+                        <p class="text-xs text-slate-400 mt-3 font-inter">Registered hiring partners</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= USERS & QUEUE TABS (Hidden by default to save space in prompt, logic handles them) ================= -->
+            <div id="usersTab" class="tab-content animate-slide-up flex-shrink-0">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar max-h-[650px]"><table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1000px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10"><tr><th class="p-5">User Details</th><th class="p-5">System Role</th><th class="p-5">Account Status</th><th class="p-5">Pipeline Stage</th><th class="p-5 text-right">Actions</th></tr></thead><tbody id="usersBody" class="divide-y divide-white/5"></tbody></table></div></div>
+            </div>
+            <div id="paymentsTab" class="tab-content animate-slide-up flex-shrink-0">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold"><tr><th class="p-5">Professional Name</th><th class="p-5">Submitted UTR</th><th class="p-5">Amount</th><th class="p-5">Date Submitted</th><th class="p-5 text-right">Action</th></tr></thead><tbody id="paymentsBody" class="divide-y divide-white/5"></tbody></table></div></div>
+            </div>
+            <div id="contactsTab" class="tab-content animate-slide-up flex-shrink-0">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold"><tr><th class="p-5">Requesting Employer</th><th class="p-5">Target Professional</th><th class="p-5">Date Requested</th><th class="p-5 text-right">Security Action</th></tr></thead><tbody id="contactsBody" class="divide-y divide-white/5"></tbody></table></div></div>
+            </div>
+            <div id="logsTab" class="tab-content animate-slide-up flex-shrink-0">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar max-h-[600px]"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10"><tr><th class="p-5">Timestamp</th><th class="p-5">Operator</th><th class="p-5">Action Type</th><th class="p-5">System Details</th></tr></thead><tbody id="logsBody" class="divide-y divide-white/5"></tbody></table></div></div>
+            </div>
+
+            <!-- ================= SUPPORT HELPDESK TAB ================= -->
+            <div id="supportTab" class="tab-content animate-slide-up h-[75vh]">
+                <div class="flex flex-col md:flex-row h-full bg-[#111] rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
+                    
+                    <!-- Left: Ticket List -->
+                    <div class="w-full md:w-1/3 border-r border-white/5 flex flex-col bg-[#0a0a0a]">
+                        <div class="p-5 border-b border-white/5 bg-[#111] flex justify-between items-center">
+                            <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="inbox" class="w-4 h-4 text-brand-500"></i> Open Tickets
+                            </h2>
+                            <span id="supportUnreadCount" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                        </div>
+                        <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5" id="ticketList">
+                            <!-- Injected dynamically -->
+                            <div class="p-8 text-center text-slate-500 text-xs font-inter">Loading tickets...</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Active Chat Area -->
+                    <div class="w-full md:w-2/3 flex flex-col bg-[#111] relative hidden" id="activeChatView">
+                        <!-- Chat Header -->
+                        <div class="p-5 border-b border-white/5 bg-[#151515] flex justify-between items-center z-10 shadow-md">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center font-bold text-brand-500" id="chatUserInitial">U</div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-white leading-tight" id="chatUserName">User Name</h3>
+                                    <p class="text-[10px] text-slate-400 font-inter uppercase tracking-widest" id="chatSubject">Subject Line</p>
+                                </div>
+                            </div>
+                            <button onclick="closeTicket()" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500 hover:text-black text-[10px] font-bold uppercase tracking-widest transition-all">
+                                Mark Resolved
+                            </button>
+                        </div>
+                        
+                        <!-- Messages Area -->
+                        <div class="flex-1 p-6 overflow-y-auto custom-scrollbar font-inter space-y-4" id="chatMessages">
+                            <!-- Injected dynamically -->
+                        </div>
+
+                        <!-- Image Preview Overlay (Before Sending) -->
+                        <div id="imagePreviewContainer" class="hidden absolute bottom-[88px] left-6 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl z-20">
+                            <div class="relative">
+                                <img id="imagePreview" src="" class="max-h-32 rounded-lg object-contain">
+                                <button onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-400"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="p-4 border-t border-white/5 bg-[#0a0a0a] flex flex-col gap-2">
+                            <!-- Preloaded Messages Dropdown -->
+                            <div class="relative w-full">
+                                <select id="quickReply" onchange="insertQuickReply()" class="w-full bg-[#1a1a1a] border border-white/10 text-brand-500 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer appearance-none">
+                                    <option value="" disabled selected>⚡ Insert Preloaded Message...</option>
+                                    <option value="Hello! We are currently reviewing your account. Please allow 1-2 hours.">Reviewing Account</option>
+                                    <option value="The UTR you provided was invalid. Please re-check your payment app and submit the correct 12-digit UTR.">Invalid UTR</option>
+                                    <option value="Please upload a clear screenshot of your payment receipt so we can manually verify it.">Request Screenshot</option>
+                                    <option value="Your issue has been resolved. We are closing this ticket. Thank you for using WorkHub.">Issue Resolved</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            </div>
+                            
+                            <form id="replyForm" class="flex items-center gap-3">
+                                <!-- Hidden File Input -->
+                                <input type="file" id="imageUploadInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                                <button type="button" onclick="document.getElementById('imageUploadInput').click()" class="p-3 text-slate-400 hover:text-brand-500 bg-[#1a1a1a] rounded-xl transition-colors shrink-0" title="Attach Image">
+                                    <i data-lucide="image" class="w-5 h-5"></i>
+                                </button>
+                                
+                                <input type="text" id="chatInput" required placeholder="Type your response..." class="flex-1 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-inter">
+                                
+                                <button type="submit" id="sendReplyBtn" class="p-3 bg-brand-500 text-black rounded-xl hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] shrink-0">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="w-full md:w-2/3 flex flex-col items-center justify-center bg-[#111]" id="ticketEmptyState">
+                        <div class="w-20 h-20 bg-brand-500/5 text-brand-500 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="message-square-dashed" class="w-10 h-10 opacity-50"></i>
+                        </div>
+                        <p class="text-slate-400 font-bold uppercase tracking-widest text-sm">Select a ticket to begin</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- UI Logic -->
+    <script>
+        window.switchTab = (tab) => {
+            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'logs', 'support'];
+            const headers = {
+                'dashboard': '<i data-lucide="activity" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Live Analytics',
+                'users': '<i data-lucide="users" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> User Directory',
+                'payments': '<i data-lucide="indian-rupee" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> UTR Verifications',
+                'contacts': '<i data-lucide="shield-check" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Access Requests',
+                'logs': '<i data-lucide="clipboard-list" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> System Logs',
+                'support': '<i data-lucide="life-buoy" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Support Helpdesk'
+            };
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl) titleEl.innerHTML = headers[tab];
+            if(window.lucide) window.lucide.createIcons();
+
+            tabs.forEach(t => {
+                const el = document.getElementById(t + 'Tab');
+                const btn = document.getElementById('nav-' + t);
+                if(el) el.classList.remove('active');
+                if(btn) {
+                    btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
+            });
+            
+            const activeTab = document.getElementById(tab + 'Tab');
+            const activeBtn = document.getElementById('nav-' + tab);
+            if(activeTab) activeTab.classList.add('active');
+            if(activeBtn) {
+                activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+            }
+        };
+
+        // Base64 Image Preview Logic
+        let currentBase64Image = null;
+        window.handleImageSelection = (event) => {
+            const file = event.target.files[0];
+            if(!file) return;
+            if(file.size > 2 * 1024 * 1024) { alert("Image too large. Max 2MB."); return; }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentBase64Image = e.target.result;
+                document.getElementById('imagePreview').src = currentBase64Image;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+        window.removeImagePreview = () => {
+            currentBase64Image = null;
+            document.getElementById('imageUploadInput').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+        };
+        window.insertQuickReply = () => {
+            const select = document.getElementById('quickReply');
+            if(select.value) {
+                document.getElementById('chatInput').value = select.value;
+                select.value = ""; // reset
+            }
+        };
+    </script>
+
+    <!-- Firebase App Module -->
+    <script type="module">
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+        import { getDocs, deleteDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let currentUser = null;
+        let activeTicketId = null;
+        let messagesUnsubscribe = null;
+
+        // AUDIO ALERT SYSTEM
+        let isAudioEnabled = false;
+        let isAppInitialized = false; // Prevent alerts on page load
+        const alertSound = new Audio('sound.mp3'); 
+        alertSound.volume = 0.5;
+
+        document.getElementById('audioToggleBtn').addEventListener('click', () => {
+            isAudioEnabled = !isAudioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            const icon = document.getElementById('audioIcon');
+            if(isAudioEnabled) {
+                btn.classList.add('border-brand-500', 'text-brand-500');
+                btn.classList.remove('border-slate-600', 'text-slate-400');
+                btn.innerHTML = `<i data-lucide="volume-2" class="w-4 h-4"></i> Alerts On`;
+                // Play test sound safely after interaction
+                alertSound.play().catch(e=>console.log('Audio blocked', e)); 
+            } else {
+                btn.classList.remove('border-brand-500', 'text-brand-500');
+                btn.classList.add('border-slate-600', 'text-slate-400');
+                btn.innerHTML = `<i data-lucide="volume-x" class="w-4 h-4"></i> Alerts Off`;
+            }
+            if(window.lucide) window.lucide.createIcons();
+        });
+
+        function triggerNotificationGlow() {
+            if(!isAppInitialized) return;
+            if(isAudioEnabled) alertSound.play().catch(e=>console.log(e));
+            
+            const bell = document.getElementById('bellContainer');
+            bell.classList.add('animate-ring', 'bg-brand-500', 'text-black');
+            setTimeout(() => { bell.classList.remove('animate-ring', 'bg-brand-500', 'text-black'); }, 1000);
+        }
+
+        setTimeout(() => { isAppInitialized = true; }, 3000); // 3 seconds after load, enable alerts
+
+        // Auth Boot
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+                alert("Restricted Access."); await signOut(auth); window.location.href = 'index.html'; return;
+            }
+            currentUser = { ...user, fullName: userDoc.data().fullName };
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Init core listeners
+            initSupportListener();
+            // (Assuming other init functions are here like initPaymentsListener, etc. as written previously)
+        });
+
+        // ================= SUPPORT HELPDESK =================
+        function initSupportListener() {
+            // Listen for open tickets or tickets where unreadAdmin is true
+            const q = query(collection(db, "supportTickets"), orderBy("updatedAt", "desc"));
+            
+            onSnapshot(q, (snap) => {
+                const listEl = document.getElementById('ticketList');
+                listEl.innerHTML = '';
+                let unreadCount = 0;
+
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added' && isAppInitialized) triggerNotificationGlow();
+                });
+
+                if(snap.empty) {
+                    listEl.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs">No active tickets.</div>';
+                    return;
+                }
+
+                snap.forEach(docSnap => {
+                    const t = docSnap.data();
+                    if(t.unreadAdmin) unreadCount++;
+                    
+                    const date = t.updatedAt ? new Date(t.updatedAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    const activeClass = activeTicketId === docSnap.id ? 'bg-white/5 border-l-2 border-brand-500' : 'hover:bg-white/5 border-l-2 border-transparent';
+                    const dot = t.unreadAdmin ? '<div class="w-2 h-2 rounded-full bg-red-500"></div>' : '';
+
+                    listEl.innerHTML += `
+                        <div onclick="openTicket('${docSnap.id}', '${t.userName.replace(/'/g,"\\'")}', '${t.subject.replace(/'/g,"\\'")}')" class="p-4 cursor-pointer transition-colors flex justify-between items-center ${activeClass}">
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-white text-sm truncate">${t.userName}</span>
+                                    ${dot}
+                                </div>
+                                <p class="text-xs text-slate-400 truncate">${t.subject}</p>
+                            </div>
+                            <span class="text-[10px] text-slate-500 font-mono">${date}</span>
+                        </div>
+                    `;
+                });
+
+                const badge = document.getElementById('badge-support');
+                const listBadge = document.getElementById('supportUnreadCount');
+                if(unreadCount > 0) {
+                    badge.innerText = unreadCount; badge.classList.remove('hidden');
+                    listBadge.innerText = unreadCount; listBadge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden'); listBadge.classList.add('hidden');
+                }
+            });
+        }
+
+        window.openTicket = async (ticketId, userName, subject) => {
+            activeTicketId = ticketId;
+            document.getElementById('ticketEmptyState').classList.add('hidden');
+            document.getElementById('activeChatView').classList.remove('hidden');
+            document.getElementById('chatUserName').innerText = userName;
+            document.getElementById('chatUserInitial').innerText = userName.charAt(0).toUpperCase();
+            document.getElementById('chatSubject').innerText = subject;
+            
+            // Mark as read
+            await updateDoc(doc(db, "supportTickets", ticketId), { unreadAdmin: false });
+
+            // Unsubscribe previous message listener if exists
+            if(messagesUnsubscribe) messagesUnsubscribe();
+
+            // Listen to messages
+            const q = query(collection(db, `supportTickets/${ticketId}/messages`), orderBy("timestamp", "asc"));
+            messagesUnsubscribe = onSnapshot(q, (snap) => {
+                const chatArea = document.getElementById('chatMessages');
+                chatArea.innerHTML = '';
+                
+                snap.forEach(docSnap => {
+                    const m = docSnap.data();
+                    const isSystem = m.senderRole === 'admin';
+                    
+                    const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    const align = isSystem ? 'self-end' : 'self-start';
+                    const bg = isSystem ? 'bg-brand-500 text-black rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-[#1a1a1a] border border-white/10 text-white rounded-tr-xl rounded-bl-xl rounded-br-xl';
+                    
+                    let imageHtml = '';
+                    if(m.imageBase64) {
+                        imageHtml = `<img src="${m.imageBase64}" class="max-w-xs md:max-w-sm rounded-lg mb-2 cursor-pointer border ${isSystem ? 'border-brand-600/30' : 'border-white/10'}" onclick="window.open('${m.imageBase64}')">`;
+                    }
+
+                    chatArea.innerHTML += `
+                        <div class="flex flex-col max-w-[85%] ${align} mb-4">
+                            <span class="text-[10px] text-slate-500 mb-1 px-1 ${isSystem ? 'text-right' : 'text-left'}">${isSystem ? 'You (Admin)' : userName} • ${time}</span>
+                            <div class="p-3 md:p-4 shadow-md ${bg}">
+                                ${imageHtml}
+                                <p class="text-sm">${m.message}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Auto scroll to bottom
+                chatArea.scrollTop = chatArea.scrollHeight;
+            });
+        };
+
+        window.closeTicket = async () => {
+            if(!activeTicketId || !confirm("Mark this ticket as resolved and close it?")) return;
+            await updateDoc(doc(db, "supportTickets", activeTicketId), { status: 'closed', updatedAt: serverTimestamp() });
+            
+            document.getElementById('activeChatView').classList.add('hidden');
+            document.getElementById('ticketEmptyState').classList.remove('hidden');
+            activeTicketId = null;
+            if(messagesUnsubscribe) messagesUnsubscribe();
+        };
+
+        document.getElementById('replyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!activeTicketId) return;
+
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            const imgData = window.currentBase64Image; // from global scope
+
+            if(!msg && !imgData) return;
+            
+            const btn = document.getElementById('sendReplyBtn');
+            btn.disabled = true; btn.innerHTML = '<div class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>';
+
+            try {
+                // Add message to subcollection
+                await addDoc(collection(db, `supportTickets/${activeTicketId}/messages`), {
+                    senderId: currentUser.uid,
+                    senderRole: 'admin',
+                    message: msg,
+                    imageBase64: imgData,
+                    timestamp: serverTimestamp()
+                });
+
+                // Update parent ticket to notify user
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    updatedAt: serverTimestamp(),
+                    unreadUser: true
+                });
+
+                input.value = '';
+                window.removeImagePreview(); // clears the preview and global var
+            } catch(err) {
+                alert("Failed to send message: " + err.message);
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i>';
+                if(window.lucide) window.lucide.createIcons();
+            }
+        });
+
+    </script>
+</body>
+</html>
