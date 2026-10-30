@@ -95,9 +95,38 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+
+        /* Audio Ring Wave Animation */
+        @keyframes ringWave {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+        .ring-active { animation: ringWave 1s infinite; }
+
+        /* Toast animation */
+        @keyframes toastIn {
+            0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: toastOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden font-sans relative">
+
+    <!-- Audio Element for sound.mp3 notifications -->
+    <audio id="notificationAudio" preload="auto">
+        <source src="sound.mp3" type="audio/mp3">
+        <source src="sound.wav" type="audio/wav">
+    </audio>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 md:right-8 z-[200] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
 
     <!-- Mobile Header -->
     <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
@@ -105,9 +134,14 @@
             <i data-lucide="briefcase" class="w-6 h-6 text-brand-500"></i>
             <span class="font-bold text-white tracking-tight">WorkHub</span>
         </div>
-        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAudioNotifications()" id="mobileSoundBtn" class="p-2 text-brand-500 bg-white/5 rounded-xl border border-white/10" title="Sound Alert Toggle">
+                <i id="mobileSoundIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors p-2">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar / Mobile Menu -->
@@ -138,19 +172,24 @@
             <button id="closeMenuBtn" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         
-        <div class="p-4 flex-1 mt-2">
-            <nav class="space-y-2">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
+        <div class="p-4 flex-1 mt-2 space-y-1">
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-2">Hiring Console</p>
+            <nav class="space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Overview
                 </button>
-                <button onclick="switchTab('directory')" id="nav-directory" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <button onclick="switchTab('directory')" id="nav-directory" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                     <i data-lucide="users" class="w-5 h-5"></i> Talent Directory
                 </button>
-                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center justify-between px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                     <div class="flex items-center gap-3"><i data-lucide="inbox" class="w-5 h-5"></i> Access Requests</div>
                     <span id="badge-requests" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
                 </button>
-                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <button onclick="switchTab('support')" id="nav-support" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                    <div class="flex items-center gap-3"><i data-lucide="headphones" class="w-5 h-5"></i> Partner Concierge</div>
+                    <span id="badge-support" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                     <i data-lucide="building" class="w-5 h-5"></i> Company Profile
                 </button>
             </nav>
@@ -176,7 +215,21 @@
             <h1 class="text-2xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
                 <i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Partner Overview
             </h1>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-5">
+                <!-- Sound Toggle Pill -->
+                <div class="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-2xl px-3 py-1.5 shadow-inner">
+                    <button id="soundToggleBtn" onclick="toggleAudioNotifications()" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-brand-500 transition-colors" title="Toggle Sound Chime">
+                        <span id="soundRingWrapper" class="relative flex items-center justify-center w-6 h-6 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20 transition-all">
+                            <i id="desktopSoundIcon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <span id="soundStatusText" class="text-xs text-slate-300">Sound ON</span>
+                    </button>
+                    <span class="w-[1px] h-3.5 bg-white/10"></span>
+                    <button onclick="playNotificationSound(true)" class="text-[11px] font-bold text-brand-500 hover:text-white bg-brand-500/10 hover:bg-brand-500/20 px-2 py-0.5 rounded-lg border border-brand-500/20 transition-all flex items-center gap-1" title="Test Chime">
+                        <i data-lucide="bell-ring" class="w-3 h-3"></i> Test
+                    </button>
+                </div>
+
                 <div class="text-right">
                     <p class="text-sm font-bold text-white truncate max-w-[200px]" id="companyNameHeader">Loading...</p>
                     <p class="text-xs text-brand-500 font-bold tracking-widest uppercase">Verified Employer</p>
@@ -200,9 +253,14 @@
                     <div class="relative z-10">
                         <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Welcome to your hiring hub.</h2>
                         <p class="text-slate-400 font-inter max-w-lg leading-relaxed">Search our premium directory of 100% verified talent. When you find a match, request access to securely reveal their contact information.</p>
-                        <button onclick="switchTab('directory')" class="mt-6 px-6 py-3 bg-brand-500 text-black rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2">
-                            Browse Talent Directory <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
+                        <div class="mt-6 flex flex-wrap gap-4">
+                            <button onclick="switchTab('directory')" class="px-6 py-3 bg-brand-500 text-black rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center gap-2">
+                                Browse Talent Directory <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="switchTab('support')" class="px-6 py-3 bg-white/5 border border-white/10 text-slate-300 hover:text-white rounded-xl font-bold hover:bg-white/10 transition-all flex items-center gap-2">
+                                <i data-lucide="headphones" class="w-4 h-4 text-brand-500"></i> Partner Concierge Desk
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -248,57 +306,179 @@
                         <input type="text" id="searchKeyword" placeholder="Search by skills, roles, or names..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm shadow-inner">
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 lg:w-auto">
-                        <div class="relative w-full sm:w-48">
-                            <select id="searchCity" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none cursor-pointer">
-                                <option value="">Any City</option>
+                        <div class="relative sm:w-48">
+                            <i data-lucide="map-pin" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            <select id="filterCity" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-10 pr-8 text-white focus:border-brand-500 focus:outline-none text-sm appearance-none cursor-pointer">
+                                <option value="">All Locations</option>
                             </select>
                             <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
                         </div>
-                        <div class="relative w-full sm:w-56">
-                            <select id="searchExp" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-white focus:border-brand-500 focus:outline-none text-sm font-bold appearance-none cursor-pointer">
-                                <option value="">Any Experience</option>
-                                <option value="Fresher">Fresher (0 years)</option>
-                                <option value="1-3 Years">1-3 Years</option>
-                                <option value="3-5 Years">3-5 Years</option>
+                        <div class="relative sm:w-48">
+                            <i data-lucide="briefcase" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                            <select id="filterExp" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3.5 pl-10 pr-8 text-white focus:border-brand-500 focus:outline-none text-sm appearance-none cursor-pointer">
+                                <option value="">All Experience</option>
+                                <option value="Fresher">Fresher (0 yrs)</option>
+                                <option value="1-3 Years">1 to 3 Years</option>
+                                <option value="3-5 Years">3 to 5 Years</option>
                                 <option value="5+ Years">5+ Years</option>
                             </select>
                             <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Employee Grid -->
-                <div id="employeeGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10">
-                    <!-- Cards injected via JS -->
+
+                <!-- Talent Profiles Grid -->
+                <div id="talentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full py-16 text-center text-slate-500 font-medium">
+                        <div class="w-8 h-8 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+                        Accessing verified talent records...
+                    </div>
                 </div>
             </div>
 
-            <!-- ================= REQUESTS TAB ================= -->
+            <!-- ================= ACCESS REQUESTS TAB ================= -->
             <div id="requestsTab" class="tab-content animate-slide-up">
-                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
-                    <div class="p-6 border-b border-white/5 bg-[#1a1a1a] flex justify-between items-center flex-wrap gap-4">
+                <div class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="p-6 md:p-8 border-b border-white/5 bg-[#151515] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                                <i data-lucide="inbox" class="w-5 h-5 text-brand-500"></i> Active Requests
+                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                                <i data-lucide="inbox" class="w-6 h-6 text-brand-500"></i> Contact Access History
                             </h2>
-                            <p class="text-sm text-slate-400 font-inter mt-1">Track the status of candidates you've requested to contact.</p>
+                            <p class="text-xs text-slate-400 font-inter mt-1">Review approved connection shares and monitor pending verification reviews.</p>
                         </div>
+                        <button onclick="loadRequestsTable()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 hover:bg-white/10 transition-colors">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+                        </button>
                     </div>
-                    
+
                     <div class="overflow-x-auto custom-scrollbar">
-                        <!-- Mobile Card View & Desktop Table hybrid logic using CSS -->
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[600px]">
-                            <thead class="bg-[#151515] border-b border-white/5 text-slate-400 uppercase text-xs tracking-wider font-bold">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[700px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-wider">
                                 <tr>
-                                    <th class="p-5">Candidate Name</th>
-                                    <th class="p-5">System Status</th>
-                                    <th class="p-5">Secure Contact Details</th>
+                                    <th class="p-5 font-bold">Candidate Details</th>
+                                    <th class="p-5 font-bold">Status</th>
+                                    <th class="p-5 font-bold">Contact Channel</th>
                                 </tr>
                             </thead>
                             <tbody id="requestsTableBody" class="divide-y divide-white/5">
-                                <!-- Requests injected via JS -->
+                                <tr><td colspan="3" class="p-8 text-center text-slate-500">Loading requests...</td></tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SUPPORT TAB (CONCIERGE) ================= -->
+            <div id="supportTab" class="tab-content animate-slide-up space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px]">
+                    <!-- Left: Inquiries List (lg:col-span-5) -->
+                    <div class="lg:col-span-5 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[700px]">
+                        <div class="p-5 border-b border-white/5 bg-[#151515] flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                                    <i data-lucide="headphones" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-white leading-none">Partner Concierge</h3>
+                                    <span class="text-[11px] text-slate-400 font-inter">Direct Access to Admin</span>
+                                </div>
+                            </div>
+                            <button onclick="openNewTicketModal()" class="px-3 py-1.5 bg-brand-500 text-brand-950 font-bold text-xs rounded-xl hover:bg-brand-400 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Request
+                            </button>
+                        </div>
+
+                        <!-- Ticket List -->
+                        <div id="employerTicketsList" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                                <i data-lucide="message-square" class="w-8 h-8 mb-2 opacity-30"></i>
+                                Loading your inquiries...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Chat Window (lg:col-span-7) -->
+                    <div class="lg:col-span-7 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[700px]">
+                        <!-- Empty State -->
+                        <div id="employerChatEmpty" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 mb-4 animate-glow">
+                                <i data-lucide="building-2" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Hiring Concierge & Support</h3>
+                            <p class="text-sm text-slate-400 max-w-sm font-inter mb-6">Need candidate background verification details, priority access approvals, or custom requirements? Message our team directly.</p>
+                            <button onclick="openNewTicketModal()" class="px-5 py-2.5 bg-brand-500 text-brand-950 font-bold rounded-xl hover:bg-brand-400 transition-all text-xs flex items-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Contact Support Team
+                            </button>
+                        </div>
+
+                        <!-- Active Conversation -->
+                        <div id="employerChatContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                            <!-- Chat Top Bar -->
+                            <div class="p-4 border-b border-white/5 bg-[#151515] flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold">
+                                        <i data-lucide="shield" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="text-sm font-bold text-white leading-tight">WorkHub Operations Desk</h3>
+                                            <span id="activeTicketStatusBadge" class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">OPEN</span>
+                                        </div>
+                                        <p id="activeTicketSubject" class="text-xs text-slate-400 font-inter mt-0.5 truncate max-w-xs sm:max-w-md">Subject details</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Messages Scroll Area -->
+                            <div id="employerChatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-[#0a0a0a]/60">
+                                <!-- Messages injected dynamically -->
+                            </div>
+
+                            <!-- Preloaded Quick Messages Bar -->
+                            <div class="border-t border-white/5 bg-[#131313] px-4 py-2 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                                <span class="text-[10px] uppercase font-bold text-brand-500 tracking-wider flex items-center gap-1 flex-shrink-0">
+                                    <i data-lucide="zap" class="w-3 h-3 text-brand-500"></i> Quick:
+                                </span>
+                                <button onclick="insertQuickMessage('⚡ Please expedite my candidate access request.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">⚡ Expedite Access</button>
+                                <button onclick="insertQuickMessage('🔍 Looking for specialized talent with verified skills.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">🔍 Custom Search</button>
+                                <button onclick="insertQuickMessage('💼 How does the candidate verification check work?') class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">💼 Verification Details</button>
+                                <button onclick="insertQuickMessage('📸 Attached our hiring requirement specification screenshot.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">📸 Requirement Proof</button>
+                                <button onclick="insertQuickMessage('✨ Thank you, issue is resolved!')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">✨ Resolved</button>
+                            </div>
+
+                            <!-- Attached Image Preview Bar -->
+                            <div id="imageAttachmentPreview" class="hidden px-4 py-2 bg-[#161616] border-t border-white/5 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img id="imageAttachmentThumb" src="" alt="Proof Attachment" class="w-12 h-12 rounded-lg object-cover border border-brand-500/40 shadow-sm cursor-pointer" onclick="openImagePreview(this.src)">
+                                    <div>
+                                        <span class="text-xs font-bold text-white block flex items-center gap-1.5">
+                                            <i data-lucide="image" class="w-3.5 h-3.5 text-brand-500"></i> File Ready to Send
+                                        </span>
+                                        <span id="imageAttachmentSize" class="text-[10px] text-slate-400 font-mono">Base64 Encoded</span>
+                                    </div>
+                                </div>
+                                <button onclick="clearImageAttachment()" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Remove Screenshot">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Input Bar -->
+                            <div class="p-3 border-t border-white/5 bg-[#151515] flex items-end gap-2.5">
+                                <input type="file" id="ticketImageInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                                <button onclick="document.getElementById('ticketImageInput').click()" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-brand-500 border border-white/10 transition-colors flex-shrink-0" title="Attach Document / Screenshot (Base64)">
+                                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                </button>
+
+                                <div class="flex-1 bg-[#1a1a1a] rounded-2xl border border-white/10 focus-within:border-brand-500/50 transition-colors px-4 py-2.5 flex items-center">
+                                    <textarea id="chatInputMessage" rows="1" placeholder="Type your message to support... (Press Enter to Send)" class="w-full bg-transparent text-sm text-white placeholder-slate-500 outline-none resize-none font-inter max-h-28 custom-scrollbar" onkeydown="handleChatInputKeyDown(event)"></textarea>
+                                </div>
+
+                                <button onclick="sendChatMessage()" id="chatSendBtn" class="px-5 py-3 rounded-xl bg-brand-500 text-brand-950 font-bold hover:bg-brand-400 transition-all flex items-center gap-2 flex-shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.25)]">
+                                    <span class="hidden sm:inline">Send</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -308,59 +488,43 @@
                 <div class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden max-w-4xl mx-auto">
                     <div class="p-6 md:p-8 border-b border-white/5 bg-[#151515]">
                         <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                            <i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Company Settings
+                            <i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Corporate Identity
                         </h2>
-                        <p class="text-sm text-slate-400 mt-2 font-inter">Update your company details. Providing a website helps verify your identity faster.</p>
+                        <p class="text-xs text-slate-400 font-inter mt-1">Manage your public partner footprint shown when accessing candidate records.</p>
                     </div>
-                    
+
                     <form id="profileForm" class="p-6 md:p-8 space-y-6">
-                        
                         <div id="profileAlert" class="hidden p-4 rounded-xl text-sm border flex items-start gap-3 transition-all bg-emerald-950/30 text-emerald-400 border-emerald-900/50">
                             <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                            <span class="font-inter font-medium">Company profile successfully updated.</span>
+                            <span class="font-inter font-medium">Settings saved successfully.</span>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Locked Email -->
-                            <div class="space-y-2 md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Account Email (Locked)</label>
-                                <input type="email" id="editEmail" readonly class="w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/5 rounded-xl text-slate-500 font-medium cursor-not-allowed">
-                            </div>
-
-                            <!-- Editable Fields -->
                             <div class="space-y-2">
-                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Company / Business Name</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Company Name</label>
                                 <input type="text" id="editCompanyName" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
                             </div>
-                            
                             <div class="space-y-2">
-                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Industry</label>
-                                <input type="text" id="editIndustry" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium" placeholder="e.g. IT, Healthcare, Retail">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Industry Domain</label>
+                                <input type="text" id="editIndustry" required placeholder="e.g. Fintech, Healthcare, SaaS" class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
                             </div>
-
                             <div class="space-y-2">
-                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Contact Person (Your Name)</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Primary Contact Name</label>
                                 <input type="text" id="editFullName" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
                             </div>
-
                             <div class="space-y-2">
-                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Mobile Number</label>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Corporate Phone Number</label>
                                 <input type="tel" id="editPhone" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
                             </div>
-
-                            <!-- Optional Website -->
                             <div class="space-y-2 md:col-span-2">
-                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Company Website <span class="text-slate-500 normal-case tracking-normal font-normal">(Optional)</span></label>
-                                <div class="relative">
-                                    <i data-lucide="globe" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
-                                    <input type="url" id="editWebsite" placeholder="https://www.yourcompany.com" class="w-full pl-12 pr-4 py-3.5 input-dark rounded-xl font-medium placeholder-slate-600">
-                                </div>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Official Website URL</label>
+                                <input type="url" id="editWebsite" placeholder="https://example.com" class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
                             </div>
                         </div>
 
                         <div class="pt-6 border-t border-white/5 flex justify-end">
-                            <button type="submit" id="saveProfileBtn" class="w-full md:w-auto px-8 py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2">
-                                <i data-lucide="save" class="w-5 h-5"></i> Save Details
+                            <button type="submit" id="saveProfileBtn" class="px-8 py-3.5 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2 text-sm">
+                                <i data-lucide="save" class="w-4 h-4"></i> Save Settings
                             </button>
                         </div>
                     </form>
@@ -370,53 +534,243 @@
         </div>
     </main>
 
-    <!-- CUSTOM PREMIUM MODAL: Request Access -->
-    <div id="requestModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden relative flex flex-col">
-            
-            <div class="px-6 md:px-8 pt-8 pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
-                <div>
-                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
-                        <i data-lucide="lock" class="w-6 h-6"></i>
-                    </div>
-                    <h2 class="text-2xl font-extrabold text-white">Request Secure Access</h2>
-                </div>
-                <button onclick="closeRequestModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- MODAL: Confirmation for Requesting Access -->
+    <div id="requestModal" class="modal-overlay fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-[#151515]">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-brand-500"></i> Request Contact Access
+                </h3>
+                <button onclick="closeRequestModal()" class="text-slate-500 hover:text-white p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            
-            <div class="p-6 md:p-8 space-y-6 font-inter bg-[#111]">
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    To maintain privacy, candidate contact details (Email & Phone) are hidden. 
-                    Submitting this request will notify our Verification Team to securely release this candidate's information to <strong class="text-white" id="modalCompanyName">Your Company</strong>.
-                </p>
-                
-                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/5 text-slate-400 rounded-full flex items-center justify-center border border-white/10">
-                        <i data-lucide="user" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <p class="text-white font-bold text-lg" id="modalCandidateName">Candidate Name</p>
-                        <p class="text-brand-500 text-xs font-bold tracking-wider uppercase" id="modalCandidateRole">Qualification</p>
-                    </div>
+            <div class="p-6 space-y-4 font-inter text-sm">
+                <p class="text-slate-300">Are you sure you want to request secure contact details for <strong class="text-white" id="modalCandidateName">Candidate</strong>?</p>
+                <div class="p-4 bg-brand-500/5 border border-brand-500/20 rounded-xl text-slate-400 text-xs leading-relaxed">
+                    <span class="text-brand-500 font-bold block mb-1">Strict Privacy Policy</span>
+                    Your request will be forwarded to the WorkHub Verification Team. Once approved, the candidate's phone and email will appear in your Access Requests queue.
                 </div>
-                
-                <button id="confirmRequestBtn" class="w-full py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i> Confirm & Submit Request
-                </button>
+                <div class="flex gap-3 pt-3">
+                    <button onclick="closeRequestModal()" class="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl text-slate-300 font-bold hover:bg-white/10 transition">Cancel</button>
+                    <button id="confirmRequestBtn" class="flex-1 py-3 bg-brand-500 text-brand-950 font-extrabold rounded-xl hover:bg-brand-400 transition shadow-[0_0_15px_rgba(234,179,8,0.2)]">Submit Request</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Create New Support Ticket -->
+    <div id="newTicketModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 pt-6 pb-4 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center">
+                        <i data-lucide="message-square-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Partner Support Request</h2>
+                        <p class="text-xs text-slate-400 font-inter">Direct channel to WorkHub operations</p>
+                    </div>
+                </div>
+                <button onclick="closeNewTicketModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="newTicketForm" onsubmit="submitNewTicket(event)" class="p-6 space-y-4 font-inter">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Subject / Requirement *</label>
+                    <input type="text" id="newTicketSubject" required placeholder="e.g. Expedited Candidate Contact, Custom Hiring" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Inquiry Details *</label>
+                    <textarea id="newTicketMessage" rows="3" required placeholder="Describe your request or requirement in detail..." class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors"></textarea>
+                </div>
+
+                <!-- Optional Image upload -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Attach Document / Requirement Image</label>
+                    <input type="file" id="newTicketImageInput" accept="image/*" onchange="handleNewTicketImage(event)" class="w-full bg-[#1a1a1a] border border-white/10 text-slate-300 rounded-xl py-2 px-3 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-brand-950 file:cursor-pointer">
+                    <div id="newTicketImagePreviewContainer" class="hidden mt-2 flex items-center gap-3 bg-[#161616] p-2 rounded-xl border border-brand-500/30">
+                        <img id="newTicketImagePreview" src="" class="w-10 h-10 object-cover rounded-lg">
+                        <span class="text-xs text-brand-500 font-bold flex-1">Image attached</span>
+                        <button type="button" onclick="clearNewTicketImage()" class="text-slate-400 hover:text-red-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-3 border-t border-white/5">
+                    <button type="button" onclick="closeNewTicketModal()" class="flex-1 py-3 bg-white/5 text-slate-400 rounded-xl font-bold hover:bg-white/10 transition-colors text-sm">Cancel</button>
+                    <button type="submit" id="btnSubmitNewTicket" class="flex-[2] py-3 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Fullscreen Image Preview Lightbox -->
+    <div id="imagePreviewModal" class="modal-overlay fixed inset-0 z-[150] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4" onclick="closeImagePreview()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="absolute -top-12 right-0 flex items-center gap-2">
+                <a id="downloadPreviewImageBtn" href="#" download="workhub-attachment.jpg" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 backdrop-blur-md">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                </a>
+                <button onclick="closeImagePreview()" class="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <img id="fullPreviewImage" src="" alt="Attachment Preview" class="max-w-full max-h-[82vh] object-contain rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script>
+        // Modal & Image Preview helpers outside module
+        window.closeRequestModal = () => { document.getElementById('requestModal').classList.remove('active'); };
+        window.closeNewTicketModal = () => { document.getElementById('newTicketModal').classList.remove('active'); };
+        window.openNewTicketModal = () => { document.getElementById('newTicketModal').classList.add('active'); };
+        window.closeImagePreview = () => { document.getElementById('imagePreviewModal').classList.remove('active'); };
+        window.openImagePreview = (src) => {
+            const img = document.getElementById('fullPreviewImage');
+            const link = document.getElementById('downloadPreviewImageBtn');
+            if(img) img.src = src;
+            if(link) link.href = src;
+            document.getElementById('imagePreviewModal').classList.add('active');
+        };
+    </script>
+
     <script type="module">
         lucide.createIcons();
-        import { auth, db, doc, getDoc, updateDoc, collection, getDocs, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
+        import { auth, db, doc, getDoc, updateDoc, collection, query, where, addDoc, getDocs, onAuthStateChanged, signOut, onSnapshot, serverTimestamp, orderBy } from './firebase.js';
 
         let currentUser = null;
         let profileDocRef = null;
-        let requestedUids = new Set(); 
-        let allProfiles = []; 
-        let targetRequestUid = null; // For the modal
+        let allTalent = [];
+        let targetRequestUid = null;
+
+        // Support state
+        let employerTickets = [];
+        let activeTicketId = null;
+        let activeTicketMessagesUnsub = null;
+        let currentAttachedBase64 = null;
+        let newTicketAttachedBase64 = null;
+
+        // Audio & Notifications
+        let isAudioMuted = localStorage.getItem('workhub_emp_partner_audio_muted') === 'true';
+        let isInitialLoadTickets = true;
+        let knownTicketTimestamps = new Map();
+
+        function updateAudioUI() {
+            const statusText = document.getElementById('soundStatusText');
+            const desktopIcon = document.getElementById('desktopSoundIcon');
+            const mobileIcon = document.getElementById('mobileSoundIcon');
+            const ringWrap = document.getElementById('soundRingWrapper');
+
+            if (isAudioMuted) {
+                if (statusText) statusText.innerText = 'Sound Muted';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-x');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-x');
+                if (ringWrap) {
+                    ringWrap.classList.remove('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.add('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            } else {
+                if (statusText) statusText.innerText = 'Sound ON';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-2');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-2');
+                if (ringWrap) {
+                    ringWrap.classList.add('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.remove('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.toggleAudioNotifications = () => {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem('workhub_emp_partner_audio_muted', isAudioMuted);
+            updateAudioUI();
+            if (!isAudioMuted) playNotificationSound(true);
+        };
+
+        function playFallbackChime() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                const ctx = new AudioContextClass();
+                const tones = [
+                    { freq: 659.25, start: 0.0, dur: 0.35 },
+                    { freq: 880.0, start: 0.15, dur: 0.4 },
+                    { freq: 1046.5, start: 0.35, dur: 0.55 }
+                ];
+                tones.forEach(t => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(t.freq, ctx.currentTime + t.start);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime + t.start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t.start + t.dur);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + t.start);
+                    osc.stop(ctx.currentTime + t.start + t.dur);
+                });
+            } catch(e) {}
+        }
+
+        window.playNotificationSound = (force = false) => {
+            if (isAudioMuted && !force) return;
+            const ringWrap = document.getElementById('soundRingWrapper');
+            if (ringWrap) {
+                ringWrap.classList.add('ring-active');
+                setTimeout(() => ringWrap.classList.remove('ring-active'), 1800);
+            }
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(() => playFallbackChime());
+            } else {
+                playFallbackChime();
+            }
+        };
+
+        document.addEventListener('click', function unlockAudio() {
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.play().then(() => { audioEl.pause(); audioEl.currentTime = 0; }).catch(() => {});
+            }
+            document.removeEventListener('click', unlockAudio);
+        }, { once: true });
+
+        function showToastNotification({ title, message, tab, icon = 'bell' }) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            playNotificationSound();
+
+            const toast = document.createElement('div');
+            toast.className = "toast-enter pointer-events-auto bg-[#141414] border border-brand-500/40 rounded-2xl p-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex items-start gap-3 backdrop-blur-xl transition-all cursor-pointer hover:border-brand-500";
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider truncate">${title}</h4>
+                    <p class="text-xs text-slate-300 font-inter mt-0.5 line-clamp-2">${message}</p>
+                </div>
+                <button class="text-slate-500 hover:text-white p-1 toast-close-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+            `;
+
+            toast.addEventListener('click', (e) => {
+                if (e.target.closest('.toast-close-btn')) {
+                    toast.remove();
+                    return;
+                }
+                if (tab) switchTab(tab);
+                toast.remove();
+            });
+
+            container.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 7000);
+        }
 
         // Mobile Menu Logic
         const sidebar = document.getElementById('sidebar');
@@ -453,198 +807,212 @@
                 currentUser = user;
                 const coreData = userDoc.data();
                 
-                // Fetch full employer profile
+                // Load Employer Specific Profile
                 profileDocRef = doc(db, "employerProfiles", user.uid);
-                const empSnap = await getDoc(profileDocRef);
-                const empData = empSnap.exists() ? empSnap.data() : {};
-                
-                const compName = empData.companyName || 'Company';
+                const profSnap = await getDoc(profileDocRef);
+                const profData = profSnap.exists() ? profSnap.data() : {};
 
-                // Populate UI Headers
-                document.getElementById('companyNameHeader').innerText = compName;
-                document.getElementById('modalCompanyName').innerText = compName;
-                document.getElementById('mainContent').style.display = 'block';
+                // Populate Header
+                const companyName = profData.companyName || coreData.fullName || "Corporate Partner";
+                document.getElementById('companyNameHeader').innerText = companyName;
 
-                // Populate Settings Form
-                document.getElementById('editEmail').value = coreData.email;
-                document.getElementById('editCompanyName').value = empData.companyName || '';
-                document.getElementById('editIndustry').value = empData.industry || '';
-                document.getElementById('editFullName').value = empData.fullName || coreData.fullName || '';
+                // Populate Profile Form
+                document.getElementById('editCompanyName').value = profData.companyName || '';
+                document.getElementById('editIndustry').value = profData.industry || '';
+                document.getElementById('editFullName').value = coreData.fullName || '';
                 document.getElementById('editPhone').value = coreData.phone || '';
-                document.getElementById('editWebsite').value = empData.website || '';
+                document.getElementById('editWebsite').value = profData.website || '';
 
-                // Setup Real-time Requests Listener
-                const q = query(collection(db, "contactRequests"), where("employerUid", "==", user.uid));
-                onSnapshot(q, (snap) => {
-                    requestedUids.clear();
-                    let pendingCount = 0;
-                    let approvedCount = 0;
-                    
-                    snap.forEach(d => {
-                        requestedUids.add(d.data().employeeUid);
-                        if(d.data().status === 'pending') pendingCount++;
-                        if(d.data().status === 'approved') approvedCount++;
-                    });
-                    
-                    // Update Dashboard Stats
-                    document.getElementById('stat-total').innerText = snap.size;
-                    document.getElementById('stat-pending').innerText = pendingCount;
-                    document.getElementById('stat-approved').innerText = approvedCount;
+                document.getElementById('mainContent').style.display = 'block';
+                updateAudioUI();
 
-                    // Update Badge
-                    const badge = document.getElementById('badge-requests');
-                    if(pendingCount > 0) {
-                        badge.innerText = pendingCount;
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
+                // Listen to Access Requests for Stats & Badge
+                initRequestsListener();
 
-                    loadRequestsTable(); 
-                    renderDirectory(); 
-                });
+                // Load Talent Directory
+                loadTalentDirectory();
 
-                fetchDirectory();
+                // Initialize Partner Support Desk
+                initEmployerSupportListener(user.uid);
 
-            } catch(e) { console.error("Auth Error", e); }
+            } catch(e) { console.error("Auth initialization failed", e); }
         });
 
-        // Tab Switching
+        // Tab Switching Logic
         window.switchTab = (tab) => {
-            const tabs = ['dashboard', 'directory', 'requests', 'profile'];
-            
-            const headers = {
+            const titles = {
                 'dashboard': '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Partner Overview',
                 'directory': '<i data-lucide="users" class="w-6 h-6 text-brand-500"></i> Talent Directory',
                 'requests': '<i data-lucide="inbox" class="w-6 h-6 text-brand-500"></i> Access Requests',
-                'profile': '<i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Company Settings'
+                'support': '<i data-lucide="headphones" class="w-6 h-6 text-brand-500"></i> Concierge & Support',
+                'profile': '<i data-lucide="building" class="w-6 h-6 text-brand-500"></i> Company Profile'
             };
-            const titleEl = document.getElementById('headerTitle');
-            if(titleEl) titleEl.innerHTML = headers[tab];
-            lucide.createIcons();
 
-            tabs.forEach(t => {
-                document.getElementById(t + 'Tab').classList.remove('active');
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl && titles[tab]) titleEl.innerHTML = titles[tab];
+
+            ['dashboard', 'directory', 'requests', 'support', 'profile'].forEach(t => {
+                const el = document.getElementById(t + 'Tab');
                 const btn = document.getElementById('nav-' + t);
-                btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
-                btn.classList.add('text-slate-400', 'border-transparent');
+                if (el) el.classList.remove('active');
+                if (btn) {
+                    btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
             });
 
-            document.getElementById(tab + 'Tab').classList.add('active');
+            const activeTab = document.getElementById(tab + 'Tab');
             const activeBtn = document.getElementById('nav-' + tab);
-            activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
-            activeBtn.classList.remove('text-slate-400', 'border-transparent');
+            if (activeTab) activeTab.classList.add('active');
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+            }
 
+            if (tab === 'requests') loadRequestsTable();
+
+            lucide.createIcons();
             if(window.innerWidth < 768) toggleMobileMenu();
         };
 
-        // ================= DIRECTORY LOGIC =================
-        async function fetchDirectory() {
-            const snap = await getDocs(collection(db, "employeeProfiles"));
-            allProfiles = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            // Populate City Select
-            const cities = [...new Set(allProfiles.map(p => p.city))].filter(Boolean).sort();
-            const citySelect = document.getElementById('searchCity');
-            cities.forEach(city => {
-                const opt = document.createElement('option');
-                opt.value = city; opt.textContent = city;
-                citySelect.appendChild(opt);
+        // ================= REQUESTS LISTENER (STATS) =================
+        function initRequestsListener() {
+            const q = query(collection(db, "contactRequests"), where("employerUid", "==", currentUser.uid));
+            onSnapshot(q, (snapshot) => {
+                const reqs = snapshot.docs.map(d => d.data());
+                
+                const total = reqs.length;
+                const pending = reqs.filter(r => r.status === 'pending').length;
+                const approved = reqs.filter(r => r.status === 'approved').length;
+
+                document.getElementById('stat-total').innerText = total;
+                document.getElementById('stat-pending').innerText = pending;
+                document.getElementById('stat-approved').innerText = approved;
+
+                const badge = document.getElementById('badge-requests');
+                if (pending > 0) {
+                    badge.innerText = pending;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             });
-            renderDirectory();
         }
 
-        function renderDirectory() {
-            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
-            const cityF = document.getElementById('searchCity').value;
-            const expF = document.getElementById('searchExp').value;
-            
-            const grid = document.getElementById('employeeGrid');
+        // ================= TALENT DIRECTORY LOGIC =================
+        async function loadTalentDirectory() {
+            try {
+                const q = query(collection(db, "users"), where("role", "==", "employee"), where("pipelineStage", ">=", 4));
+                const snap = await getDocs(q);
+
+                allTalent = [];
+                const cities = new Set();
+
+                for (let docSnap of snap.docs) {
+                    const uData = docSnap.data();
+                    const profSnap = await getDoc(doc(db, "employeeProfiles", docSnap.id));
+                    const pData = profSnap.exists() ? profSnap.data() : {};
+
+                    if (pData.city) cities.add(pData.city);
+
+                    allTalent.push({
+                        id: docSnap.id,
+                        fullName: uData.fullName,
+                        city: pData.city || 'Location unlisted',
+                        experienceLevel: pData.experienceLevel || 'Fresher',
+                        qualification: pData.qualification || 'Verified Talent',
+                        skills: pData.skills || []
+                    });
+                }
+
+                const citySelect = document.getElementById('filterCity');
+                cities.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c; opt.innerText = c;
+                    citySelect.appendChild(opt);
+                });
+
+                renderTalent();
+
+                document.getElementById('searchKeyword').addEventListener('input', renderTalent);
+                document.getElementById('filterCity').addEventListener('change', renderTalent);
+                document.getElementById('filterExp').addEventListener('change', renderTalent);
+
+            } catch(e) { console.error("Error loading talent:", e); }
+        }
+
+        function renderTalent() {
+            const search = document.getElementById('searchKeyword').value.toLowerCase();
+            const city = document.getElementById('filterCity').value;
+            const exp = document.getElementById('filterExp').value;
+            const grid = document.getElementById('talentGrid');
             grid.innerHTML = '';
-            
-            const filtered = allProfiles.filter(p => {
-                const matchKeyword = p.fullName?.toLowerCase().includes(keyword) || (p.skills && p.skills.join(' ').toLowerCase().includes(keyword)) || p.qualification?.toLowerCase().includes(keyword);
-                const matchCity = !cityF || p.city === cityF;
-                const matchExp = !expF || p.experienceLevel === expF;
+
+            const filtered = allTalent.filter(t => {
+                const matchKeyword = !search || 
+                    t.fullName.toLowerCase().includes(search) || 
+                    t.skills.some(s => s.toLowerCase().includes(search)) ||
+                    t.qualification.toLowerCase().includes(search);
+                const matchCity = !city || t.city === city;
+                const matchExp = !exp || t.experienceLevel === exp;
                 return matchKeyword && matchCity && matchExp;
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full p-12 text-center text-slate-500 font-medium bg-[#111] rounded-2xl border border-white/5">No candidates found matching your criteria.</div>`;
+                grid.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 font-medium">No candidates match the specified criteria.</div>';
                 return;
             }
 
-            filtered.forEach(data => {
-                const hasRequested = requestedUids.has(data.id);
-                
-                // Add a "Saved/Bookmark" visual flair just for UI premium feel
-                const btnHtml = hasRequested 
-                    ? `<button disabled class="w-full py-3.5 mt-4 bg-white/5 text-slate-500 border border-white/5 rounded-xl font-bold cursor-not-allowed flex justify-center items-center gap-2">
-                        <i data-lucide="clock" class="w-4 h-4"></i> Request Pending
-                       </button>`
-                    : `<button onclick="openRequestModal('${data.id}', '${data.fullName.replace(/'/g,"\\'")}', '${(data.qualification||'Professional').replace(/'/g,"\\'")}')" class="w-full py-3.5 mt-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2">
-                        <i data-lucide="lock" class="w-4 h-4"></i> Request Secure Access
-                       </button>`;
+            filtered.forEach(cand => {
+                const card = document.createElement('div');
+                card.className = "bg-[#111] border border-white/5 rounded-3xl p-6 shadow-xl flex flex-col justify-between hover:border-brand-500/30 transition-all duration-300 relative group overflow-hidden";
+                card.innerHTML = `
+                    <div class="relative z-10">
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-500 font-bold flex items-center justify-center text-lg shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                                ${cand.fullName.charAt(0).toUpperCase()}
+                            </div>
+                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+                            </span>
+                        </div>
 
-                const skillsList = data.skills || [];
-                const skillsHtml = skillsList.slice(0, 4).map(s => `<span class="bg-black border border-white/10 text-slate-300 px-2.5 py-1 rounded text-[10px] font-bold tracking-wide">${s}</span>`).join('');
-                const extraSkills = skillsList.length > 4 ? `<span class="text-xs text-slate-500 font-bold px-1">+${skillsList.length - 4}</span>` : '';
+                        <h3 class="text-lg font-bold text-white mb-1 group-hover:text-brand-500 transition-colors">${cand.fullName}</h3>
+                        <p class="text-xs text-slate-400 font-inter mb-4 flex items-center gap-1.5">
+                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-slate-500"></i> ${cand.qualification}
+                        </p>
 
-                grid.innerHTML += `
-                    <div class="bg-[#111] p-6 md:p-8 rounded-3xl border border-white/5 shadow-xl hover:border-brand-500/30 transition-all duration-300 flex flex-col group relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-brand-500/5 rounded-full blur-2xl group-hover:bg-brand-500/10 transition-colors"></div>
-                        
-                        <div class="flex justify-between items-start mb-5 relative z-10">
-                            <div class="pr-2">
-                                <h3 class="font-extrabold text-xl text-white group-hover:text-brand-500 transition-colors">${data.fullName}</h3>
-                                <p class="text-xs text-brand-500 font-bold tracking-widest uppercase mt-1.5">${data.qualification || 'Professional'}</p>
+                        <div class="space-y-2 mb-6 font-inter text-xs">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-500"></i> ${cand.city}
                             </div>
-                            <div class="bg-white/5 text-slate-400 border border-white/10 p-2.5 rounded-xl group-hover:bg-brand-500/10 group-hover:border-brand-500/20 group-hover:text-brand-500 transition-colors shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i data-lucide="briefcase" class="w-3.5 h-3.5 text-brand-500"></i> ${cand.experienceLevel}
                             </div>
                         </div>
-                        
-                        <div class="space-y-3 mb-6 flex-1 border-t border-white/5 pt-5 relative z-10">
-                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i> ${data.city || 'Location unspecified'}
-                            </div>
-                            <div class="flex items-center text-sm text-slate-300 gap-3 font-inter">
-                                <i data-lucide="briefcase" class="w-4 h-4 text-slate-500"></i> ${data.experienceLevel || 'Experience unspecified'}
-                            </div>
+
+                        <div class="flex flex-wrap gap-1.5 mb-6">
+                            ${cand.skills.map(s => `<span class="px-2 py-0.5 bg-black border border-white/10 rounded-md text-[10px] font-bold text-slate-300">${s}</span>`).join('')}
                         </div>
-                        
-                        <div class="mb-4 relative z-10">
-                            <div class="flex flex-wrap gap-2 items-center">
-                                ${skillsHtml} ${extraSkills}
-                            </div>
-                        </div>
-                        
-                        <div class="relative z-10">${btnHtml}</div>
                     </div>
+
+                    <button onclick="openRequestModal('${cand.id}', '${cand.fullName.replace(/'/g, "\\'")}')" class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold hover:bg-brand-500 hover:text-black hover:border-brand-500 text-xs transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i> Request Contact Access
+                    </button>
                 `;
+                grid.appendChild(card);
             });
             lucide.createIcons();
         }
 
-        document.getElementById('searchKeyword').addEventListener('input', renderDirectory);
-        document.getElementById('searchCity').addEventListener('change', renderDirectory);
-        document.getElementById('searchExp').addEventListener('change', renderDirectory);
-
-        // ================= REQUEST MODAL LOGIC =================
-        window.openRequestModal = (uid, name, role) => {
+        window.openRequestModal = (uid, name) => {
             targetRequestUid = uid;
             document.getElementById('modalCandidateName').innerText = name;
-            document.getElementById('modalCandidateRole').innerText = role;
             document.getElementById('requestModal').classList.add('active');
         };
 
-        window.closeRequestModal = () => {
-            document.getElementById('requestModal').classList.remove('active');
-            targetRequestUid = null;
-        };
-
         document.getElementById('confirmRequestBtn').addEventListener('click', async () => {
-            if(!targetRequestUid) return;
+            if (!targetRequestUid) return;
             const btn = document.getElementById('confirmRequestBtn');
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
@@ -680,7 +1048,6 @@
             for (let docSnap of reqsSnap.docs) {
                 const req = docSnap.data();
                 
-                // Fetch public profile to display the name
                 const empSnap = await getDoc(doc(db, "employeeProfiles", req.employeeUid));
                 const empName = empSnap.exists() ? empSnap.data().fullName : 'Unknown Professional';
                 const empQual = empSnap.exists() ? empSnap.data().qualification : 'Professional';
@@ -732,6 +1099,365 @@
             lucide.createIcons();
         };
 
+        // ================= SUPPORT SYSTEM (EMPLOYER CONCIERGE) =================
+        function initEmployerSupportListener(uid) {
+            const q = query(collection(db, "supportTickets"), where("userId", "==", uid));
+            onSnapshot(q, (snapshot) => {
+                employerTickets = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                employerTickets.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+
+                const unreadCount = employerTickets.filter(t => t.unreadUser === true).length;
+                const badge = document.getElementById('badge-support');
+                if (badge) {
+                    badge.innerText = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                }
+
+                // Check for new incoming replies from admin
+                if (!isInitialLoadTickets) {
+                    snapshot.docChanges().forEach(change => {
+                        const tData = change.doc.data();
+                        const prevTime = knownTicketTimestamps.get(change.doc.id) || 0;
+                        const currTime = tData.updatedAt?.seconds || tData.createdAt?.seconds || 0;
+
+                        if (currTime > prevTime && tData.lastSender === 'admin') {
+                            knownTicketTimestamps.set(change.doc.id, currTime);
+                            showToastNotification({
+                                title: 'Concierge Desk Update',
+                                message: tData.lastMessage || 'Operations team replied to your partner request.',
+                                tab: 'support',
+                                icon: 'headphones'
+                            });
+                        }
+                    });
+                } else {
+                    snapshot.forEach(d => {
+                        const tData = d.data();
+                        knownTicketTimestamps.set(d.id, tData.updatedAt?.seconds || tData.createdAt?.seconds || 0);
+                    });
+                    isInitialLoadTickets = false;
+                }
+
+                renderEmployerTicketsList();
+
+                if (activeTicketId) {
+                    const currentActive = employerTickets.find(t => t.id === activeTicketId);
+                    if (currentActive) {
+                        const badgeEl = document.getElementById('activeTicketStatusBadge');
+                        if (badgeEl) badgeEl.innerText = (currentActive.status || 'open').toUpperCase();
+                    }
+                }
+            });
+        }
+
+        function renderEmployerTicketsList() {
+            const container = document.getElementById('employerTicketsList');
+            if (!container) return;
+
+            if (employerTickets.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                        <i data-lucide="message-square" class="w-8 h-8 mb-2 opacity-30"></i>
+                        No active partner requests. Click "New Request" to get priority concierge support.
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '';
+            employerTickets.forEach(ticket => {
+                const isActive = ticket.id === activeTicketId;
+                const isUnread = ticket.unreadUser === true;
+                const date = ticket.updatedAt ? new Date(ticket.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+
+                let statusBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                if (ticket.status === 'in-progress') statusBadge = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                if (ticket.status === 'resolved') statusBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+
+                const card = document.createElement('div');
+                card.className = `p-4 cursor-pointer transition-all border-l-4 ${isActive ? 'bg-white/10 border-brand-500' : 'hover:bg-white/5 border-transparent'}`;
+                card.onclick = () => selectEmployerTicket(ticket.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <span class="font-bold text-sm text-white truncate flex-1">${ticket.subject || 'Partner Request'}</span>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            ${isUnread ? '<span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>' : ''}
+                            <span class="text-[11px] text-slate-500 font-mono">${date}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 font-inter truncate mb-2">
+                        ${ticket.lastSender === 'user' ? '<span class="text-slate-300">You: </span>' : '<span class="text-brand-500 font-bold">Desk: </span>'}
+                        ${ticket.lastMessage || 'File attachment sent'}
+                    </p>
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${statusBadge}">${ticket.status || 'open'}</span>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        window.selectEmployerTicket = async (ticketId) => {
+            activeTicketId = ticketId;
+            const ticket = employerTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('employerChatEmpty').classList.add('hidden');
+            const chatContainer = document.getElementById('employerChatContainer');
+            chatContainer.classList.remove('hidden');
+
+            document.getElementById('activeTicketSubject').innerText = `ID: ${ticket.id.substring(0,8)} • ${ticket.subject}`;
+            document.getElementById('activeTicketStatusBadge').innerText = (ticket.status || 'open').toUpperCase();
+
+            renderEmployerTicketsList();
+
+            if (ticket.unreadUser) {
+                try {
+                    await updateDoc(doc(db, "supportTickets", ticketId), { unreadUser: false });
+                } catch(e) {}
+            }
+
+            if (activeTicketMessagesUnsub) {
+                activeTicketMessagesUnsub();
+                activeTicketMessagesUnsub = null;
+            }
+
+            const messagesArea = document.getElementById('employerChatMessages');
+            messagesArea.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs font-inter"><div class="w-5 h-5 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto mb-2"></div>Connecting to concierge thread...</div>';
+
+            const msgsQuery = query(collection(db, "supportTickets", ticketId, "messages"), orderBy("createdAt", "asc"));
+            activeTicketMessagesUnsub = onSnapshot(msgsQuery, (snapshot) => {
+                messagesArea.innerHTML = '';
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs font-inter">No messages yet. Send your query below.</div>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const isSelf = msg.senderId === currentUser.uid || msg.senderRole === 'employer';
+                    const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
+
+                    const msgEl = document.createElement('div');
+                    msgEl.className = `flex flex-col ${isSelf ? 'items-end' : 'items-start'} space-y-1`;
+
+                    let imageHtml = '';
+                    if (msg.imageBase64) {
+                        imageHtml = `
+                            <div class="mt-2">
+                                <img src="${msg.imageBase64}" alt="Attachment" class="max-w-xs max-h-56 rounded-xl object-cover border border-white/10 shadow-md cursor-pointer hover:opacity-90 transition-opacity" onclick="openImagePreview('${msg.imageBase64.replace(/'/g, "\\'")}')">
+                            </div>
+                        `;
+                    }
+
+                    if (isSelf) {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-white">Your Team</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-white/10 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm max-w-md shadow-md break-words">
+                                ${msg.text ? `<p class="font-inter text-slate-200 whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    } else {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-brand-500">${msg.senderName || 'WorkHub Concierge Operator'}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-gradient-to-r from-brand-500 to-amber-500 text-brand-950 font-medium px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm max-w-md shadow-[0_0_15px_rgba(234,179,8,0.2)] break-words">
+                                ${msg.text ? `<p class="font-inter whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    }
+
+                    messagesArea.appendChild(msgEl);
+                });
+
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                lucide.createIcons();
+            });
+        };
+
+        window.insertQuickMessage = (msg) => {
+            const input = document.getElementById('chatInputMessage');
+            if (input) {
+                input.value = msg;
+                input.focus();
+            }
+        };
+
+        function compressImage(base64Str, maxWidth, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
+
+        window.handleImageSelection = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    currentAttachedBase64 = compressed;
+                    const preview = document.getElementById('imageAttachmentPreview');
+                    document.getElementById('imageAttachmentThumb').src = compressed;
+                    const sizeKb = Math.round((compressed.length * 3 / 4) / 1024);
+                    document.getElementById('imageAttachmentSize').innerText = `Requirement Attachment (${sizeKb} KB)`;
+                    preview.classList.remove('hidden');
+                    lucide.createIcons();
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImageAttachment = () => {
+            currentAttachedBase64 = null;
+            document.getElementById('imageAttachmentPreview').classList.add('hidden');
+            document.getElementById('ticketImageInput').value = '';
+        };
+
+        window.handleChatInputKeyDown = (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        };
+
+        window.sendChatMessage = async () => {
+            if (!activeTicketId) return;
+
+            const input = document.getElementById('chatInputMessage');
+            const text = input.value.trim();
+            const imageBase64 = currentAttachedBase64;
+
+            if (!text && !imageBase64) return;
+
+            const btn = document.getElementById('chatSendBtn');
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "supportTickets", activeTicketId, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: document.getElementById('companyNameHeader').innerText,
+                    senderRole: 'employer',
+                    text: text || '',
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    lastMessage: text || 'Attached requirement screenshot',
+                    lastSender: 'user',
+                    updatedAt: serverTimestamp(),
+                    unreadAdmin: true
+                });
+
+                input.value = '';
+                clearImageAttachment();
+            } catch(e) {
+                alert("Failed to send message: " + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.handleNewTicketImage = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    newTicketAttachedBase64 = compressed;
+                    document.getElementById('newTicketImagePreview').src = compressed;
+                    document.getElementById('newTicketImagePreviewContainer').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearNewTicketImage = () => {
+            newTicketAttachedBase64 = null;
+            document.getElementById('newTicketImagePreviewContainer').classList.add('hidden');
+            document.getElementById('newTicketImageInput').value = '';
+        };
+
+        window.submitNewTicket = async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('newTicketSubject').value.trim();
+            const message = document.getElementById('newTicketMessage').value.trim();
+            const imageBase64 = newTicketAttachedBase64;
+
+            if (!subject || !message) {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitNewTicket');
+            btn.disabled = true;
+            btn.innerHTML = 'Submitting Request...';
+
+            try {
+                const ticketRef = await addDoc(collection(db, "supportTickets"), {
+                    userId: currentUser.uid,
+                    userName: document.getElementById('companyNameHeader').innerText,
+                    userEmail: currentUser.email || '',
+                    userRole: 'employer',
+                    subject: subject,
+                    priority: 'normal',
+                    status: 'open',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    lastMessage: message,
+                    lastSender: 'user',
+                    unreadAdmin: true,
+                    unreadUser: false
+                });
+
+                await addDoc(collection(db, "supportTickets", ticketRef.id, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: document.getElementById('companyNameHeader').innerText,
+                    senderRole: 'employer',
+                    text: message,
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('newTicketForm').reset();
+                clearNewTicketImage();
+                closeNewTicketModal();
+
+                switchTab('support');
+                setTimeout(() => selectEmployerTicket(ticketRef.id), 500);
+
+            } catch (err) {
+                alert("Failed to submit request: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Submit Request';
+                lucide.createIcons();
+            }
+        };
+
         // ================= PROFILE FORM SUBMIT =================
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -740,7 +1466,6 @@
             btn.disabled = true; btn.innerHTML = '<div class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> Saving...';
             
             try {
-                // Update specific employer profile doc
                 await updateDoc(profileDocRef, {
                     companyName: document.getElementById('editCompanyName').value.trim(),
                     industry: document.getElementById('editIndustry').value.trim(),
@@ -748,13 +1473,11 @@
                     website: document.getElementById('editWebsite').value.trim()
                 });
                 
-                // Update core user doc (for phone updates)
                 await updateDoc(doc(db, "users", currentUser.uid), {
                     phone: document.getElementById('editPhone').value.trim(),
                     fullName: document.getElementById('editFullName').value.trim()
                 });
 
-                // Update Header immediately
                 document.getElementById('companyNameHeader').innerText = document.getElementById('editCompanyName').value.trim();
                 
                 const alertBox = document.getElementById('profileAlert');
