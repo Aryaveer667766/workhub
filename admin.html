@@ -76,9 +76,38 @@
         }
         
         select option { background-color: #111; color: #fff; }
+
+        /* Audio Ring Wave Animation */
+        @keyframes ringWave {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+        .ring-active { animation: ringWave 1s infinite; }
+
+        /* Toast animation */
+        @keyframes toastIn {
+            0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: toastOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="h-screen flex font-sans relative">
+
+    <!-- Audio Element for sound.mp3 notifications -->
+    <audio id="notificationAudio" preload="auto">
+        <source src="sound.mp3" type="audio/mp3">
+        <source src="sound.wav" type="audio/wav">
+    </audio>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 md:right-8 z-[200] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
 
     <!-- Mobile Header -->
     <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
@@ -86,9 +115,14 @@
             <i data-lucide="shield" class="w-6 h-6 text-brand-500"></i>
             <span class="font-bold text-white tracking-tight uppercase">Command Center</span>
         </div>
-        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAudioNotifications()" id="mobileSoundBtn" class="p-2 text-brand-500 bg-white/5 rounded-xl border border-white/10" title="Sound Notification Toggle">
+                <i id="mobileSoundIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors p-2">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -138,6 +172,12 @@
                 <span id="badge-contacts" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
 
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Help & Inquiries</p>
+            <button onclick="switchTab('support')" id="nav-support" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                <div class="flex items-center gap-3"><i data-lucide="headphones" class="w-5 h-5"></i> Support Desk</div>
+                <span id="badge-support" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+
             <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Security & Audit</p>
             <button onclick="switchTab('logs')" id="nav-logs" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i> System Logs
@@ -164,7 +204,21 @@
                     <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> Live Analytics
                 </h1>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-5">
+                <!-- Audio Status Pill & Sound Test -->
+                <div class="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-2xl px-3 py-1.5 shadow-inner">
+                    <button id="soundToggleBtn" onclick="toggleAudioNotifications()" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-brand-500 transition-colors" title="Toggle Sound Alerts">
+                        <span id="soundRingWrapper" class="relative flex items-center justify-center w-6 h-6 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20 transition-all">
+                            <i id="desktopSoundIcon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <span id="soundStatusText" class="text-xs text-slate-300">Sound Alert ON</span>
+                    </button>
+                    <span class="w-[1px] h-3.5 bg-white/10"></span>
+                    <button onclick="playNotificationSound(true)" class="text-[11px] font-bold text-brand-500 hover:text-white bg-brand-500/10 hover:bg-brand-500/20 px-2 py-0.5 rounded-lg border border-brand-500/20 transition-all flex items-center gap-1" title="Test Sound Chime">
+                        <i data-lucide="bell-ring" class="w-3 h-3"></i> Test
+                    </button>
+                </div>
+
                 <div class="text-right">
                     <p class="text-sm font-bold text-white" id="currentAdminName">System Operator</p>
                     <p class="text-xs text-emerald-500 font-bold tracking-widest uppercase flex items-center justify-end gap-1">
@@ -230,7 +284,7 @@
 
                 <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar max-h-[650px]">
-                        <table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1000px]">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1050px]">
                             <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10 shadow-md">
                                 <tr>
                                     <th class="p-5">User Details</th>
@@ -281,6 +335,155 @@
                             </thead>
                             <tbody id="contactsBody" class="divide-y divide-white/5"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SUPPORT DESK TAB ================= -->
+            <div id="supportTab" class="tab-content animate-slide-up space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[750px]">
+                    <!-- Left: Ticket Queue (lg:col-span-5 xl:col-span-4) -->
+                    <div class="lg:col-span-5 xl:col-span-4 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                        <!-- Header & Filters -->
+                        <div class="p-5 border-b border-white/5 bg-[#151515] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-bold text-white leading-none">Support Queue</h3>
+                                        <span class="text-[11px] text-slate-400 font-inter">Active Tickets</span>
+                                    </div>
+                                </div>
+                                <button onclick="openNewTicketModal()" class="px-3 py-1.5 bg-brand-500 text-brand-950 font-bold text-xs rounded-xl hover:bg-brand-400 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Ticket
+                                </button>
+                            </div>
+                            
+                            <!-- Search -->
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="text" id="ticketSearch" placeholder="Search by name, subject, ID..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-colors font-inter">
+                            </div>
+
+                            <!-- Filter Pills -->
+                            <div class="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs font-semibold">
+                                <button onclick="filterTickets('all')" id="ticketFilter-all" class="px-3 py-1 rounded-lg bg-brand-500/20 text-brand-500 border border-brand-500/30 whitespace-nowrap text-[11px] font-bold transition-all">All</button>
+                                <button onclick="filterTickets('open')" id="ticketFilter-open" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">Open</button>
+                                <button onclick="filterTickets('in-progress')" id="ticketFilter-in-progress" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">In Progress</button>
+                                <button onclick="filterTickets('resolved')" id="ticketFilter-resolved" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">Resolved</button>
+                            </div>
+                        </div>
+
+                        <!-- Ticket List Scroll -->
+                        <div id="ticketsListContainer" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                                <i data-lucide="inbox" class="w-10 h-10 mb-2 opacity-30"></i>
+                                No support tickets currently available.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Active Chat & Ticket Details (lg:col-span-7 xl:col-span-8) -->
+                    <div class="lg:col-span-7 xl:col-span-8 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                        <!-- Empty State -->
+                        <div id="ticketEmptyState" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                            <div class="w-20 h-20 rounded-3xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 mb-4 animate-glow shadow-[0_0_30px_rgba(234,179,8,0.15)]">
+                                <i data-lucide="headphones" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">WorkHub Verification & Support Desk</h3>
+                            <p class="text-sm text-slate-400 max-w-md font-inter mb-6">Select an inquiry from the queue to start real-time messaging, review base64 screenshot proofs, or dispatch preloaded verification answers.</p>
+                            <button onclick="openNewTicketModal()" class="px-5 py-2.5 bg-brand-500 text-brand-950 font-bold rounded-xl hover:bg-brand-400 transition-all flex items-center gap-2 text-sm shadow-[0_0_20px_rgba(234,179,8,0.25)]">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Open New Support Thread
+                            </button>
+                        </div>
+
+                        <!-- Active Ticket Chat Container -->
+                        <div id="ticketChatContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                            <!-- Chat Top Bar -->
+                            <div class="p-4 md:p-5 border-b border-white/5 bg-[#151515] flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div id="chatUserAvatar" class="w-11 h-11 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-base shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                                        U
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <h3 id="chatUserName" class="text-base font-bold text-white leading-tight">User Name</h3>
+                                            <span id="chatUserRoleBadge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20">ROLE</span>
+                                            <span id="chatPriorityBadge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-red-500/10 text-red-400 border border-red-500/20">NORMAL</span>
+                                        </div>
+                                        <p id="chatTicketSubject" class="text-xs text-slate-400 font-inter mt-0.5 truncate max-w-sm sm:max-w-md">Ticket Subject</p>
+                                    </div>
+                                </div>
+
+                                <!-- Actions & Status Dropdown -->
+                                <div class="flex items-center gap-2.5">
+                                    <button id="chatInspectUserBtn" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5" title="View Full Profile">
+                                        <i data-lucide="user" class="w-3.5 h-3.5"></i> Profile
+                                    </button>
+                                    <div class="relative">
+                                        <select id="chatStatusSelect" onchange="updateActiveTicketStatus(this.value)" class="bg-[#1a1a1a] border border-brand-500/30 text-brand-500 text-xs font-bold rounded-xl px-3 py-1.5 outline-none cursor-pointer hover:border-brand-500 transition-colors">
+                                            <option value="open">Status: Open</option>
+                                            <option value="in-progress">Status: In Progress</option>
+                                            <option value="resolved">Status: Resolved</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Messages Thread Scroll Area -->
+                            <div id="chatMessagesArea" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]/60">
+                                <!-- Messages injected dynamically -->
+                            </div>
+
+                            <!-- Preloaded Messages (Canned Responses) Chips Bar -->
+                            <div class="border-t border-white/5 bg-[#131313] px-4 py-2.5 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                                <span class="text-[10px] uppercase font-bold text-brand-500 tracking-wider flex items-center gap-1 flex-shrink-0">
+                                    <i data-lucide="zap" class="w-3 h-3 text-brand-500"></i> Preloaded:
+                                </span>
+                                <button onclick="insertQuickMessage('👋 Hello! How can our verification team assist you today?')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">👋 Welcome</button>
+                                <button onclick="insertQuickMessage('⏳ We have received your query and our team is actively reviewing your verification documents.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">⏳ Reviewing Documents</button>
+                                <button onclick="insertQuickMessage('✅ Your payment UTR has been verified and your profile is cleared.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">✅ UTR Approved</button>
+                                <button onclick="insertQuickMessage('❌ The submitted UTR could not be verified in banking records. Please confirm the 12-digit reference.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">❌ Invalid UTR</button>
+                                <button onclick="insertQuickMessage('📸 Please upload a clear screenshot of your payment receipt or debit confirmation.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">📸 Upload Screenshot</button>
+                                <button onclick="insertQuickMessage('🔒 For security compliance, please confirm your registered mobile number.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">🔒 Verify Phone</button>
+                                <button onclick="insertQuickMessage('✨ This support ticket has been resolved. Please message us if you need further assistance!')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">✨ Issue Resolved</button>
+                            </div>
+
+                            <!-- Attached Image Preview Bar -->
+                            <div id="imageAttachmentPreview" class="hidden px-4 py-2.5 bg-[#161616] border-t border-white/5 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img id="imageAttachmentThumb" src="" alt="Attachment" class="w-12 h-12 rounded-lg object-cover border border-brand-500/40 shadow-sm cursor-pointer" onclick="openImagePreview(this.src)">
+                                    <div>
+                                        <span class="text-xs font-bold text-white block flex items-center gap-1.5">
+                                            <i data-lucide="image" class="w-3.5 h-3.5 text-brand-500"></i> Image Ready to Send
+                                        </span>
+                                        <span id="imageAttachmentSize" class="text-[10px] text-slate-400 font-mono">Base64 Encoded</span>
+                                    </div>
+                                </div>
+                                <button onclick="clearImageAttachment()" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Remove Image">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Input Bar -->
+                            <div class="p-3 md:p-4 border-t border-white/5 bg-[#151515] flex items-end gap-2.5">
+                                <input type="file" id="ticketImageInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                                <button onclick="document.getElementById('ticketImageInput').click()" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-brand-500 border border-white/10 transition-colors flex-shrink-0" title="Attach Image (Base64)">
+                                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                </button>
+
+                                <div class="flex-1 bg-[#1a1a1a] rounded-2xl border border-white/10 focus-within:border-brand-500/50 transition-colors px-4 py-2.5 flex items-center">
+                                    <textarea id="chatInputMessage" rows="1" placeholder="Type your message to the user... (Press Enter to Send)" class="w-full bg-transparent text-sm text-white placeholder-slate-500 outline-none resize-none font-inter max-h-28 custom-scrollbar" onkeydown="handleChatInputKeyDown(event)"></textarea>
+                                </div>
+
+                                <button onclick="sendChatMessage()" id="chatSendBtn" class="px-5 py-3 rounded-xl bg-brand-500 text-brand-950 font-bold hover:bg-brand-400 transition-all flex items-center gap-2 flex-shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.25)]">
+                                    <span class="hidden sm:inline">Send</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -402,21 +605,102 @@
         </div>
     </div>
 
+    <!-- MODAL: Create New Support Ticket -->
+    <div id="newTicketModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center">
+                        <i data-lucide="message-square-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">New Support Ticket</h2>
+                        <p class="text-xs text-slate-400 font-inter">Initiate direct communication with any user</p>
+                    </div>
+                </div>
+                <button onclick="closeNewTicketModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="newTicketForm" onsubmit="submitNewTicket(event)" class="p-6 md:p-8 space-y-4 font-inter">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Recipient User *</label>
+                    <select id="newTicketUserSelect" required class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                        <option value="">-- Select User from Directory --</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Subject / Category *</label>
+                        <input type="text" id="newTicketSubject" required placeholder="e.g. Payment Verification" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Priority Level</label>
+                        <select id="newTicketPriority" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors font-bold">
+                            <option value="normal">Normal Priority</option>
+                            <option value="urgent">Urgent / Critical</option>
+                            <option value="high">High Priority</option>
+                            <option value="low">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Initial Message *</label>
+                    <textarea id="newTicketMessage" rows="3" required placeholder="Explain the inquiry or provide instructions to the user..." class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors"></textarea>
+                </div>
+
+                <!-- Optional Image upload -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Attachment (Base64 Image)</label>
+                    <input type="file" id="newTicketImageInput" accept="image/*" onchange="handleNewTicketImage(event)" class="w-full bg-[#1a1a1a] border border-white/10 text-slate-300 rounded-xl py-2 px-3 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-brand-950 file:cursor-pointer">
+                    <div id="newTicketImagePreviewContainer" class="hidden mt-2 flex items-center gap-3 bg-[#161616] p-2 rounded-xl border border-brand-500/30">
+                        <img id="newTicketImagePreview" src="" class="w-10 h-10 object-cover rounded-lg">
+                        <span class="text-xs text-brand-500 font-bold flex-1">Image attached successfully</span>
+                        <button type="button" onclick="clearNewTicketImage()" class="text-slate-400 hover:text-red-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4 border-t border-white/5">
+                    <button type="button" onclick="closeNewTicketModal()" class="flex-1 py-3 bg-white/5 text-slate-400 rounded-xl font-bold hover:bg-white/10 transition-colors text-sm">Cancel</button>
+                    <button type="submit" id="btnSubmitNewTicket" class="flex-[2] py-3 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Create & Dispatch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Fullscreen Image Preview Lightbox -->
+    <div id="imagePreviewModal" class="modal-overlay fixed inset-0 z-[150] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4" onclick="closeImagePreview()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="absolute -top-12 right-0 flex items-center gap-2">
+                <a id="downloadPreviewImageBtn" href="#" download="workhub-attachment.jpg" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 backdrop-blur-md">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                </a>
+                <button onclick="closeImagePreview()" class="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <img id="fullPreviewImage" src="" alt="Attachment Full Preview" class="max-w-full max-h-[82vh] object-contain rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        </div>
+    </div>
+
     <!-- Scripts - Moved UI/Window functions OUTSIDE the module load so buttons never break -->
     <script>
         // Global UI State Management
         window.switchTab = (tab) => {
-            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'logs'];
+            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'support', 'logs'];
             const headers = {
                 'dashboard': '<i data-lucide="activity" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Live Analytics',
                 'users': '<i data-lucide="users" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> User Directory',
                 'payments': '<i data-lucide="indian-rupee" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> UTR Verifications',
                 'contacts': '<i data-lucide="shield-check" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Access Requests',
+                'support': '<i data-lucide="headphones" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Support Desk',
                 'logs': '<i data-lucide="clipboard-list" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> System Logs'
             };
             const titleEl = document.getElementById('headerTitle');
-            if(titleEl) { titleEl.innerHTML = headers[tab]; }
-            if(window.lucide) { window.lucide.createIcons(); }
+            if(titleEl && headers[tab]) { titleEl.innerHTML = headers[tab]; }
 
             tabs.forEach(t => {
                 const el = document.getElementById(t + 'Tab');
@@ -436,6 +720,8 @@
                 activeBtn.classList.remove('text-slate-400', 'border-transparent');
             }
 
+            if(window.lucide) { window.lucide.createIcons(); }
+
             // Auto-close mobile menu
             if(window.innerWidth < 768) {
                 const sidebar = document.getElementById('sidebar');
@@ -450,6 +736,19 @@
 
         window.closeUtrModal = () => { document.getElementById('utrModal').classList.remove('active'); };
         window.closeProfileModal = () => { document.getElementById('profileModal').classList.remove('active'); };
+        window.closeNewTicketModal = () => { document.getElementById('newTicketModal').classList.remove('active'); };
+        window.openNewTicketModal = () => {
+            populateNewTicketUsersDropdown();
+            document.getElementById('newTicketModal').classList.add('active');
+        };
+        window.closeImagePreview = () => { document.getElementById('imagePreviewModal').classList.remove('active'); };
+        window.openImagePreview = (src) => {
+            const img = document.getElementById('fullPreviewImage');
+            const link = document.getElementById('downloadPreviewImageBtn');
+            if(img) img.src = src;
+            if(link) link.href = src;
+            document.getElementById('imagePreviewModal').classList.add('active');
+        };
 
         // Mobile Menu Toggles
         document.addEventListener('DOMContentLoaded', () => {
@@ -478,11 +777,9 @@
         });
     </script>
 
-    <!-- Firebase Database Module -->
+    <!-- Firebase Database & Real-time Support Module -->
     <script type="module">
-        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
-        
-        // ** CRITICAL FIX: Directly import missing commands to prevent the page from crashing **
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot, orderBy } from './firebase.js';
         import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         let currentUser = null;
@@ -490,6 +787,175 @@
         let userMap = {}; 
         let currentReviewPaymentId = null;
 
+        // Support state
+        let allTickets = [];
+        let activeTicketId = null;
+        let activeTicketMessagesUnsub = null;
+        let currentTicketFilter = 'all';
+        let currentAttachedBase64 = null;
+        let newTicketAttachedBase64 = null;
+
+        // Sound & Notification tracking
+        let isAudioMuted = localStorage.getItem('workhub_audio_muted') === 'true';
+        let isInitialLoadPayments = true;
+        let isInitialLoadContacts = true;
+        let isInitialLoadTickets = true;
+        let knownPaymentIds = new Set();
+        let knownContactIds = new Set();
+        let knownTicketMessageTimestamps = new Map();
+
+        // Initialize Audio Control UI
+        function updateAudioUI() {
+            const statusText = document.getElementById('soundStatusText');
+            const desktopIcon = document.getElementById('desktopSoundIcon');
+            const mobileIcon = document.getElementById('mobileSoundIcon');
+            const ringWrap = document.getElementById('soundRingWrapper');
+
+            if (isAudioMuted) {
+                if (statusText) statusText.innerText = 'Sound Muted';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-x');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-x');
+                if (ringWrap) {
+                    ringWrap.classList.remove('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.add('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            } else {
+                if (statusText) statusText.innerText = 'Sound Alert ON';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-2');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-2');
+                if (ringWrap) {
+                    ringWrap.classList.add('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.remove('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.toggleAudioNotifications = () => {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem('workhub_audio_muted', isAudioMuted);
+            updateAudioUI();
+            if (!isAudioMuted) {
+                playNotificationSound(true);
+            }
+        };
+
+        // Synthesizer Web Audio Fallback Chime
+        function playFallbackChime() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                const ctx = new AudioContextClass();
+                const tones = [
+                    { freq: 659.25, start: 0.0, dur: 0.4 }, // E5
+                    { freq: 880.0, start: 0.15, dur: 0.45 }, // A5
+                    { freq: 1046.5, start: 0.35, dur: 0.6 } // C6
+                ];
+                tones.forEach(t => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(t.freq, ctx.currentTime + t.start);
+                    gain.gain.setValueAtTime(0.35, ctx.currentTime + t.start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t.start + t.dur);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + t.start);
+                    osc.stop(ctx.currentTime + t.start + t.dur);
+                });
+            } catch(e) {
+                console.warn('Audio chime fallback error:', e);
+            }
+        }
+
+        // Master Audio Play Function
+        window.playNotificationSound = (force = false) => {
+            if (isAudioMuted && !force) return;
+
+            // Visual ring wave animation
+            const ringWrap = document.getElementById('soundRingWrapper');
+            if (ringWrap) {
+                ringWrap.classList.add('ring-active');
+                setTimeout(() => ringWrap.classList.remove('ring-active'), 1800);
+            }
+
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(err => {
+                    console.log('Direct audio play failed or blocked by autoplay policy, using synthesized chime:', err);
+                    playFallbackChime();
+                });
+            } else {
+                playFallbackChime();
+            }
+        };
+
+        // Unlock audio autoplay on user first touch/click
+        document.addEventListener('click', function unlockAudio() {
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.play().then(() => {
+                    audioEl.pause();
+                    audioEl.currentTime = 0;
+                }).catch(() => {});
+            }
+            document.removeEventListener('click', unlockAudio);
+        }, { once: true });
+
+        // Toast Notification System
+        function showToastNotification({ title, message, tab, icon = 'bell', color = 'brand' }) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            playNotificationSound();
+
+            const toast = document.createElement('div');
+            toast.className = "toast-enter pointer-events-auto bg-[#141414] border border-brand-500/40 rounded-2xl p-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex items-start gap-3 backdrop-blur-xl transition-all cursor-pointer hover:border-brand-500";
+            
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider truncate">${title}</h4>
+                        <span class="text-[10px] text-slate-400 font-mono">Just now</span>
+                    </div>
+                    <p class="text-xs text-slate-300 font-inter mt-0.5 line-clamp-2">${message}</p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-brand-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                            Open Queue <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                        </span>
+                    </div>
+                </div>
+                <button class="text-slate-500 hover:text-white p-1 toast-close-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+            `;
+
+            toast.addEventListener('click', (e) => {
+                if (e.target.closest('.toast-close-btn')) {
+                    removeToast(toast);
+                    return;
+                }
+                if (tab) switchTab(tab);
+                removeToast(toast);
+            });
+
+            container.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+
+            setTimeout(() => removeToast(toast), 7000);
+        }
+
+        function removeToast(toast) {
+            if (!toast || toast.dataset.removing) return;
+            toast.dataset.removing = 'true';
+            toast.classList.remove('toast-enter');
+            toast.classList.add('toast-exit');
+            setTimeout(() => toast.remove(), 320);
+        }
+
+        // ================= AUTHENTICATION =================
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -503,6 +969,8 @@
             document.getElementById('currentAdminName').innerText = currentUser.fullName;
             document.getElementById('mainContent').style.display = 'block';
 
+            updateAudioUI();
+
             // Fake Live Session counter
             setInterval(() => {
                 const base = Math.max(5, Math.floor(allUsers.length * 0.4));
@@ -513,6 +981,7 @@
             initUsersListener();
             initPaymentsListener();
             initContactsListener();
+            initSupportListener();
             initLogsListener();
         });
 
@@ -540,7 +1009,7 @@
                     let badgeColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
                     if (log.type.includes('APPROVE') || log.type.includes('ACTIVATE')) badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
                     if (log.type.includes('REJECT') || log.type.includes('SUSPEND') || log.type.includes('DELETE')) badgeColor = 'bg-red-500/10 text-red-500 border-red-500/20';
-                    if (log.type.includes('ROLE')) badgeColor = 'bg-brand-500/10 text-brand-500 border-brand-500/20';
+                    if (log.type.includes('ROLE') || log.type.includes('SUPPORT')) badgeColor = 'bg-brand-500/10 text-brand-500 border-brand-500/20';
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-white/5 transition-colors">
@@ -560,16 +1029,32 @@
                 allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 
                 userMap = {};
-                allUsers.forEach(u => userMap[u.id] = { name: u.fullName, email: u.email });
+                allUsers.forEach(u => userMap[u.id] = { name: u.fullName, email: u.email, role: u.role, phone: u.phone });
                 
                 document.getElementById('metric-employees').innerText = allUsers.filter(u => u.role === 'employee').length;
                 document.getElementById('metric-employers').innerText = allUsers.filter(u => u.role === 'employer').length;
 
                 renderUsers();
+                populateNewTicketUsersDropdown();
             });
 
             document.getElementById('userSearch').addEventListener('input', renderUsers);
             document.getElementById('roleFilter').addEventListener('change', renderUsers);
+        }
+
+        function populateNewTicketUsersDropdown() {
+            const select = document.getElementById('newTicketUserSelect');
+            if(!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Select User from Directory --</option>';
+            allUsers.forEach(u => {
+                if (u.id === currentUser?.uid) return;
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.innerText = `${u.fullName || 'User'} (${u.email || 'No email'}) - [${(u.role || 'user').toUpperCase()}]`;
+                select.appendChild(opt);
+            });
+            if(currentVal) select.value = currentVal;
         }
 
         function renderUsers() {
@@ -628,7 +1113,10 @@
                         <td class="p-4">${roleSelect}</td>
                         <td class="p-4">${statusSelect}</td>
                         <td class="p-4">${stageSelect}</td>
-                        <td class="p-4 text-right">
+                        <td class="p-4 text-right flex justify-end items-center gap-2">
+                            <button onclick="quickMessageUser('${u.id}')" class="px-3 py-2 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl hover:bg-brand-500 hover:text-brand-950 text-xs font-bold transition-all inline-flex items-center gap-1.5" title="Open Support Conversation">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Message
+                            </button>
                             <button onclick="openProfileModal('${u.id}', '${u.role}')" class="px-4 py-2 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-brand-500 hover:text-black hover:border-brand-500 text-xs font-bold transition-all inline-flex justify-center items-center gap-2">
                                 <i data-lucide="scan-face" class="w-4 h-4"></i> Inspect
                             </button>
@@ -638,6 +1126,14 @@
             });
             if(window.lucide) window.lucide.createIcons();
         }
+
+        window.quickMessageUser = (uid) => {
+            const user = userMap[uid];
+            if(!user) return;
+            openNewTicketModal();
+            const select = document.getElementById('newTicketUserSelect');
+            if (select) select.value = uid;
+        };
 
         window.instantUpdate = async (uid, field, selectEl) => {
             const newValue = selectEl.value;
@@ -649,7 +1145,6 @@
                         renderUsers(); return; 
                     }
                     if (newValue !== 'employee') {
-                        // Securely remove from directory using imported deleteDoc
                         await deleteDoc(doc(db, "employeeProfiles", uid));
                         logAction("DIRECTORY_PRUNE", `Auto-removed ${userName} from Talent Directory due to role change.`);
                     }
@@ -680,7 +1175,7 @@
             const u = allUsers.find(x => x.id === uid);
             if(!u) return;
 
-            document.getElementById('insp-initial').innerText = u.fullName.charAt(0).toUpperCase();
+            document.getElementById('insp-initial').innerText = (u.fullName || 'U').charAt(0).toUpperCase();
             document.getElementById('insp-name').innerHTML = `${u.fullName} <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest align-middle ml-2">${u.role}</span>`;
             document.getElementById('insp-email').innerText = u.email;
             document.getElementById('insp-phone').innerText = u.phone || 'Not provided';
@@ -726,6 +1221,26 @@
                 const count = snap.size;
                 const badge = document.getElementById('badge-payments');
                 if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+
+                // Check for new incoming UTR payments to trigger sound & toast
+                if (!isInitialLoadPayments) {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' && !knownPaymentIds.has(change.doc.id)) {
+                            knownPaymentIds.add(change.doc.id);
+                            const pData = change.doc.data();
+                            const empName = userMap[pData.employeeUid]?.name || 'Professional';
+                            showToastNotification({
+                                title: 'New UTR Payment Received',
+                                message: `UTR: ${pData.utr} (₹${pData.amount}) submitted by ${empName}`,
+                                tab: 'payments',
+                                icon: 'indian-rupee'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => knownPaymentIds.add(d.id));
+                    isInitialLoadPayments = false;
+                }
 
                 let rev = 0;
                 getDocs(query(collection(db, "payments"), where("status", "==", "approved"))).then(s => {
@@ -810,6 +1325,27 @@
                 const badge = document.getElementById('badge-contacts');
                 if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
 
+                // Check for new incoming contact access requests
+                if (!isInitialLoadContacts) {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' && !knownContactIds.has(change.doc.id)) {
+                            knownContactIds.add(change.doc.id);
+                            const cData = change.doc.data();
+                            const empName = userMap[cData.employerUid]?.name || 'Employer';
+                            const profName = userMap[cData.employeeUid]?.name || 'Professional';
+                            showToastNotification({
+                                title: 'New Access Request',
+                                message: `${empName} requested direct contact info of ${profName}`,
+                                tab: 'contacts',
+                                icon: 'shield-check'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => knownContactIds.add(d.id));
+                    isInitialLoadContacts = false;
+                }
+
                 const tbody = document.getElementById('contactsBody');
                 if(!tbody) return;
                 tbody.innerHTML = '';
@@ -867,6 +1403,476 @@
                 await updateDoc(doc(db, "contactRequests", reqId), { status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
                 logAction("REJECT_ACCESS", `Denied access request from ${empName} for professional ${profName}.`);
             } catch(e) { alert("Failed: " + e.message); }
+        };
+
+        // ================= SUPPORT SYSTEM & CHAT =================
+        function initSupportListener() {
+            onSnapshot(collection(db, "supportTickets"), (snap) => {
+                allTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                // Sort by updatedAt descending
+                allTickets.sort((a,b) => {
+                    const tA = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+                    const tB = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+                    return tB - tA;
+                });
+
+                // Update unread / open badge
+                const unreadCount = allTickets.filter(t => t.unreadAdmin === true || t.status === 'open').length;
+                const badge = document.getElementById('badge-support');
+                if (badge) {
+                    badge.innerText = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                }
+
+                // Check for new incoming support tickets or user messages
+                if (!isInitialLoadTickets) {
+                    snap.docChanges().forEach(change => {
+                        const tData = change.doc.data();
+                        const prevTime = knownTicketMessageTimestamps.get(change.doc.id) || 0;
+                        const currTime = tData.updatedAt?.seconds || tData.createdAt?.seconds || 0;
+
+                        if (currTime > prevTime && tData.lastSender !== 'admin') {
+                            knownTicketMessageTimestamps.set(change.doc.id, currTime);
+                            showToastNotification({
+                                title: `Support Alert: ${tData.userName || 'User'}`,
+                                message: tData.lastMessage || 'New inquiry received in Support Desk',
+                                tab: 'support',
+                                icon: 'headphones'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => {
+                        const tData = d.data();
+                        knownTicketMessageTimestamps.set(d.id, tData.updatedAt?.seconds || tData.createdAt?.seconds || 0);
+                    });
+                    isInitialLoadTickets = false;
+                }
+
+                renderTicketsList();
+
+                // If active ticket updated remotely, refresh its header info
+                if (activeTicketId) {
+                    const activeTicket = allTickets.find(t => t.id === activeTicketId);
+                    if (activeTicket) updateActiveTicketHeaderUI(activeTicket);
+                }
+            });
+
+            document.getElementById('ticketSearch').addEventListener('input', renderTicketsList);
+        }
+
+        window.filterTickets = (status) => {
+            currentTicketFilter = status;
+            ['all', 'open', 'in-progress', 'resolved'].forEach(s => {
+                const btn = document.getElementById(`ticketFilter-${s}`);
+                if (!btn) return;
+                if (s === status) {
+                    btn.className = 'px-3 py-1 rounded-lg bg-brand-500/20 text-brand-500 border border-brand-500/30 whitespace-nowrap text-[11px] font-bold transition-all';
+                } else {
+                    btn.className = 'px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all';
+                }
+            });
+            renderTicketsList();
+        };
+
+        function renderTicketsList() {
+            const container = document.getElementById('ticketsListContainer');
+            if(!container) return;
+
+            const search = (document.getElementById('ticketSearch')?.value || '').toLowerCase();
+
+            const filtered = allTickets.filter(t => {
+                const matchStatus = currentTicketFilter === 'all' || t.status === currentTicketFilter;
+                const matchSearch = !search || 
+                    t.userName?.toLowerCase().includes(search) || 
+                    t.userEmail?.toLowerCase().includes(search) || 
+                    t.subject?.toLowerCase().includes(search) || 
+                    t.id.toLowerCase().includes(search);
+                return matchStatus && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                        <i data-lucide="search-x" class="w-8 h-8 mb-2 opacity-30"></i>
+                        No tickets matching filter.
+                    </div>
+                `;
+                if(window.lucide) window.lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(ticket => {
+                const isActive = ticket.id === activeTicketId;
+                const isUnread = ticket.unreadAdmin === true;
+                const date = ticket.updatedAt ? new Date(ticket.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+
+                let statusBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                if (ticket.status === 'in-progress') statusBadge = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                if (ticket.status === 'resolved') statusBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+
+                let roleBadge = ticket.userRole === 'employer' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-brand-500/10 text-brand-500 border-brand-500/20';
+
+                const card = document.createElement('div');
+                card.className = `p-4 cursor-pointer transition-all border-l-4 ${isActive ? 'bg-white/10 border-brand-500' : 'hover:bg-white/5 border-transparent'}`;
+                card.onclick = () => selectTicket(ticket.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-1.5">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-[#1c1c1c] border border-white/10 flex items-center justify-center text-xs font-bold text-brand-500 flex-shrink-0">
+                                ${(ticket.userName || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-bold text-sm text-white truncate">${ticket.userName || 'Unknown'}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider border ${roleBadge}">${ticket.userRole || 'User'}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            ${isUnread ? '<span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>' : ''}
+                            <span class="text-[11px] text-slate-500 font-mono">${date}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-300 truncate mb-1">${ticket.subject || 'Support Request'}</p>
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[11px] text-slate-400 font-inter truncate flex-1">
+                            ${ticket.lastSender === 'admin' ? '<span class="text-brand-500 font-bold">You: </span>' : ''}
+                            ${ticket.lastMessage || 'Attachment sent'}
+                        </p>
+                        <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${statusBadge}">${ticket.status || 'open'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            if(window.lucide) window.lucide.createIcons();
+        }
+
+        window.selectTicket = async (ticketId) => {
+            activeTicketId = ticketId;
+            const ticket = allTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('ticketEmptyState').classList.add('hidden');
+            const chatContainer = document.getElementById('ticketChatContainer');
+            chatContainer.classList.remove('hidden');
+
+            updateActiveTicketHeaderUI(ticket);
+            renderTicketsList(); // Refresh active highlight
+
+            // Mark unreadAdmin as false
+            if (ticket.unreadAdmin) {
+                try {
+                    await updateDoc(doc(db, "supportTickets", ticketId), { unreadAdmin: false });
+                } catch(e) {}
+            }
+
+            // Unsubscribe existing messages listener
+            if (activeTicketMessagesUnsub) {
+                activeTicketMessagesUnsub();
+                activeTicketMessagesUnsub = null;
+            }
+
+            // Listen to messages subcollection
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.innerHTML = '<div class="p-12 text-center text-slate-500 text-xs font-inter"><div class="w-6 h-6 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto mb-2"></div>Loading conversation...</div>';
+
+            const msgsQuery = query(collection(db, "supportTickets", ticketId, "messages"), orderBy("createdAt", "asc"));
+            activeTicketMessagesUnsub = onSnapshot(msgsQuery, (snapshot) => {
+                messagesArea.innerHTML = '';
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = `
+                        <div class="p-8 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                            <i data-lucide="message-circle" class="w-8 h-8 mb-2 opacity-30"></i>
+                            No messages yet. Send a greeting or instruction below.
+                        </div>
+                    `;
+                    if(window.lucide) window.lucide.createIcons();
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const isAdmin = msg.senderRole === 'admin';
+                    const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
+
+                    const msgEl = document.createElement('div');
+                    msgEl.className = `flex flex-col ${isAdmin ? 'items-end' : 'items-start'} space-y-1`;
+
+                    let imageHtml = '';
+                    if (msg.imageBase64) {
+                        imageHtml = `
+                            <div class="mt-2">
+                                <img src="${msg.imageBase64}" alt="Proof Attachment" class="max-w-xs md:max-w-sm max-h-60 rounded-xl object-cover border border-white/10 shadow-md cursor-pointer hover:opacity-90 transition-opacity" onclick="openImagePreview('${msg.imageBase64.replace(/'/g, "\\'")}')">
+                            </div>
+                        `;
+                    }
+
+                    if (isAdmin) {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-brand-500">${msg.senderName || 'Support Admin'}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-gradient-to-r from-brand-500 to-amber-500 text-brand-950 font-medium px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm max-w-lg shadow-[0_0_15px_rgba(234,179,8,0.2)] break-words">
+                                ${msg.text ? `<p class="font-inter whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    } else {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-white">${msg.senderName || ticket.userName}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-white/10 text-white px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm max-w-lg shadow-md break-words">
+                                ${msg.text ? `<p class="font-inter text-slate-200 whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    }
+
+                    messagesArea.appendChild(msgEl);
+                });
+
+                // Scroll to bottom
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                if(window.lucide) window.lucide.createIcons();
+            });
+        };
+
+        function updateActiveTicketHeaderUI(ticket) {
+            document.getElementById('chatUserName').innerText = ticket.userName || 'User';
+            document.getElementById('chatUserAvatar').innerText = (ticket.userName || 'U').charAt(0).toUpperCase();
+            
+            const roleEl = document.getElementById('chatUserRoleBadge');
+            roleEl.innerText = (ticket.userRole || 'USER').toUpperCase();
+            
+            const priorityEl = document.getElementById('chatPriorityBadge');
+            priorityEl.innerText = (ticket.priority || 'NORMAL').toUpperCase();
+            if (ticket.priority === 'urgent') {
+                priorityEl.className = 'px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse';
+            } else {
+                priorityEl.className = 'px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20';
+            }
+
+            document.getElementById('chatTicketSubject').innerText = `ID: ${ticket.id.substring(0,8)} • ${ticket.subject || 'No Subject'}`;
+            document.getElementById('chatStatusSelect').value = ticket.status || 'open';
+
+            const inspectBtn = document.getElementById('chatInspectUserBtn');
+            inspectBtn.onclick = () => openProfileModal(ticket.userId, ticket.userRole || 'employee');
+        }
+
+        window.updateActiveTicketStatus = async (newStatus) => {
+            if (!activeTicketId) return;
+            try {
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    status: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+                logAction("SUPPORT_STATUS", `Ticket ${activeTicketId.substring(0,8)} status updated to [${newStatus}].`);
+            } catch(e) {
+                alert("Failed to update status: " + e.message);
+            }
+        };
+
+        // Preloaded Canned Messages helper
+        window.insertQuickMessage = (msg) => {
+            const input = document.getElementById('chatInputMessage');
+            if (input) {
+                input.value = msg;
+                input.focus();
+            }
+        };
+
+        // Base64 Image Compression & Handling
+        window.handleImageSelection = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Only image attachments are supported.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressedBase64) => {
+                    currentAttachedBase64 = compressedBase64;
+                    const preview = document.getElementById('imageAttachmentPreview');
+                    const thumb = document.getElementById('imageAttachmentThumb');
+                    const sizeEl = document.getElementById('imageAttachmentSize');
+                    
+                    thumb.src = compressedBase64;
+                    const sizeKb = Math.round((compressedBase64.length * 3 / 4) / 1024);
+                    sizeEl.innerText = `Base64 Image (${sizeKb} KB)`;
+                    preview.classList.remove('hidden');
+                    if(window.lucide) window.lucide.createIcons();
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImageAttachment = () => {
+            currentAttachedBase64 = null;
+            document.getElementById('imageAttachmentPreview').classList.add('hidden');
+            document.getElementById('ticketImageInput').value = '';
+        };
+
+        // Utility: HTML5 Canvas Image Compression to keep Base64 safely under Firestore 1MB doc limits
+        function compressImage(base64Str, maxWidth, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
+
+        window.handleChatInputKeyDown = (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        };
+
+        // Send Support Message
+        window.sendChatMessage = async () => {
+            if (!activeTicketId) return;
+
+            const input = document.getElementById('chatInputMessage');
+            const text = input.value.trim();
+            const imageBase64 = currentAttachedBase64;
+
+            if (!text && !imageBase64) return;
+
+            const btn = document.getElementById('chatSendBtn');
+            btn.disabled = true;
+
+            try {
+                // Add message to subcollection
+                await addDoc(collection(db, "supportTickets", activeTicketId, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: currentUser.fullName,
+                    senderRole: 'admin',
+                    text: text || '',
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                // Update ticket parent doc
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    lastMessage: text || 'Sent an image attachment',
+                    lastSender: 'admin',
+                    updatedAt: serverTimestamp(),
+                    unreadUser: true
+                });
+
+                // Clear input & attachment
+                input.value = '';
+                clearImageAttachment();
+            } catch (e) {
+                alert("Failed to send message: " + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        // New Ticket Form handling
+        window.handleNewTicketImage = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    newTicketAttachedBase64 = compressed;
+                    document.getElementById('newTicketImagePreview').src = compressed;
+                    document.getElementById('newTicketImagePreviewContainer').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearNewTicketImage = () => {
+            newTicketAttachedBase64 = null;
+            document.getElementById('newTicketImagePreviewContainer').classList.add('hidden');
+            document.getElementById('newTicketImageInput').value = '';
+        };
+
+        window.submitNewTicket = async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('newTicketUserSelect').value;
+            const subject = document.getElementById('newTicketSubject').value.trim();
+            const priority = document.getElementById('newTicketPriority').value;
+            const message = document.getElementById('newTicketMessage').value.trim();
+            const imageBase64 = newTicketAttachedBase64;
+
+            if (!userId || !subject || !message) {
+                alert('Please complete all required fields.');
+                return;
+            }
+
+            const targetUser = userMap[userId];
+            const btn = document.getElementById('btnSubmitNewTicket');
+            btn.disabled = true;
+            btn.innerHTML = 'Dispatching Ticket...';
+
+            try {
+                // 1. Create ticket doc
+                const ticketRef = await addDoc(collection(db, "supportTickets"), {
+                    userId: userId,
+                    userName: targetUser?.name || 'User',
+                    userEmail: targetUser?.email || '',
+                    userRole: targetUser?.role || 'employee',
+                    subject: subject,
+                    priority: priority,
+                    status: 'open',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    lastMessage: message,
+                    lastSender: 'admin',
+                    unreadAdmin: false,
+                    unreadUser: true
+                });
+
+                // 2. Add first message
+                await addDoc(collection(db, "supportTickets", ticketRef.id, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: currentUser.fullName,
+                    senderRole: 'admin',
+                    text: message,
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                logAction("CREATE_TICKET", `Created support ticket for ${targetUser?.name || 'User'} [Subject: ${subject}].`);
+
+                // Reset and close
+                document.getElementById('newTicketForm').reset();
+                clearNewTicketImage();
+                closeNewTicketModal();
+
+                // Switch to support tab and select the ticket
+                switchTab('support');
+                setTimeout(() => selectTicket(ticketRef.id), 500);
+
+            } catch (err) {
+                alert("Failed to create support ticket: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Create & Dispatch';
+                if(window.lucide) window.lucide.createIcons();
+            }
         };
 
         // ================= SMOOTH LOGOUT =================
