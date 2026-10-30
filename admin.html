@@ -231,7 +231,7 @@
             </div>
         </header>
 
-        <div class="p-4 md:p-10 max-w-[1600px] mx-auto relative z-10">
+        <div class="p-4 md:p-10 max-w-[1600px] mx-auto relative z-10 pb-28 md:pb-12">
             
             <!-- ================= DASHBOARD TAB ================= -->
             <div id="dashboardTab" class="tab-content active animate-slide-up space-y-8">
@@ -343,7 +343,7 @@
             <div id="supportTab" class="tab-content animate-slide-up space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[750px]">
                     <!-- Left: Ticket Queue (lg:col-span-5 xl:col-span-4) -->
-                    <div class="lg:col-span-5 xl:col-span-4 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                    <div id="adminQueueCol" class="lg:col-span-5 xl:col-span-4 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[calc(100dvh-12rem)] md:h-[750px]">
                         <!-- Header & Filters -->
                         <div class="p-5 border-b border-white/5 bg-[#151515] space-y-3">
                             <div class="flex items-center justify-between">
@@ -386,7 +386,7 @@
                     </div>
 
                     <!-- Right: Active Chat & Ticket Details (lg:col-span-7 xl:col-span-8) -->
-                    <div class="lg:col-span-7 xl:col-span-8 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                    <div id="adminChatCol" class="hidden lg:flex lg:col-span-7 xl:col-span-8 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[calc(100dvh-12rem)] md:h-[750px]">
                         <!-- Empty State -->
                         <div id="ticketEmptyState" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
                             <div class="w-20 h-20 rounded-3xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 mb-4 animate-glow shadow-[0_0_30px_rgba(234,179,8,0.15)]">
@@ -402,8 +402,12 @@
                         <!-- Active Ticket Chat Container -->
                         <div id="ticketChatContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
                             <!-- Chat Top Bar -->
-                            <div class="p-4 md:p-5 border-b border-white/5 bg-[#151515] flex flex-wrap items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
+                            <div class="p-3 sm:p-4 md:p-5 border-b border-white/5 bg-[#151515] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                                <div class="flex items-center gap-2.5 sm:gap-3">
+                                    <!-- Mobile Back to Queue Button -->
+                                    <button onclick="backToAdminQueueMobile()" class="lg:hidden p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl border border-white/5 flex-shrink-0" title="Back to ticket queue">
+                                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                    </button>
                                     <div id="chatUserAvatar" class="w-11 h-11 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-base shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                                         U
                                     </div>
@@ -1547,10 +1551,32 @@
             if(window.lucide) window.lucide.createIcons();
         }
 
+        // Mobile Support View Back Toggle
+        window.backToAdminQueueMobile = () => {
+            const queue = document.getElementById('adminQueueCol');
+            const chat = document.getElementById('adminChatCol');
+            if (queue) queue.classList.remove('hidden');
+            if (chat) {
+                chat.classList.add('hidden');
+                chat.classList.remove('flex');
+            }
+        };
+
         window.selectTicket = async (ticketId) => {
             activeTicketId = ticketId;
             const ticket = allTickets.find(t => t.id === ticketId);
             if (!ticket) return;
+
+            // Mobile switch: Show chat column and hide queue list
+            if (window.innerWidth < 1024) {
+                const queue = document.getElementById('adminQueueCol');
+                const chat = document.getElementById('adminChatCol');
+                if (queue) queue.classList.add('hidden');
+                if (chat) {
+                    chat.classList.remove('hidden');
+                    chat.classList.add('flex');
+                }
+            }
 
             document.getElementById('ticketEmptyState').classList.add('hidden');
             const chatContainer = document.getElementById('ticketChatContainer');
