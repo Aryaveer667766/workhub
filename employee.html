@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Professional Dashboard | WorkHub</title>
     
     <!-- Fonts -->
@@ -13,7 +13,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tailwind Config for Custom Colors (Black & Gold Theme) -->
+    <!-- Tailwind Config for Black & Gold Premium Theme -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,20 +24,21 @@
                     },
                     colors: {
                         brand: {
-                            50: '#fffdf5', 100: '#fff8e1', 200: '#ffebb8', 300: '#ffd67a',
-                            400: '#ffc142', 500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a',
-                            900: '#111111', 950: '#0a0a0a',
+                            500: '#eab308', /* Primary Gold */
+                            600: '#ca8a04', 
+                            800: '#1a1a1a', 
+                            900: '#111111', 
+                            950: '#0a0a0a',
                         }
                     },
                     animation: {
-                        'spin-slow': 'spin 3s linear infinite',
                         'glow': 'glow 3s ease-in-out infinite alternate',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         glow: {
                             '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
-                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                            '100%': { filter: 'drop-shadow(0 0 20px rgba(234, 179, 8, 0.8))' }
                         },
                         slideUp: {
                             '0%': { transform: 'translateY(20px)', opacity: '0' },
@@ -55,41 +56,60 @@
     <style>
         body {
             -webkit-font-smoothing: antialiased;
-            background-color: #0a0a0a;
+            background-color: #050505;
+            color: #f8fafc;
         }
         
         .glass-panel {
-            background: rgba(17, 17, 17, 0.7);
+            background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .spinner {
-            width: 24px; height: 24px;
-            border: 3px solid rgba(234,179,8,0.2);
-            border-radius: 50%;
-            border-top-color: #eab308;
-            animation: spin 1s linear infinite;
-        }
-
         .input-dark {
-            background: #000; border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff; transition: all 0.2s;
+            background: #111; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff; 
+            transition: all 0.2s;
         }
         .input-dark:focus {
-            border-color: #eab308; box-shadow: 0 0 0 1px #eab308; outline: none;
+            border-color: #eab308; 
+            box-shadow: 0 0 0 1px #eab308; 
+            outline: none;
+            background: #1a1a1a;
         }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        select option { background-color: #111; color: #fff; }
+        input, select { font-size: 16px !important; }
+        
+        /* Smooth Tab Transition Utility */
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block; opacity: 1; }
     </style>
 </head>
-<body class="text-slate-200 h-screen flex overflow-hidden font-sans">
+<body class="h-screen flex overflow-hidden font-sans relative">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-[#111] border-r border-white/5 flex-shrink-0 hidden md:flex flex-col relative z-20">
-        <div class="h-20 flex items-center px-6 border-b border-white/5">
-            <!-- Exact Logo SVG -->
+    <!-- Mobile Header (Visible only on small screens) -->
+    <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-6 h-6 text-brand-500"></i>
+            <span class="font-bold text-white tracking-tight">WorkHub</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar / Mobile Menu -->
+    <aside id="sidebar" class="fixed md:static top-0 left-0 w-72 h-full bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-16 md:h-20 flex items-center justify-between md:justify-start px-6 border-b border-white/5 bg-[#050505]">
             <div class="flex items-center gap-3">
-                <div class="h-8 w-8 flex-shrink-0 animate-glow">
+                <div class="h-8 w-8 flex-shrink-0 animate-glow hidden md:block">
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
@@ -104,56 +124,201 @@
                         <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
                     </svg>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-white">WorkHub</span>
+                <div class="flex flex-col">
+                    <span class="text-lg md:text-xl font-bold tracking-tight text-white leading-tight uppercase">WorkHub</span>
+                    <span class="text-[0.6rem] font-bold text-brand-500 tracking-widest uppercase hidden md:block">Professional</span>
+                </div>
             </div>
+            <!-- Mobile Close Button -->
+            <button id="closeMenuBtn" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         
-        <div class="p-4 flex-1">
+        <div class="p-4 flex-1 mt-2">
             <nav class="space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-semibold transition-all">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-all">
-                    <i data-lucide="user" class="w-5 h-5"></i> My Profile
-                </a>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl font-bold transition-all">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Application Status
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i> Edit Profile Data
+                </button>
             </nav>
         </div>
         
-        <div class="p-4 border-t border-white/5">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-all">
+        <div class="p-4 border-t border-white/5 bg-[#050505]">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 border border-transparent rounded-xl font-bold transition-all">
                 <i data-lucide="log-out" class="w-5 h-5"></i> Secure Logout
             </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto relative" id="mainContent" style="display: none;">
-        
-        <!-- Abstract Background Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-30 pointer-events-none"></div>
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 hidden md:hidden"></div>
 
-        <header class="h-20 glass-panel flex items-center px-8 justify-between sticky top-0 z-10 border-x-0 border-t-0">
-            <h1 class="text-xl font-bold text-white">Overview</h1>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative bg-[#050505] pt-16 md:pt-0 custom-scrollbar" id="mainContent" style="display: none;">
+        
+        <!-- Background Glow -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none"></div>
+
+        <header class="hidden md:flex h-20 glass-panel items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
+            <h1 class="text-2xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
+                <i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Application Status
+            </h1>
             <div class="flex items-center gap-4">
-                <div class="hidden sm:flex flex-col text-right">
-                    <p class="text-sm font-bold text-white" id="userName">Loading...</p>
-                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">Professional</p>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-white" id="userNameLabel">Loading...</p>
+                    <p class="text-xs text-brand-500 font-bold tracking-widest uppercase">Verified Talent</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center font-bold text-brand-500 shadow-lg shadow-brand-500/10" id="userInitial"></div>
+                <div class="w-10 h-10 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center font-bold text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]" id="userInitial"></div>
             </div>
         </header>
 
         <div class="p-4 md:p-8 max-w-5xl mx-auto relative z-10">
             
-            <!-- Dynamic State Container -->
-            <div id="statusContainer" class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden animate-slide-up">
+            <!-- ================= STATUS TAB ================= -->
+            <div id="dashboardTab" class="tab-content active animate-slide-up">
                 
-                <!-- Initial Loading State -->
-                <div class="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
-                    <div class="spinner mb-4"></div>
-                    <p class="text-slate-400 font-inter text-sm">Securely retrieving your profile status...</p>
+                <!-- Dynamic Progress Tracker -->
+                <div class="bg-[#111] border border-white/10 rounded-3xl p-6 md:p-8 mb-8 shadow-2xl relative overflow-hidden">
+                    <h3 class="text-lg font-bold text-white mb-6 md:mb-8 tracking-wide uppercase text-center md:text-left">Verification Progress</h3>
+                    
+                    <div class="relative">
+                        <!-- Progress Line Background -->
+                        <div class="absolute top-5 left-0 w-full h-1 bg-white/5 rounded-full hidden md:block"></div>
+                        <!-- Active Progress Line -->
+                        <div id="progressLine" class="absolute top-5 left-0 h-1 bg-brand-500 rounded-full transition-all duration-1000 ease-out hidden md:block shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%;"></div>
+                        
+                        <!-- Steps -->
+                        <div class="flex flex-col md:flex-row justify-between relative z-10 gap-6 md:gap-0">
+                            <!-- Step 1 -->
+                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
+                                <div id="step1-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all">
+                                    <i data-lucide="check" class="w-5 h-5 md:w-6 md:h-6"></i>
+                                </div>
+                                <div class="text-left md:text-center">
+                                    <p class="text-white font-bold text-sm md:text-base">Registered</p>
+                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Profile Created</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
+                                <div id="step2-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
+                                    2
+                                </div>
+                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step2-text">
+                                    <p class="text-white font-bold text-sm md:text-base">Verification Fee</p>
+                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Action Required</p>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
+                                <div id="step3-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
+                                    3
+                                </div>
+                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step3-text">
+                                    <p class="text-white font-bold text-sm md:text-base">Team Review</p>
+                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Pending Admin</p>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
+                                <div id="step4-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
+                                    4
+                                </div>
+                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step4-text">
+                                    <p class="text-white font-bold text-sm md:text-base">Meeting Set</p>
+                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Placement Active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Dynamic Status Content Container -->
+                <div id="statusContainer" class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
+                        <div class="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                        <p class="text-slate-400 font-inter text-sm">Retrieving your secure application state...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PROFILE TAB ================= -->
+            <div id="profileTab" class="tab-content animate-slide-up">
+                <div class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div class="p-6 md:p-8 border-b border-white/5 bg-[#151515]">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                            <i data-lucide="user-cog" class="w-6 h-6 text-brand-500"></i> Manage Your Profile
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-2 font-inter">Update your professional details to ensure hiring partners see your latest qualifications.</p>
+                    </div>
+                    
+                    <form id="profileForm" class="p-6 md:p-8 space-y-6">
+                        
+                        <div id="profileAlert" class="hidden p-4 rounded-xl text-sm border flex items-start gap-3 transition-all bg-emerald-950/30 text-emerald-400 border-emerald-900/50">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <span class="font-inter font-medium">Profile successfully updated.</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Read-only core fields -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Full Name (Locked)</label>
+                                <input type="text" id="profName" readonly class="w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/5 rounded-xl text-slate-400 font-medium cursor-not-allowed">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Email (Locked)</label>
+                                <input type="email" id="profEmail" readonly class="w-full px-4 py-3.5 bg-[#0a0a0a] border border-white/5 rounded-xl text-slate-400 font-medium cursor-not-allowed">
+                            </div>
+
+                            <!-- Editable Fields -->
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Current City</label>
+                                <input type="text" id="editCity" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
+                            </div>
+                            
+                            <div class="space-y-2 relative">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Experience Level</label>
+                                <select id="editExp" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium appearance-none cursor-pointer">
+                                    <option value="Fresher">Fresher (0 years)</option>
+                                    <option value="1-3 Years">1 to 3 Years</option>
+                                    <option value="3-5 Years">3 to 5 Years</option>
+                                    <option value="5+ Years">5+ Years</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 translate-y-1 w-5 h-5 text-slate-500 pointer-events-none"></i>
+                            </div>
+
+                            <div class="space-y-2 relative md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Highest Qualification</label>
+                                <select id="editQual" required class="w-full px-4 py-3.5 input-dark rounded-xl font-medium appearance-none cursor-pointer">
+                                    <option value="10th Pass (Matriculation)">10th Pass (Matriculation)</option>
+                                    <option value="12th Pass (Intermediate)">12th Pass (Intermediate)</option>
+                                    <option value="Diploma / Certification">Diploma / Certification</option>
+                                    <option value="Bachelor's Degree (UG)">Bachelor's Degree (UG)</option>
+                                    <option value="Master's Degree (PG)">Master's Degree (PG)</option>
+                                    <option value="Doctorate (PhD)">Doctorate (PhD)</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 translate-y-1 w-5 h-5 text-slate-500 pointer-events-none"></i>
+                            </div>
+
+                            <div class="space-y-2 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-300 uppercase tracking-widest">Top Skills (Comma Separated)</label>
+                                <input type="text" id="editSkills" required placeholder="e.g. React, Design, Operations" class="w-full px-4 py-3.5 input-dark rounded-xl font-medium">
+                                <p class="text-xs text-slate-500 mt-1 font-inter">Separate multiple skills with commas. These are visible to employers.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/5 flex justify-end">
+                            <button type="submit" id="saveProfileBtn" class="w-full md:w-auto px-8 py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
@@ -162,9 +327,32 @@
     <!-- Scripts -->
     <script type="module">
         lucide.createIcons();
-        import { auth, db, doc, getDoc, collection, query, where, addDoc, serverTimestamp, onAuthStateChanged, signOut, onSnapshot } from './firebase.js';
+        import { auth, db, doc, getDoc, updateDoc, collection, query, where, addDoc, serverTimestamp, onAuthStateChanged, signOut, onSnapshot } from './firebase.js';
 
         let currentUser = null;
+        let profileDocRef = null;
+
+        // Mobile Menu Logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+        function toggleMobileMenu() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        closeMenuBtn.addEventListener('click', toggleMobileMenu);
+        overlay.addEventListener('click', toggleMobileMenu);
 
         // Security / Auth Check
         onAuthStateChanged(auth, async (user) => {
@@ -173,58 +361,159 @@
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (!userDoc.exists() || userDoc.data().role !== 'employee') {
-                    await signOut(auth);
-                    window.location.href = 'index.html';
-                    return;
+                    await signOut(auth); window.location.href = 'index.html'; return;
                 }
                 
                 currentUser = user;
                 const data = userDoc.data();
-                document.getElementById('userName').innerText = data.fullName;
+                
+                // Populate Headers
+                document.getElementById('userNameLabel').innerText = data.fullName;
                 document.getElementById('userInitial').innerText = data.fullName.charAt(0).toUpperCase();
                 document.getElementById('mainContent').style.display = 'block';
 
-                // Real-time listener for payment status
+                // Populate Profile Form (Read-only fields)
+                document.getElementById('profName').value = data.fullName;
+                document.getElementById('profEmail').value = data.email;
+
+                // Load Editable Profile Data
+                profileDocRef = doc(db, "employeeProfiles", user.uid);
+                const profSnap = await getDoc(profileDocRef);
+                if(profSnap.exists()) {
+                    const pd = profSnap.data();
+                    document.getElementById('editCity').value = pd.city || '';
+                    document.getElementById('editExp').value = pd.experienceLevel || '';
+                    document.getElementById('editQual').value = pd.qualification || '';
+                    document.getElementById('editSkills').value = (pd.skills || []).join(', ');
+                }
+
+                // Listen to Payments for Dynamic Progress Bar
                 const q = query(collection(db, "payments"), where("employeeUid", "==", user.uid));
                 onSnapshot(q, (snapshot) => {
                     if (snapshot.empty) {
+                        updateProgressUI(1);
                         renderPaymentRequired();
                     } else {
-                        // Sort by submittedAt to get the latest (in case of rejections/resubmissions)
+                        // Get most recent submission
                         const payments = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
                         payments.sort((a, b) => b.submittedAt - a.submittedAt);
                         const latestPayment = payments[0];
                         
-                        if (latestPayment.status === 'pending') renderPendingVerification(latestPayment);
-                        else if (latestPayment.status === 'approved') renderApproved(latestPayment);
-                        else if (latestPayment.status === 'rejected') renderPaymentRequired(latestPayment.adminNotes || "Previous submission was rejected. Please verify your UTR and try again.");
+                        if (latestPayment.status === 'pending') {
+                            updateProgressUI(2);
+                            renderPendingVerification(latestPayment);
+                        } else if (latestPayment.status === 'approved') {
+                            updateProgressUI(3);
+                            renderApproved(latestPayment);
+                        } else if (latestPayment.status === 'rejected') {
+                            updateProgressUI(1);
+                            renderPaymentRequired(latestPayment.adminNotes || "Previous submission was rejected. Please verify your UTR and try again.");
+                        }
                     }
-                }, (error) => {
-                    console.error("Error listening to status:", error);
+                }, (error) => { console.error("Error listening to status:", error); });
+
+            } catch(e) { console.error("Auth check failed", e); }
+        });
+
+        // Tab Switching Logic
+        window.switchTab = (tab) => {
+            const btnD = document.getElementById('nav-dashboard');
+            const btnP = document.getElementById('nav-profile');
+            const iconHTML = tab === 'dashboard' ? '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Application Status' : '<i data-lucide="user-cog" class="w-6 h-6 text-brand-500"></i> Manage Profile';
+            
+            // Only update header on desktop
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl) titleEl.innerHTML = iconHTML;
+            lucide.createIcons();
+
+            document.getElementById('dashboardTab').classList.remove('active');
+            document.getElementById('profileTab').classList.remove('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
+            const inactiveClass = ['text-slate-400', 'border-transparent'];
+            
+            if (tab === 'dashboard') {
+                btnD.classList.add(...activeClass); btnD.classList.remove(...inactiveClass);
+                btnP.classList.add(...inactiveClass); btnP.classList.remove(...activeClass);
+            } else {
+                btnP.classList.add(...activeClass); btnP.classList.remove(...inactiveClass);
+                btnD.classList.add(...inactiveClass); btnD.classList.remove(...activeClass);
+            }
+
+            if(window.innerWidth < 768) toggleMobileMenu(); // close mobile menu on selection
+        };
+
+        // Profile Form Submission
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            btn.disabled = true; btn.innerHTML = '<div class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> Saving...';
+            
+            const skillsArr = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+            
+            try {
+                await updateDoc(profileDocRef, {
+                    city: document.getElementById('editCity').value.trim(),
+                    experienceLevel: document.getElementById('editExp').value,
+                    qualification: document.getElementById('editQual').value,
+                    skills: skillsArr
                 });
-            } catch(e) {
-                console.error("Authentication check failed", e);
+                
+                const alertBox = document.getElementById('profileAlert');
+                alertBox.classList.remove('hidden');
+                setTimeout(() => alertBox.classList.add('hidden'), 4000);
+            } catch (err) {
+                alert("Failed to update profile: " + err.message);
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i> Save Changes';
+                lucide.createIcons();
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { 
-            signOut(auth).then(() => window.location.href = 'index.html'); 
-        });
+        // Dynamic Progress Bar Updater
+        function updateProgressUI(step) {
+            const line = document.getElementById('progressLine');
+            
+            // Widths: Step 1: 0%, Step 2: 33%, Step 3: 66%, Step 4: 100%
+            const widths = {1: '0%', 2: '33%', 3: '66%', 4: '100%'};
+            if(line) line.style.width = widths[step];
 
+            // Helper to activate a step
+            const activateStep = (num, iconName) => {
+                const iconDiv = document.getElementById(`step${num}-icon`);
+                const textDiv = document.getElementById(`step${num}-text`);
+                
+                iconDiv.className = "w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all duration-500";
+                iconDiv.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 md:w-6 md:h-6"></i>`;
+                
+                if(textDiv) {
+                    textDiv.classList.remove('opacity-50');
+                    textDiv.classList.add('opacity-100');
+                }
+            };
+
+            // Apply based on step
+            if(step >= 2) activateStep(2, 'indian-rupee');
+            if(step >= 3) activateStep(3, 'shield-check');
+            if(step >= 4) activateStep(4, 'calendar-check'); // For future placement stage
+
+            lucide.createIcons();
+        }
+
+        // ================= RENDERING STATUS VIEWS =================
         function renderPaymentRequired(errorMsg = null) {
             const container = document.getElementById('statusContainer');
-            // Mock UPI ID for demo purposes
-            const upiId = "demo@upi";
+            const upiId = "demo@upi"; // Demo UPI
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${upiId}&pn=WorkHub&am=99&cu=INR&bgcolor=ffffff&color=000000`;
             
             container.innerHTML = `
                 <div class="grid md:grid-cols-2 min-h-[500px]">
-                    <!-- Left: Instructions & QR -->
-                    <div class="p-8 md:p-12 bg-black/40 border-r border-white/5 flex flex-col items-center justify-center text-center">
+                    <div class="p-8 md:p-12 bg-black/40 border-b md:border-b-0 md:border-r border-white/5 flex flex-col items-center justify-center text-center">
                         <div class="w-16 h-16 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(234,179,8,0.15)]">
                             <i data-lucide="qr-code" class="w-8 h-8"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-white mb-3">Verification Fee</h2>
+                        <h2 class="text-3xl font-extrabold text-white mb-3">Verification Fee</h2>
                         <p class="text-slate-400 font-inter text-sm mb-8 leading-relaxed max-w-xs mx-auto">
                             Complete your profile activation by paying the <span class="font-bold text-white">₹99</span> one-time verification fee.
                         </p>
@@ -233,30 +522,23 @@
                             <img src="${qrUrl}" alt="Payment QR Code" class="w-48 h-48 mx-auto rounded-xl">
                         </div>
                         
-                        <div class="bg-[#1a1a1a] border border-white/10 text-slate-300 px-4 py-3 rounded-xl font-mono text-sm flex items-center justify-between gap-4 w-full max-w-xs">
+                        <div class="bg-[#1a1a1a] border border-white/10 text-slate-300 px-4 py-3 rounded-xl font-mono text-sm flex items-center justify-between gap-4 w-full max-w-xs cursor-pointer hover:border-brand-500/50 transition-colors" onclick="navigator.clipboard.writeText('${upiId}'); alert('UPI ID Copied!');">
                             <span class="truncate">${upiId}</span>
-                            <button class="text-brand-500 hover:text-brand-400 transition" onclick="navigator.clipboard.writeText('${upiId}'); alert('UPI ID Copied!');" title="Copy UPI ID">
-                                <i data-lucide="copy" class="w-4 h-4"></i>
-                            </button>
+                            <button class="text-brand-500 hover:text-brand-400 transition" title="Copy UPI ID"><i data-lucide="copy" class="w-5 h-5"></i></button>
                         </div>
                     </div>
                     
-                    <!-- Right: Submission Form -->
                     <div class="p-8 md:p-12 flex flex-col justify-center bg-[#111]">
                         <div class="mb-8">
                             <h3 class="text-2xl font-bold text-white mb-2">Submit Details</h3>
-                            <p class="text-slate-400 text-sm font-inter">Enter your payment reference to proceed.</p>
+                            <p class="text-slate-400 text-sm font-inter">Enter your payment reference to unlock step 2.</p>
                         </div>
                         
-                        ${errorMsg ? `
-                        <div class="mb-6 p-4 bg-red-950/30 text-red-400 rounded-xl border border-red-900/50 flex gap-3 text-sm font-inter items-start">
-                            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
-                            <span>${errorMsg}</span>
-                        </div>` : ''}
+                        ${errorMsg ? `<div class="mb-6 p-4 bg-red-950/30 text-red-400 rounded-xl border border-red-900/50 flex gap-3 text-sm font-inter items-start"><i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><span>${errorMsg}</span></div>` : ''}
                         
                         <form id="paymentForm" class="space-y-6">
                             <div>
-                                <label class="flex items-start gap-4 p-5 border border-white/10 rounded-2xl cursor-pointer hover:bg-white/5 transition-colors group">
+                                <label class="flex items-start gap-4 p-5 border border-white/10 rounded-2xl cursor-pointer hover:bg-[#151515] transition-colors group">
                                     <div class="relative flex items-start">
                                         <input type="checkbox" required class="peer w-5 h-5 appearance-none border border-slate-500 rounded bg-transparent checked:bg-brand-500 checked:border-brand-500 transition-colors mt-0.5 cursor-pointer">
                                         <i data-lucide="check" class="absolute top-1 left-0.5 w-4 h-4 text-brand-950 opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
@@ -266,12 +548,12 @@
                             </div>
                             
                             <div class="space-y-2">
-                                <label class="block text-sm font-bold text-slate-300">12-Digit UTR / Reference Number</label>
-                                <input type="text" id="utrInput" required pattern="[0-9]{10,12}" placeholder="e.g. 123456789012" class="w-full px-4 py-4 input-dark rounded-xl font-mono text-lg tracking-wider" autocomplete="off">
-                                <p class="text-xs text-slate-500 font-inter mt-1"><i data-lucide="info" class="w-3 h-3 inline mr-1 mb-0.5"></i>Found in your payment app's transaction history.</p>
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">12-Digit UTR / Reference No.</label>
+                                <input type="text" id="utrInput" required pattern="[0-9a-zA-Z]{10,14}" placeholder="e.g. 123456789012" class="w-full px-4 py-4 input-dark rounded-xl font-mono text-lg tracking-wider" autocomplete="off">
+                                <p class="text-xs text-slate-500 font-inter mt-1"><i data-lucide="info" class="w-3 h-3 inline mr-1 mb-0.5"></i>Found in your payment app's history.</p>
                             </div>
                             
-                            <button type="submit" id="submitUtrBtn" class="w-full py-4 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2 mt-4 text-base">
+                            <button type="submit" id="submitUtrBtn" class="w-full py-4 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2 mt-4 text-base">
                                 Submit for Verification
                             </button>
                         </form>
@@ -284,15 +566,12 @@
                 e.preventDefault();
                 const btn = document.getElementById('submitUtrBtn');
                 btn.disabled = true; 
-                btn.innerHTML = '<div class="spinner border-t-brand-950 opacity-70 w-5 h-5"></div> <span class="opacity-70">Submitting...</span>';
+                btn.innerHTML = '<div class="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> Submitting...';
                 
                 try {
                     await addDoc(collection(db, "payments"), {
-                        employeeUid: currentUser.uid,
-                        amount: 99, currency: "INR", paymentMethod: "UPI",
-                        utr: document.getElementById('utrInput').value.trim(),
-                        status: 'pending',
-                        submittedAt: serverTimestamp()
+                        employeeUid: currentUser.uid, amount: 99, currency: "INR", paymentMethod: "UPI",
+                        utr: document.getElementById('utrInput').value.trim(), status: 'pending', submittedAt: serverTimestamp()
                     });
                     // UI will auto-update via onSnapshot listener
                 } catch(err) {
@@ -304,7 +583,7 @@
 
         function renderPendingVerification(payment) {
             document.getElementById('statusContainer').innerHTML = `
-                <div class="p-10 md:p-20 text-center flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="p-8 md:p-20 text-center flex flex-col items-center justify-center relative overflow-hidden bg-[#111]">
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-50"></div>
                     
                     <div class="w-24 h-24 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(234,179,8,0.15)] relative">
@@ -312,16 +591,16 @@
                         <i data-lucide="clock" class="w-10 h-10"></i>
                     </div>
                     
-                    <h2 class="text-3xl font-bold text-white mb-4">Verification in Progress</h2>
+                    <h2 class="text-3xl font-extrabold text-white mb-4">Verification in Progress</h2>
                     <p class="text-slate-400 font-inter max-w-md mx-auto leading-relaxed">
-                        Your UTR (<span class="font-mono bg-white/10 px-2 py-0.5 rounded text-white tracking-wider border border-white/10">${payment.utr}</span>) is currently being reviewed by our verification team.
+                        Your UTR (<span class="font-mono bg-white/10 px-2 py-0.5 rounded text-white tracking-wider border border-white/10">${payment.utr}</span>) is currently being reviewed by our Verification Team.
                     </p>
                     
                     <div class="mt-10 p-5 bg-[#1a1a1a] border border-white/10 rounded-2xl max-w-md mx-auto flex gap-4 text-left shadow-lg">
                         <i data-lucide="shield" class="w-6 h-6 text-brand-500 flex-shrink-0 mt-0.5"></i>
                         <div>
                             <h4 class="font-bold text-white text-sm mb-1">Secure Process</h4>
-                            <p class="text-sm text-slate-400 font-inter">This manual check ensures platform integrity. Approvals typically complete within 1-2 business hours.</p>
+                            <p class="text-sm text-slate-400 font-inter leading-relaxed">This manual check ensures platform integrity. Approvals typically complete within 1-2 business hours.</p>
                         </div>
                     </div>
                 </div>
@@ -331,35 +610,35 @@
 
         function renderApproved(payment) {
             document.getElementById('statusContainer').innerHTML = `
-                <div class="p-10 md:p-20 text-center flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#111] to-[#0a150f]">
+                <div class="p-8 md:p-20 text-center flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#111] to-[#0a150f]">
                     
-                    <div class="w-28 h-28 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
-                        <i data-lucide="check-circle-2" class="w-14 h-14"></i>
+                    <div class="w-24 h-24 md:w-28 md:h-28 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full flex items-center justify-center mb-6 md:mb-8 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
+                        <i data-lucide="check-circle-2" class="w-12 h-12 md:w-14 md:h-14"></i>
                     </div>
                     
-                    <h2 class="text-4xl font-bold text-white mb-4">Profile Verified!</h2>
-                    <p class="text-lg text-emerald-400/80 font-medium max-w-lg mx-auto mb-10">
-                        Welcome to WorkHub. Your talent profile is now active and secure in our directory.
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-3 md:mb-4">Profile Verified!</h2>
+                    <p class="text-base md:text-lg text-emerald-400/80 font-medium max-w-lg mx-auto mb-8 md:mb-10">
+                        Welcome to WorkHub. Your talent profile is now active and securely listed in our directory.
                     </p>
                     
-                    <div class="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 shadow-2xl text-left relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]"></div>
-                        <h4 class="font-bold text-white text-lg mb-4 flex items-center gap-3">
+                    <div class="w-full max-w-lg bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl text-left relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,1)]"></div>
+                        <h4 class="font-extrabold text-white text-lg mb-6 flex items-center gap-3">
                             <div class="p-2 bg-white/5 rounded-lg border border-white/5"><i data-lucide="sparkles" class="w-5 h-5 text-brand-500"></i></div>
                             What happens next?
                         </h4>
-                        <ul class="space-y-4 text-slate-400 font-inter text-sm leading-relaxed">
-                            <li class="flex gap-3">
-                                <i data-lucide="building-2" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
+                        <ul class="space-y-5 text-slate-400 font-inter text-sm leading-relaxed">
+                            <li class="flex gap-4">
+                                <div class="mt-0.5"><i data-lucide="building-2" class="w-5 h-5 text-slate-500"></i></div>
                                 <span>Verified employers can now discover your anonymized profile based on your skills and experience.</span>
                             </li>
-                            <li class="flex gap-3">
-                                <i data-lucide="lock" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
+                            <li class="flex gap-4">
+                                <div class="mt-0.5"><i data-lucide="lock" class="w-5 h-5 text-slate-500"></i></div>
                                 <span>Your contact details remain strictly hidden. They are only shared when an employer requests connection and our team approves it.</span>
                             </li>
-                            <li class="flex gap-3">
-                                <i data-lucide="phone-call" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
-                                <span>Our placement coordinators will reach out directly to your registered number regarding immediate opportunities.</span>
+                            <li class="flex gap-4">
+                                <div class="mt-0.5"><i data-lucide="calendar-check" class="w-5 h-5 text-brand-500"></i></div>
+                                <span class="text-slate-300 font-medium">Keep your profile updated. Our placement coordinators will reach out directly to your registered number regarding immediate opportunities.</span>
                             </li>
                         </ul>
                     </div>
@@ -367,6 +646,30 @@
             `;
             lucide.createIcons();
         }
+
+        // ================= SMOOTH ANIMATED LOGOUT =================
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            // 1. Create the smooth fade-out overlay
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 bg-[#050505] z-[9999] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center";
+            overlay.innerHTML = `
+                <div class="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                <p class="text-brand-500 font-bold tracking-widest uppercase text-sm">Securely Logging Out...</p>
+            `;
+            document.body.appendChild(overlay);
+            
+            // 2. Trigger the CSS transition
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            });
+
+            // 3. Wait for fade to complete before firing auth signout
+            setTimeout(() => {
+                signOut(auth).then(() => window.location.href = 'index.html');
+            }, 600);
+        });
+
     </script>
 </body>
 </html>
