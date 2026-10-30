@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Command Center | WorkHub Verification Team</title>
     
+    <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Tailwind Config for Black & Gold Premium Theme -->
     <script>
         tailwind.config = {
             theme: {
@@ -21,46 +24,90 @@
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        brand: { 500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a', }
+                        brand: {
+                            500: '#eab308', 600: '#ca8a04', 800: '#1a1a1a', 900: '#111111', 950: '#0a0a0a', 
+                        }
                     },
                     animation: {
                         'glow': 'glow 3s ease-in-out infinite alternate',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'ring': 'ring 0.5s ease-in-out',
                     },
                     keyframes: {
-                        glow: { '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' }, '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' } },
-                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                        ring: { '0%, 100%': { transform: 'rotate(0deg)' }, '25%': { transform: 'rotate(15deg)' }, '75%': { transform: 'rotate(-15deg)' } }
+                        glow: {
+                            '0%': { filter: 'drop-shadow(0 0 5px rgba(234, 179, 8, 0.3))' },
+                            '100%': { filter: 'drop-shadow(0 0 15px rgba(234, 179, 8, 0.7))' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
                     }
                 }
             }
         }
     </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body { -webkit-font-smoothing: antialiased; background-color: #050505; color: #f8fafc; overflow: hidden; }
-        .glass-panel { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
         
+        /* Modal Transitions */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s ease; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
         
+        /* Smooth Tab Transition Utility */
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .tab-content.active { display: block; opacity: 1; }
 
+        /* Dynamic Select Glow */
         .select-success { animation: selectGlow 1.5s ease-out; }
-        @keyframes selectGlow { 0% { box-shadow: 0 0 0 2px #10b981; border-color: #10b981; } 100% { box-shadow: 0 0 0 0 transparent; border-color: rgba(255,255,255,0.1); } }
+        @keyframes selectGlow {
+            0% { box-shadow: 0 0 0 2px #10b981; border-color: #10b981; }
+            100% { box-shadow: 0 0 0 0 transparent; border-color: rgba(255,255,255,0.1); }
+        }
+        
         select option { background-color: #111; color: #fff; }
+
+        /* Audio Ring Wave Animation */
+        @keyframes ringWave {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+        .ring-active { animation: ringWave 1s infinite; }
+
+        /* Toast animation */
+        @keyframes toastIn {
+            0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: toastOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="h-screen flex font-sans relative">
+
+    <!-- Audio Element for sound.mp3 notifications -->
+    <audio id="notificationAudio" preload="auto">
+        <source src="sound.mp3" type="audio/mp3">
+        <source src="sound.wav" type="audio/wav">
+    </audio>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 md:right-8 z-[200] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
 
     <!-- Mobile Header -->
     <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
@@ -68,9 +115,14 @@
             <i data-lucide="shield" class="w-6 h-6 text-brand-500"></i>
             <span class="font-bold text-white tracking-tight uppercase">Command Center</span>
         </div>
-        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAudioNotifications()" id="mobileSoundBtn" class="p-2 text-brand-500 bg-white/5 rounded-xl border border-white/10" title="Sound Notification Toggle">
+                <i id="mobileSoundIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors p-2">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -78,13 +130,19 @@
         <div class="h-16 md:h-20 flex items-center justify-between md:justify-start px-6 border-b border-white/5 bg-[#050505]">
             <div class="flex items-center gap-3">
                 <div class="h-8 w-8 flex-shrink-0 animate-glow hidden md:block">
+                    <!-- Logo SVG -->
                     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                         <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
                         <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
+                        <line x1="73" y1="12" x2="73" y2="4" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="56" y1="18" x2="50" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="90" y1="18" x2="96" y2="12" stroke="#eab308" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
                         <circle cx="35" cy="52" r="5" fill="#ffffff"/>
-                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5"/>
-                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3"/>
-                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3"/>
+                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
                     </svg>
                 </div>
                 <div class="flex flex-col">
@@ -113,19 +171,21 @@
                 <div class="flex items-center gap-3"><i data-lucide="shield-check" class="w-5 h-5"></i> Access Requests</div>
                 <span id="badge-contacts" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
+
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Help & Inquiries</p>
             <button onclick="switchTab('support')" id="nav-support" class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
-                <div class="flex items-center gap-3"><i data-lucide="life-buoy" class="w-5 h-5"></i> Helpdesk</div>
-                <span id="badge-support" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                <div class="flex items-center gap-3"><i data-lucide="headphones" class="w-5 h-5"></i> Support Desk</div>
+                <span id="badge-support" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
 
-            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Security</p>
+            <p class="px-4 text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">Security & Audit</p>
             <button onclick="switchTab('logs')" id="nav-logs" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i> System Logs
             </button>
         </div>
         
         <div class="p-4 border-t border-white/5 bg-[#050505]">
-            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-bold transition-all hover:border-red-500/20">
+            <button id="logoutBtn" class="flex w-full items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-bold transition-all border border-transparent hover:border-red-500/20">
                 <i data-lucide="power" class="w-5 h-5"></i> Terminate Session
             </button>
         </div>
@@ -138,39 +198,49 @@
         
         <div class="absolute top-0 right-0 w-[800px] h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[120px] opacity-20 pointer-events-none z-0"></div>
 
-        <!-- Premium Header with Audio Control -->
         <header class="hidden md:flex h-20 glass-panel items-center px-10 justify-between sticky top-0 z-30 border-x-0 border-t-0 shadow-lg shadow-black">
             <div>
                 <h1 class="text-xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
                     <i data-lucide="activity" class="w-5 h-5 text-brand-500"></i> Live Analytics
                 </h1>
             </div>
-            <div class="flex items-center gap-6">
-                <!-- Audio Alert Toggle -->
-                <button id="audioToggleBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-600 text-slate-400 hover:text-white hover:border-white transition-colors text-xs font-bold uppercase tracking-widest">
-                    <i data-lucide="volume-x" class="w-4 h-4" id="audioIcon"></i> Alerts Off
-                </button>
-                
+            <div class="flex items-center gap-5">
+                <!-- Audio Status Pill & Sound Test -->
+                <div class="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-2xl px-3 py-1.5 shadow-inner">
+                    <button id="soundToggleBtn" onclick="toggleAudioNotifications()" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-brand-500 transition-colors" title="Toggle Sound Alerts">
+                        <span id="soundRingWrapper" class="relative flex items-center justify-center w-6 h-6 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20 transition-all">
+                            <i id="desktopSoundIcon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <span id="soundStatusText" class="text-xs text-slate-300">Sound Alert ON</span>
+                    </button>
+                    <span class="w-[1px] h-3.5 bg-white/10"></span>
+                    <button onclick="playNotificationSound(true)" class="text-[11px] font-bold text-brand-500 hover:text-white bg-brand-500/10 hover:bg-brand-500/20 px-2 py-0.5 rounded-lg border border-brand-500/20 transition-all flex items-center gap-1" title="Test Sound Chime">
+                        <i data-lucide="bell-ring" class="w-3 h-3"></i> Test
+                    </button>
+                </div>
+
                 <div class="text-right">
                     <p class="text-sm font-bold text-white" id="currentAdminName">System Operator</p>
                     <p class="text-xs text-emerald-500 font-bold tracking-widest uppercase flex items-center justify-end gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-fast"></span> Access Granted
                     </p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]" id="bellContainer">
+                <div class="w-10 h-10 rounded-xl bg-[#111] border border-white/10 flex items-center justify-center text-brand-500">
                     <i data-lucide="shield" class="w-5 h-5"></i>
                 </div>
             </div>
         </header>
 
-        <div class="p-4 md:p-8 max-w-[1600px] mx-auto relative z-10 h-full flex flex-col">
+        <div class="p-4 md:p-10 max-w-[1600px] mx-auto relative z-10">
             
             <!-- ================= DASHBOARD TAB ================= -->
-            <div id="dashboardTab" class="tab-content active animate-slide-up space-y-8 flex-shrink-0">
+            <div id="dashboardTab" class="tab-content active animate-slide-up space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                     <div class="bg-[#111] p-6 rounded-3xl border border-emerald-500/20 shadow-xl relative overflow-hidden group shadow-[0_0_30px_rgba(16,185,129,0.05)]">
                         <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="radio" class="w-24 h-24 text-emerald-500"></i></div>
-                        <p class="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span> Live Sessions</p>
+                        <p class="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span> Live Sessions
+                        </p>
                         <h3 class="text-4xl font-extrabold text-white" id="metric-live">0</h3>
                         <p class="text-xs text-slate-400 mt-3 font-inter">Active users right now</p>
                     </div>
@@ -178,7 +248,7 @@
                         <div class="absolute top-0 right-0 p-4 opacity-5"><i data-lucide="indian-rupee" class="w-24 h-24 text-white"></i></div>
                         <p class="text-brand-500 text-xs font-bold uppercase tracking-widest mb-2">Total Revenue</p>
                         <h3 class="text-4xl font-extrabold text-white flex items-center gap-2">₹<span id="metric-revenue">0</span></h3>
-                        <p class="text-xs text-slate-400 mt-3 font-inter">From approved UTRs</p>
+                        <p class="text-xs text-slate-400 mt-3 font-inter flex items-center gap-1">From approved UTRs</p>
                     </div>
                     <div class="bg-[#111] p-6 rounded-3xl border border-white/5 shadow-xl relative overflow-hidden group">
                         <div class="absolute top-0 right-0 p-4 opacity-5"><i data-lucide="users" class="w-24 h-24 text-white"></i></div>
@@ -195,103 +265,252 @@
                 </div>
             </div>
 
-            <!-- ================= USERS & QUEUE TABS (Hidden by default to save space in prompt, logic handles them) ================= -->
-            <div id="usersTab" class="tab-content animate-slide-up flex-shrink-0">
-                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar max-h-[650px]"><table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1000px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10"><tr><th class="p-5">User Details</th><th class="p-5">System Role</th><th class="p-5">Account Status</th><th class="p-5">Pipeline Stage</th><th class="p-5 text-right">Actions</th></tr></thead><tbody id="usersBody" class="divide-y divide-white/5"></tbody></table></div></div>
-            </div>
-            <div id="paymentsTab" class="tab-content animate-slide-up flex-shrink-0">
-                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold"><tr><th class="p-5">Professional Name</th><th class="p-5">Submitted UTR</th><th class="p-5">Amount</th><th class="p-5">Date Submitted</th><th class="p-5 text-right">Action</th></tr></thead><tbody id="paymentsBody" class="divide-y divide-white/5"></tbody></table></div></div>
-            </div>
-            <div id="contactsTab" class="tab-content animate-slide-up flex-shrink-0">
-                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold"><tr><th class="p-5">Requesting Employer</th><th class="p-5">Target Professional</th><th class="p-5">Date Requested</th><th class="p-5 text-right">Security Action</th></tr></thead><tbody id="contactsBody" class="divide-y divide-white/5"></tbody></table></div></div>
-            </div>
-            <div id="logsTab" class="tab-content animate-slide-up flex-shrink-0">
-                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden"><div class="overflow-x-auto custom-scrollbar max-h-[600px]"><table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]"><thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10"><tr><th class="p-5">Timestamp</th><th class="p-5">Operator</th><th class="p-5">Action Type</th><th class="p-5">System Details</th></tr></thead><tbody id="logsBody" class="divide-y divide-white/5"></tbody></table></div></div>
-            </div>
-
-            <!-- ================= SUPPORT HELPDESK TAB ================= -->
-            <div id="supportTab" class="tab-content animate-slide-up h-[75vh]">
-                <div class="flex flex-col md:flex-row h-full bg-[#111] rounded-3xl border border-white/5 shadow-2xl overflow-hidden">
-                    
-                    <!-- Left: Ticket List -->
-                    <div class="w-full md:w-1/3 border-r border-white/5 flex flex-col bg-[#0a0a0a]">
-                        <div class="p-5 border-b border-white/5 bg-[#111] flex justify-between items-center">
-                            <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                                <i data-lucide="inbox" class="w-4 h-4 text-brand-500"></i> Open Tickets
-                            </h2>
-                            <span id="supportUnreadCount" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
-                        </div>
-                        <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5" id="ticketList">
-                            <!-- Injected dynamically -->
-                            <div class="p-8 text-center text-slate-500 text-xs font-inter">Loading tickets...</div>
-                        </div>
+            <!-- ================= USERS DIRECTORY TAB ================= -->
+            <div id="usersTab" class="tab-content animate-slide-up space-y-6">
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#111] p-4 rounded-2xl border border-white/5 shadow-lg">
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                        <input type="text" id="userSearch" placeholder="Search by name, email..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:border-brand-500 focus:outline-none transition-colors font-inter text-sm">
                     </div>
+                    <div class="flex gap-4 w-full md:w-auto">
+                        <select id="roleFilter" class="w-full md:w-auto bg-[#1a1a1a] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-brand-500 focus:outline-none text-sm font-bold">
+                            <option value="all">All Roles</option>
+                            <option value="employee">Professionals</option>
+                            <option value="employer">Employers</option>
+                            <option value="admin">System Ops</option>
+                        </select>
+                    </div>
+                </div>
 
-                    <!-- Right: Active Chat Area -->
-                    <div class="w-full md:w-2/3 flex flex-col bg-[#111] relative hidden" id="activeChatView">
-                        <!-- Chat Header -->
-                        <div class="p-5 border-b border-white/5 bg-[#151515] flex justify-between items-center z-10 shadow-md">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center font-bold text-brand-500" id="chatUserInitial">U</div>
-                                <div>
-                                    <h3 class="text-sm font-bold text-white leading-tight" id="chatUserName">User Name</h3>
-                                    <p class="text-[10px] text-slate-400 font-inter uppercase tracking-widest" id="chatSubject">Subject Line</p>
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar max-h-[650px]">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter relative min-w-[1050px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10 shadow-md">
+                                <tr>
+                                    <th class="p-5">User Details</th>
+                                    <th class="p-5">System Role</th>
+                                    <th class="p-5">Account Status</th>
+                                    <th class="p-5">Pipeline Stage</th>
+                                    <th class="p-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PAYMENTS TAB ================= -->
+            <div id="paymentsTab" class="tab-content animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold">
+                                <tr>
+                                    <th class="p-5">Professional Name</th>
+                                    <th class="p-5">Submitted UTR</th>
+                                    <th class="p-5">Amount</th>
+                                    <th class="p-5">Date Submitted</th>
+                                    <th class="p-5 text-right">Verification Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= CONTACTS TAB ================= -->
+            <div id="contactsTab" class="tab-content animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold">
+                                <tr>
+                                    <th class="p-5">Requesting Employer</th>
+                                    <th class="p-5">Target Professional</th>
+                                    <th class="p-5">Date Requested</th>
+                                    <th class="p-5 text-right">Security Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsBody" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SUPPORT DESK TAB ================= -->
+            <div id="supportTab" class="tab-content animate-slide-up space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[750px]">
+                    <!-- Left: Ticket Queue (lg:col-span-5 xl:col-span-4) -->
+                    <div class="lg:col-span-5 xl:col-span-4 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                        <!-- Header & Filters -->
+                        <div class="p-5 border-b border-white/5 bg-[#151515] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-bold text-white leading-none">Support Queue</h3>
+                                        <span class="text-[11px] text-slate-400 font-inter">Active Tickets</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <button onclick="closeTicket()" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg hover:bg-emerald-500 hover:text-black text-[10px] font-bold uppercase tracking-widest transition-all">
-                                Mark Resolved
-                            </button>
-                        </div>
-                        
-                        <!-- Messages Area -->
-                        <div class="flex-1 p-6 overflow-y-auto custom-scrollbar font-inter space-y-4" id="chatMessages">
-                            <!-- Injected dynamically -->
-                        </div>
-
-                        <!-- Image Preview Overlay (Before Sending) -->
-                        <div id="imagePreviewContainer" class="hidden absolute bottom-[88px] left-6 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl z-20">
-                            <div class="relative">
-                                <img id="imagePreview" src="" class="max-h-32 rounded-lg object-contain">
-                                <button onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-400"><i data-lucide="x" class="w-3 h-3"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- Input Area -->
-                        <div class="p-4 border-t border-white/5 bg-[#0a0a0a] flex flex-col gap-2">
-                            <!-- Preloaded Messages Dropdown -->
-                            <div class="relative w-full">
-                                <select id="quickReply" onchange="insertQuickReply()" class="w-full bg-[#1a1a1a] border border-white/10 text-brand-500 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer appearance-none">
-                                    <option value="" disabled selected>⚡ Insert Preloaded Message...</option>
-                                    <option value="Hello! We are currently reviewing your account. Please allow 1-2 hours.">Reviewing Account</option>
-                                    <option value="The UTR you provided was invalid. Please re-check your payment app and submit the correct 12-digit UTR.">Invalid UTR</option>
-                                    <option value="Please upload a clear screenshot of your payment receipt so we can manually verify it.">Request Screenshot</option>
-                                    <option value="Your issue has been resolved. We are closing this ticket. Thank you for using WorkHub.">Issue Resolved</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                                <button onclick="openNewTicketModal()" class="px-3 py-1.5 bg-brand-500 text-brand-950 font-bold text-xs rounded-xl hover:bg-brand-400 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Ticket
+                                </button>
                             </div>
                             
-                            <form id="replyForm" class="flex items-center gap-3">
-                                <!-- Hidden File Input -->
-                                <input type="file" id="imageUploadInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
-                                <button type="button" onclick="document.getElementById('imageUploadInput').click()" class="p-3 text-slate-400 hover:text-brand-500 bg-[#1a1a1a] rounded-xl transition-colors shrink-0" title="Attach Image">
-                                    <i data-lucide="image" class="w-5 h-5"></i>
-                                </button>
-                                
-                                <input type="text" id="chatInput" required placeholder="Type your response..." class="flex-1 bg-[#1a1a1a] border border-white/10 text-white text-sm rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-inter">
-                                
-                                <button type="submit" id="sendReplyBtn" class="p-3 bg-brand-500 text-black rounded-xl hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] shrink-0">
-                                    <i data-lucide="send" class="w-5 h-5"></i>
-                                </button>
-                            </form>
+                            <!-- Search -->
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="text" id="ticketSearch" placeholder="Search by name, subject, ID..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl py-2 pl-10 pr-3 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-colors font-inter">
+                            </div>
+
+                            <!-- Filter Pills -->
+                            <div class="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs font-semibold">
+                                <button onclick="filterTickets('all')" id="ticketFilter-all" class="px-3 py-1 rounded-lg bg-brand-500/20 text-brand-500 border border-brand-500/30 whitespace-nowrap text-[11px] font-bold transition-all">All</button>
+                                <button onclick="filterTickets('open')" id="ticketFilter-open" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">Open</button>
+                                <button onclick="filterTickets('in-progress')" id="ticketFilter-in-progress" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">In Progress</button>
+                                <button onclick="filterTickets('resolved')" id="ticketFilter-resolved" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all">Resolved</button>
+                            </div>
+                        </div>
+
+                        <!-- Ticket List Scroll -->
+                        <div id="ticketsListContainer" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                                <i data-lucide="inbox" class="w-10 h-10 mb-2 opacity-30"></i>
+                                No support tickets currently available.
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Empty State -->
-                    <div class="w-full md:w-2/3 flex flex-col items-center justify-center bg-[#111]" id="ticketEmptyState">
-                        <div class="w-20 h-20 bg-brand-500/5 text-brand-500 rounded-full flex items-center justify-center mb-4">
-                            <i data-lucide="message-square-dashed" class="w-10 h-10 opacity-50"></i>
+                    <!-- Right: Active Chat & Ticket Details (lg:col-span-7 xl:col-span-8) -->
+                    <div class="lg:col-span-7 xl:col-span-8 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[750px]">
+                        <!-- Empty State -->
+                        <div id="ticketEmptyState" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                            <div class="w-20 h-20 rounded-3xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 mb-4 animate-glow shadow-[0_0_30px_rgba(234,179,8,0.15)]">
+                                <i data-lucide="headphones" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">WorkHub Verification & Support Desk</h3>
+                            <p class="text-sm text-slate-400 max-w-md font-inter mb-6">Select an inquiry from the queue to start real-time messaging, review base64 screenshot proofs, or dispatch preloaded verification answers.</p>
+                            <button onclick="openNewTicketModal()" class="px-5 py-2.5 bg-brand-500 text-brand-950 font-bold rounded-xl hover:bg-brand-400 transition-all flex items-center gap-2 text-sm shadow-[0_0_20px_rgba(234,179,8,0.25)]">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i> Open New Support Thread
+                            </button>
                         </div>
-                        <p class="text-slate-400 font-bold uppercase tracking-widest text-sm">Select a ticket to begin</p>
+
+                        <!-- Active Ticket Chat Container -->
+                        <div id="ticketChatContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                            <!-- Chat Top Bar -->
+                            <div class="p-4 md:p-5 border-b border-white/5 bg-[#151515] flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div id="chatUserAvatar" class="w-11 h-11 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-base shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                                        U
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <h3 id="chatUserName" class="text-base font-bold text-white leading-tight">User Name</h3>
+                                            <span id="chatUserRoleBadge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20">ROLE</span>
+                                            <span id="chatPriorityBadge" class="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-red-500/10 text-red-400 border border-red-500/20">NORMAL</span>
+                                        </div>
+                                        <p id="chatTicketSubject" class="text-xs text-slate-400 font-inter mt-0.5 truncate max-w-sm sm:max-w-md">Ticket Subject</p>
+                                    </div>
+                                </div>
+
+                                <!-- Actions & Status Dropdown -->
+                                <div class="flex items-center gap-2.5">
+                                    <button id="chatInspectUserBtn" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5" title="View Full Profile">
+                                        <i data-lucide="user" class="w-3.5 h-3.5"></i> Profile
+                                    </button>
+                                    <div class="relative">
+                                        <select id="chatStatusSelect" onchange="updateActiveTicketStatus(this.value)" class="bg-[#1a1a1a] border border-brand-500/30 text-brand-500 text-xs font-bold rounded-xl px-3 py-1.5 outline-none cursor-pointer hover:border-brand-500 transition-colors">
+                                            <option value="open">Status: Open</option>
+                                            <option value="in-progress">Status: In Progress</option>
+                                            <option value="resolved">Status: Resolved</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Messages Thread Scroll Area -->
+                            <div id="chatMessagesArea" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar bg-[#0a0a0a]/60">
+                                <!-- Messages injected dynamically -->
+                            </div>
+
+                            <!-- Preloaded Messages (Canned Responses) Chips Bar -->
+                            <div class="border-t border-white/5 bg-[#131313] px-4 py-2.5 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                                <span class="text-[10px] uppercase font-bold text-brand-500 tracking-wider flex items-center gap-1 flex-shrink-0">
+                                    <i data-lucide="zap" class="w-3 h-3 text-brand-500"></i> Preloaded:
+                                </span>
+                                <button onclick="insertQuickMessage('👋 Hello! How can our verification team assist you today?')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">👋 Welcome</button>
+                                <button onclick="insertQuickMessage('⏳ We have received your query and our team is actively reviewing your verification documents.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">⏳ Reviewing Documents</button>
+                                <button onclick="insertQuickMessage('✅ Your payment UTR has been verified and your profile is cleared.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">✅ UTR Approved</button>
+                                <button onclick="insertQuickMessage('❌ The submitted UTR could not be verified in banking records. Please confirm the 12-digit reference.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">❌ Invalid UTR</button>
+                                <button onclick="insertQuickMessage('📸 Please upload a clear screenshot of your payment receipt or debit confirmation.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">📸 Upload Screenshot</button>
+                                <button onclick="insertQuickMessage('🔒 For security compliance, please confirm your registered mobile number.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">🔒 Verify Phone</button>
+                                <button onclick="insertQuickMessage('✨ This support ticket has been resolved. Please message us if you need further assistance!')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">✨ Issue Resolved</button>
+                            </div>
+
+                            <!-- Attached Image Preview Bar -->
+                            <div id="imageAttachmentPreview" class="hidden px-4 py-2.5 bg-[#161616] border-t border-white/5 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img id="imageAttachmentThumb" src="" alt="Attachment" class="w-12 h-12 rounded-lg object-cover border border-brand-500/40 shadow-sm cursor-pointer" onclick="openImagePreview(this.src)">
+                                    <div>
+                                        <span class="text-xs font-bold text-white block flex items-center gap-1.5">
+                                            <i data-lucide="image" class="w-3.5 h-3.5 text-brand-500"></i> Image Ready to Send
+                                        </span>
+                                        <span id="imageAttachmentSize" class="text-[10px] text-slate-400 font-mono">Base64 Encoded</span>
+                                    </div>
+                                </div>
+                                <button onclick="clearImageAttachment()" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Remove Image">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Input Bar -->
+                            <div class="p-3 md:p-4 border-t border-white/5 bg-[#151515] flex items-end gap-2.5">
+                                <input type="file" id="ticketImageInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                                <button onclick="document.getElementById('ticketImageInput').click()" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-brand-500 border border-white/10 transition-colors flex-shrink-0" title="Attach Image (Base64)">
+                                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                </button>
+
+                                <div class="flex-1 bg-[#1a1a1a] rounded-2xl border border-white/10 focus-within:border-brand-500/50 transition-colors px-4 py-2.5 flex items-center">
+                                    <textarea id="chatInputMessage" rows="1" placeholder="Type your message to the user... (Press Enter to Send)" class="w-full bg-transparent text-sm text-white placeholder-slate-500 outline-none resize-none font-inter max-h-28 custom-scrollbar" onkeydown="handleChatInputKeyDown(event)"></textarea>
+                                </div>
+
+                                <button onclick="sendChatMessage()" id="chatSendBtn" class="px-5 py-3 rounded-xl bg-brand-500 text-brand-950 font-bold hover:bg-brand-400 transition-all flex items-center gap-2 flex-shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.25)]">
+                                    <span class="hidden sm:inline">Send</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= LOGS TAB ================= -->
+            <div id="logsTab" class="tab-content animate-slide-up">
+                <div class="bg-[#111] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
+                    <div class="p-4 md:p-6 border-b border-white/5 bg-[#151515] flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="clipboard-list" class="w-5 h-5 text-brand-500"></i> Audit Trail
+                            </h2>
+                            <p class="text-xs md:text-sm text-slate-400 font-inter mt-1">Immutable record of all administrative and security actions.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar max-h-[600px]">
+                        <table class="w-full text-left text-sm whitespace-nowrap font-inter min-w-[800px]">
+                            <thead class="bg-[#1a1a1a] border-b border-white/5 text-slate-400 uppercase text-xs tracking-widest font-bold sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-5">Timestamp</th>
+                                    <th class="p-5">Operator</th>
+                                    <th class="p-5">Action Type</th>
+                                    <th class="p-5">System Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsBody" class="divide-y divide-white/5"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -299,21 +518,189 @@
         </div>
     </main>
 
-    <!-- UI Logic -->
+    <!-- MODAL: Detailed UTR Verification -->
+    <div id="utrModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div>
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-alert" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold text-white">Verify Payment</h2>
+                </div>
+                <button onclick="closeUtrModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 md:p-8 space-y-4 font-inter">
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
+                    <span class="text-slate-400 text-xs md:text-sm">Professional Name</span>
+                    <span class="text-white font-bold text-sm truncate" id="modal-pay-name"></span>
+                </div>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
+                    <span class="text-slate-400 text-xs md:text-sm">Amount Paid</span>
+                    <span class="text-brand-500 font-bold text-lg" id="modal-amount"></span>
+                </div>
+                <div class="bg-[#1a1a1a] p-4 rounded-xl border border-brand-500/30 flex flex-col sm:flex-row justify-between sm:items-center gap-3 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                    <span class="text-brand-500 text-xs md:text-sm font-bold">Reported UTR</span>
+                    <span class="text-white font-mono text-base md:text-lg font-bold tracking-widest bg-black px-3 py-1 rounded break-all" id="modal-utr"></span>
+                </div>
+                
+                <div class="flex gap-4 mt-8 pt-4 border-t border-white/5">
+                    <button id="btn-reject-utr" class="flex-1 py-4 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl font-bold hover:bg-red-500/20 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i> Reject
+                    </button>
+                    <button id="btn-approve-utr" class="flex-[2] py-4 bg-emerald-500 text-emerald-950 rounded-xl font-extrabold hover:bg-emerald-400 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex justify-center items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i> Verify
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Full Profile Inspector -->
+    <div id="profileModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515] relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 text-white/5 pointer-events-none">
+                    <i data-lucide="fingerprint" class="w-48 h-48"></i>
+                </div>
+                <div class="relative z-10 flex items-center gap-4 md:gap-5">
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-xl md:text-2xl font-bold text-brand-500" id="insp-initial"></div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-3 flex-wrap" id="insp-name">
+                            Name <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest" id="insp-role-badge">Role</span>
+                        </h2>
+                    </div>
+                </div>
+                <button onclick="closeProfileModal()" class="relative z-10 text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar font-inter space-y-6">
+                <!-- Contact Block -->
+                <div>
+                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Core Identity & Contact</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
+                            <span class="text-slate-500 text-xs block mb-1">Email Address</span>
+                            <span class="text-white font-bold text-sm break-all" id="insp-email"></span>
+                        </div>
+                        <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
+                            <span class="text-slate-500 text-xs block mb-1">Phone Number</span>
+                            <span class="text-white font-bold text-sm" id="insp-phone"></span>
+                        </div>
+                        <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2">
+                            <span class="text-slate-500 text-xs block mb-1">Account Created</span>
+                            <span class="text-white font-bold text-sm" id="insp-created"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extended Details -->
+                <div id="insp-extended-block">
+                    <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Extended Profile Data</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="insp-extended-grid">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Create New Support Ticket -->
+    <div id="newTicketModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center">
+                        <i data-lucide="message-square-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">New Support Ticket</h2>
+                        <p class="text-xs text-slate-400 font-inter">Initiate direct communication with any user</p>
+                    </div>
+                </div>
+                <button onclick="closeNewTicketModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="newTicketForm" onsubmit="submitNewTicket(event)" class="p-6 md:p-8 space-y-4 font-inter">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Recipient User *</label>
+                    <select id="newTicketUserSelect" required class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                        <option value="">-- Select User from Directory --</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Subject / Category *</label>
+                        <input type="text" id="newTicketSubject" required placeholder="e.g. Payment Verification" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Priority Level</label>
+                        <select id="newTicketPriority" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors font-bold">
+                            <option value="normal">Normal Priority</option>
+                            <option value="urgent">Urgent / Critical</option>
+                            <option value="high">High Priority</option>
+                            <option value="low">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Initial Message *</label>
+                    <textarea id="newTicketMessage" rows="3" required placeholder="Explain the inquiry or provide instructions to the user..." class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors"></textarea>
+                </div>
+
+                <!-- Optional Image upload -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Attachment (Base64 Image)</label>
+                    <input type="file" id="newTicketImageInput" accept="image/*" onchange="handleNewTicketImage(event)" class="w-full bg-[#1a1a1a] border border-white/10 text-slate-300 rounded-xl py-2 px-3 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-brand-950 file:cursor-pointer">
+                    <div id="newTicketImagePreviewContainer" class="hidden mt-2 flex items-center gap-3 bg-[#161616] p-2 rounded-xl border border-brand-500/30">
+                        <img id="newTicketImagePreview" src="" class="w-10 h-10 object-cover rounded-lg">
+                        <span class="text-xs text-brand-500 font-bold flex-1">Image attached successfully</span>
+                        <button type="button" onclick="clearNewTicketImage()" class="text-slate-400 hover:text-red-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4 border-t border-white/5">
+                    <button type="button" onclick="closeNewTicketModal()" class="flex-1 py-3 bg-white/5 text-slate-400 rounded-xl font-bold hover:bg-white/10 transition-colors text-sm">Cancel</button>
+                    <button type="submit" id="btnSubmitNewTicket" class="flex-[2] py-3 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Create & Dispatch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Fullscreen Image Preview Lightbox -->
+    <div id="imagePreviewModal" class="modal-overlay fixed inset-0 z-[150] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4" onclick="closeImagePreview()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="absolute -top-12 right-0 flex items-center gap-2">
+                <a id="downloadPreviewImageBtn" href="#" download="workhub-attachment.jpg" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 backdrop-blur-md">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                </a>
+                <button onclick="closeImagePreview()" class="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <img id="fullPreviewImage" src="" alt="Attachment Full Preview" class="max-w-full max-h-[82vh] object-contain rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        </div>
+    </div>
+
+    <!-- Scripts - Moved UI/Window functions OUTSIDE the module load so buttons never break -->
     <script>
+        // Global UI State Management
         window.switchTab = (tab) => {
-            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'logs', 'support'];
+            const tabs = ['dashboard', 'users', 'payments', 'contacts', 'support', 'logs'];
             const headers = {
                 'dashboard': '<i data-lucide="activity" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Live Analytics',
                 'users': '<i data-lucide="users" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> User Directory',
                 'payments': '<i data-lucide="indian-rupee" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> UTR Verifications',
                 'contacts': '<i data-lucide="shield-check" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Access Requests',
-                'logs': '<i data-lucide="clipboard-list" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> System Logs',
-                'support': '<i data-lucide="life-buoy" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Support Helpdesk'
+                'support': '<i data-lucide="headphones" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> Support Desk',
+                'logs': '<i data-lucide="clipboard-list" class="w-5 md:w-6 h-5 md:h-6 text-brand-500"></i> System Logs'
             };
             const titleEl = document.getElementById('headerTitle');
-            if(titleEl) titleEl.innerHTML = headers[tab];
-            if(window.lucide) window.lucide.createIcons();
+            if(titleEl && headers[tab]) { titleEl.innerHTML = headers[tab]; }
 
             tabs.forEach(t => {
                 const el = document.getElementById(t + 'Tab');
@@ -332,245 +719,1181 @@
                 activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
                 activeBtn.classList.remove('text-slate-400', 'border-transparent');
             }
-        };
 
-        // Base64 Image Preview Logic
-        let currentBase64Image = null;
-        window.handleImageSelection = (event) => {
-            const file = event.target.files[0];
-            if(!file) return;
-            if(file.size > 2 * 1024 * 1024) { alert("Image too large. Max 2MB."); return; }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentBase64Image = e.target.result;
-                document.getElementById('imagePreview').src = currentBase64Image;
-                document.getElementById('imagePreviewContainer').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        };
-        window.removeImagePreview = () => {
-            currentBase64Image = null;
-            document.getElementById('imageUploadInput').value = '';
-            document.getElementById('imagePreviewContainer').classList.add('hidden');
-        };
-        window.insertQuickReply = () => {
-            const select = document.getElementById('quickReply');
-            if(select.value) {
-                document.getElementById('chatInput').value = select.value;
-                select.value = ""; // reset
+            if(window.lucide) { window.lucide.createIcons(); }
+
+            // Auto-close mobile menu
+            if(window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if(sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
             }
         };
+
+        window.closeUtrModal = () => { document.getElementById('utrModal').classList.remove('active'); };
+        window.closeProfileModal = () => { document.getElementById('profileModal').classList.remove('active'); };
+        window.closeNewTicketModal = () => { document.getElementById('newTicketModal').classList.remove('active'); };
+        window.openNewTicketModal = () => {
+            populateNewTicketUsersDropdown();
+            document.getElementById('newTicketModal').classList.add('active');
+        };
+        window.closeImagePreview = () => { document.getElementById('imagePreviewModal').classList.remove('active'); };
+        window.openImagePreview = (src) => {
+            const img = document.getElementById('fullPreviewImage');
+            const link = document.getElementById('downloadPreviewImageBtn');
+            if(img) img.src = src;
+            if(link) link.href = src;
+            document.getElementById('imagePreviewModal').classList.add('active');
+        };
+
+        // Mobile Menu Toggles
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+            function toggleMobileMenu() {
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                if (isClosed) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }
+            if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            if(closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMobileMenu);
+            if(overlay) overlay.addEventListener('click', toggleMobileMenu);
+            
+            if(window.lucide) { window.lucide.createIcons(); }
+        });
     </script>
 
-    <!-- Firebase App Module -->
+    <!-- Firebase Database & Real-time Support Module -->
     <script type="module">
-        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot } from './firebase.js';
-        import { getDocs, deleteDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { auth, db, doc, getDoc, collection, updateDoc, addDoc, serverTimestamp, onAuthStateChanged, signOut, query, where, onSnapshot, orderBy } from './firebase.js';
+        import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         let currentUser = null;
+        let allUsers = []; 
+        let userMap = {}; 
+        let currentReviewPaymentId = null;
+
+        // Support state
+        let allTickets = [];
         let activeTicketId = null;
-        let messagesUnsubscribe = null;
+        let activeTicketMessagesUnsub = null;
+        let currentTicketFilter = 'all';
+        let currentAttachedBase64 = null;
+        let newTicketAttachedBase64 = null;
 
-        // AUDIO ALERT SYSTEM
-        let isAudioEnabled = false;
-        let isAppInitialized = false; // Prevent alerts on page load
-        const alertSound = new Audio('sound.mp3'); 
-        alertSound.volume = 0.5;
+        // Sound & Notification tracking
+        let isAudioMuted = localStorage.getItem('workhub_audio_muted') === 'true';
+        let isInitialLoadPayments = true;
+        let isInitialLoadContacts = true;
+        let isInitialLoadTickets = true;
+        let knownPaymentIds = new Set();
+        let knownContactIds = new Set();
+        let knownTicketMessageTimestamps = new Map();
 
-        document.getElementById('audioToggleBtn').addEventListener('click', () => {
-            isAudioEnabled = !isAudioEnabled;
-            const btn = document.getElementById('audioToggleBtn');
-            const icon = document.getElementById('audioIcon');
-            if(isAudioEnabled) {
-                btn.classList.add('border-brand-500', 'text-brand-500');
-                btn.classList.remove('border-slate-600', 'text-slate-400');
-                btn.innerHTML = `<i data-lucide="volume-2" class="w-4 h-4"></i> Alerts On`;
-                // Play test sound safely after interaction
-                alertSound.play().catch(e=>console.log('Audio blocked', e)); 
+        // Initialize Audio Control UI
+        function updateAudioUI() {
+            const statusText = document.getElementById('soundStatusText');
+            const desktopIcon = document.getElementById('desktopSoundIcon');
+            const mobileIcon = document.getElementById('mobileSoundIcon');
+            const ringWrap = document.getElementById('soundRingWrapper');
+
+            if (isAudioMuted) {
+                if (statusText) statusText.innerText = 'Sound Muted';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-x');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-x');
+                if (ringWrap) {
+                    ringWrap.classList.remove('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.add('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
             } else {
-                btn.classList.remove('border-brand-500', 'text-brand-500');
-                btn.classList.add('border-slate-600', 'text-slate-400');
-                btn.innerHTML = `<i data-lucide="volume-x" class="w-4 h-4"></i> Alerts Off`;
+                if (statusText) statusText.innerText = 'Sound Alert ON';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-2');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-2');
+                if (ringWrap) {
+                    ringWrap.classList.add('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.remove('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
             }
-            if(window.lucide) window.lucide.createIcons();
-        });
-
-        function triggerNotificationGlow() {
-            if(!isAppInitialized) return;
-            if(isAudioEnabled) alertSound.play().catch(e=>console.log(e));
-            
-            const bell = document.getElementById('bellContainer');
-            bell.classList.add('animate-ring', 'bg-brand-500', 'text-black');
-            setTimeout(() => { bell.classList.remove('animate-ring', 'bg-brand-500', 'text-black'); }, 1000);
+            if (window.lucide) window.lucide.createIcons();
         }
 
-        setTimeout(() => { isAppInitialized = true; }, 3000); // 3 seconds after load, enable alerts
+        window.toggleAudioNotifications = () => {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem('workhub_audio_muted', isAudioMuted);
+            updateAudioUI();
+            if (!isAudioMuted) {
+                playNotificationSound(true);
+            }
+        };
 
-        // Auth Boot
+        // Synthesizer Web Audio Fallback Chime
+        function playFallbackChime() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                const ctx = new AudioContextClass();
+                const tones = [
+                    { freq: 659.25, start: 0.0, dur: 0.4 }, // E5
+                    { freq: 880.0, start: 0.15, dur: 0.45 }, // A5
+                    { freq: 1046.5, start: 0.35, dur: 0.6 } // C6
+                ];
+                tones.forEach(t => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(t.freq, ctx.currentTime + t.start);
+                    gain.gain.setValueAtTime(0.35, ctx.currentTime + t.start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t.start + t.dur);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + t.start);
+                    osc.stop(ctx.currentTime + t.start + t.dur);
+                });
+            } catch(e) {
+                console.warn('Audio chime fallback error:', e);
+            }
+        }
+
+        // Master Audio Play Function
+        window.playNotificationSound = (force = false) => {
+            if (isAudioMuted && !force) return;
+
+            // Visual ring wave animation
+            const ringWrap = document.getElementById('soundRingWrapper');
+            if (ringWrap) {
+                ringWrap.classList.add('ring-active');
+                setTimeout(() => ringWrap.classList.remove('ring-active'), 1800);
+            }
+
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(err => {
+                    console.log('Direct audio play failed or blocked by autoplay policy, using synthesized chime:', err);
+                    playFallbackChime();
+                });
+            } else {
+                playFallbackChime();
+            }
+        };
+
+        // Unlock audio autoplay on user first touch/click
+        document.addEventListener('click', function unlockAudio() {
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.play().then(() => {
+                    audioEl.pause();
+                    audioEl.currentTime = 0;
+                }).catch(() => {});
+            }
+            document.removeEventListener('click', unlockAudio);
+        }, { once: true });
+
+        // Toast Notification System
+        function showToastNotification({ title, message, tab, icon = 'bell', color = 'brand' }) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            playNotificationSound();
+
+            const toast = document.createElement('div');
+            toast.className = "toast-enter pointer-events-auto bg-[#141414] border border-brand-500/40 rounded-2xl p-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex items-start gap-3 backdrop-blur-xl transition-all cursor-pointer hover:border-brand-500";
+            
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider truncate">${title}</h4>
+                        <span class="text-[10px] text-slate-400 font-mono">Just now</span>
+                    </div>
+                    <p class="text-xs text-slate-300 font-inter mt-0.5 line-clamp-2">${message}</p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-brand-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                            Open Queue <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                        </span>
+                    </div>
+                </div>
+                <button class="text-slate-500 hover:text-white p-1 toast-close-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+            `;
+
+            toast.addEventListener('click', (e) => {
+                if (e.target.closest('.toast-close-btn')) {
+                    removeToast(toast);
+                    return;
+                }
+                if (tab) switchTab(tab);
+                removeToast(toast);
+            });
+
+            container.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+
+            setTimeout(() => removeToast(toast), 7000);
+        }
+
+        function removeToast(toast) {
+            if (!toast || toast.dataset.removing) return;
+            toast.dataset.removing = 'true';
+            toast.classList.remove('toast-enter');
+            toast.classList.add('toast-exit');
+            setTimeout(() => toast.remove(), 320);
+        }
+
+        // ================= AUTHENTICATION =================
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-                alert("Restricted Access."); await signOut(auth); window.location.href = 'index.html'; return;
+                alert("Restricted Access: You do not have System Admin clearance.");
+                await signOut(auth); window.location.href = 'index.html'; return;
             }
+            
             currentUser = { ...user, fullName: userDoc.data().fullName };
+            document.getElementById('currentAdminName').innerText = currentUser.fullName;
             document.getElementById('mainContent').style.display = 'block';
 
-            // Init core listeners
+            updateAudioUI();
+
+            // Fake Live Session counter
+            setInterval(() => {
+                const base = Math.max(5, Math.floor(allUsers.length * 0.4));
+                const jitter = Math.floor(Math.random() * 7) - 3; 
+                document.getElementById('metric-live').innerText = base + jitter;
+            }, 3500);
+
+            initUsersListener();
+            initPaymentsListener();
+            initContactsListener();
             initSupportListener();
-            // (Assuming other init functions are here like initPaymentsListener, etc. as written previously)
+            initLogsListener();
         });
 
-        // ================= SUPPORT HELPDESK =================
-        function initSupportListener() {
-            // Listen for open tickets or tickets where unreadAdmin is true
-            const q = query(collection(db, "supportTickets"), orderBy("updatedAt", "desc"));
-            
-            onSnapshot(q, (snap) => {
-                const listEl = document.getElementById('ticketList');
-                listEl.innerHTML = '';
-                let unreadCount = 0;
-
-                snap.docChanges().forEach(change => {
-                    if(change.type === 'added' && isAppInitialized) triggerNotificationGlow();
+        // ================= AUDIT LOGGING =================
+        async function logAction(type, desc) {
+            try {
+                await addDoc(collection(db, "auditLogs"), {
+                    timestamp: serverTimestamp(), adminName: currentUser.fullName,
+                    adminUid: currentUser.uid, type: type, description: desc
                 });
+            } catch (e) { console.error(e); }
+        }
 
-                if(snap.empty) {
-                    listEl.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs">No active tickets.</div>';
-                    return;
-                }
+        function initLogsListener() {
+            onSnapshot(collection(db, "auditLogs"), (snap) => {
+                const logs = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                logs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                
+                const tbody = document.getElementById('logsBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                
+                logs.forEach(log => {
+                    const date = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+                    let badgeColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                    if (log.type.includes('APPROVE') || log.type.includes('ACTIVATE')) badgeColor = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+                    if (log.type.includes('REJECT') || log.type.includes('SUSPEND') || log.type.includes('DELETE')) badgeColor = 'bg-red-500/10 text-red-500 border-red-500/20';
+                    if (log.type.includes('ROLE') || log.type.includes('SUPPORT')) badgeColor = 'bg-brand-500/10 text-brand-500 border-brand-500/20';
 
-                snap.forEach(docSnap => {
-                    const t = docSnap.data();
-                    if(t.unreadAdmin) unreadCount++;
-                    
-                    const date = t.updatedAt ? new Date(t.updatedAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    const activeClass = activeTicketId === docSnap.id ? 'bg-white/5 border-l-2 border-brand-500' : 'hover:bg-white/5 border-l-2 border-transparent';
-                    const dot = t.unreadAdmin ? '<div class="w-2 h-2 rounded-full bg-red-500"></div>' : '';
-
-                    listEl.innerHTML += `
-                        <div onclick="openTicket('${docSnap.id}', '${t.userName.replace(/'/g,"\\'")}', '${t.subject.replace(/'/g,"\\'")}')" class="p-4 cursor-pointer transition-colors flex justify-between items-center ${activeClass}">
-                            <div class="overflow-hidden">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold text-white text-sm truncate">${t.userName}</span>
-                                    ${dot}
-                                </div>
-                                <p class="text-xs text-slate-400 truncate">${t.subject}</p>
-                            </div>
-                            <span class="text-[10px] text-slate-500 font-mono">${date}</span>
-                        </div>
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-slate-500 font-mono text-xs">${date}</td>
+                            <td class="p-4 font-bold text-white text-xs md:text-sm">${log.adminName}</td>
+                            <td class="p-4"><span class="px-2.5 py-1 ${badgeColor} border rounded-md text-[10px] font-bold uppercase tracking-widest">${log.type}</span></td>
+                            <td class="p-4 text-slate-300 text-xs md:text-sm font-inter truncate max-w-xs md:max-w-md" title="${log.description.replace(/"/g, "'")}">${log.description}</td>
+                        </tr>
                     `;
                 });
-
-                const badge = document.getElementById('badge-support');
-                const listBadge = document.getElementById('supportUnreadCount');
-                if(unreadCount > 0) {
-                    badge.innerText = unreadCount; badge.classList.remove('hidden');
-                    listBadge.innerText = unreadCount; listBadge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden'); listBadge.classList.add('hidden');
-                }
             });
         }
 
-        window.openTicket = async (ticketId, userName, subject) => {
-            activeTicketId = ticketId;
-            document.getElementById('ticketEmptyState').classList.add('hidden');
-            document.getElementById('activeChatView').classList.remove('hidden');
-            document.getElementById('chatUserName').innerText = userName;
-            document.getElementById('chatUserInitial').innerText = userName.charAt(0).toUpperCase();
-            document.getElementById('chatSubject').innerText = subject;
+        // ================= USERS DIRECTORY =================
+        function initUsersListener() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                userMap = {};
+                allUsers.forEach(u => userMap[u.id] = { name: u.fullName, email: u.email, role: u.role, phone: u.phone });
+                
+                document.getElementById('metric-employees').innerText = allUsers.filter(u => u.role === 'employee').length;
+                document.getElementById('metric-employers').innerText = allUsers.filter(u => u.role === 'employer').length;
+
+                renderUsers();
+                populateNewTicketUsersDropdown();
+            });
+
+            document.getElementById('userSearch').addEventListener('input', renderUsers);
+            document.getElementById('roleFilter').addEventListener('change', renderUsers);
+        }
+
+        function populateNewTicketUsersDropdown() {
+            const select = document.getElementById('newTicketUserSelect');
+            if(!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Select User from Directory --</option>';
+            allUsers.forEach(u => {
+                if (u.id === currentUser?.uid) return;
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.innerText = `${u.fullName || 'User'} (${u.email || 'No email'}) - [${(u.role || 'user').toUpperCase()}]`;
+                select.appendChild(opt);
+            });
+            if(currentVal) select.value = currentVal;
+        }
+
+        function renderUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const roleF = document.getElementById('roleFilter').value;
+            const tbody = document.getElementById('usersBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let filtered = allUsers.filter(u => {
+                const matchSearch = u.fullName?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search);
+                const matchRole = roleF === 'all' || u.role === roleF;
+                return matchSearch && matchRole;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium">No matching users found.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(u => {
+                const roleSelect = `
+                    <select onchange="instantUpdate('${u.id}', 'role', this)" class="bg-[#1a1a1a] border border-white/10 text-white text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full min-w-[120px]">
+                        <option value="employee" ${u.role==='employee'?'selected':''}>Professional</option>
+                        <option value="employer" ${u.role==='employer'?'selected':''}>Employer</option>
+                        <option value="admin" ${u.role==='admin'?'selected':''}>System Admin</option>
+                    </select>
+                `;
+
+                const statusSelect = `
+                    <select onchange="instantUpdate('${u.id}', 'accountStatus', this)" class="bg-[#1a1a1a] border border-white/10 ${u.accountStatus === 'suspended' ? 'text-red-400' : 'text-emerald-400'} text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-white/30 transition-colors w-full min-w-[120px]">
+                        <option value="active" class="text-emerald-400" ${u.accountStatus==='active'?'selected':''}>Active</option>
+                        <option value="suspended" class="text-red-400" ${u.accountStatus==='suspended'?'selected':''}>Suspended</option>
+                    </select>
+                `;
+
+                const stageSelect = `
+                    <select onchange="instantUpdate('${u.id}', 'pipelineStage', this)" ${u.role !== 'employee' ? 'disabled style="opacity:0.5"' : ''} class="bg-[#1a1a1a] border border-white/10 text-slate-300 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full min-w-[140px]">
+                        <option value="1" ${u.pipelineStage==1?'selected':''}>1: Registered</option>
+                        <option value="2" ${u.pipelineStage==2?'selected':''}>2: Action Req</option>
+                        <option value="3" ${u.pipelineStage==3?'selected':''}>3: Under Review</option>
+                        <option value="4" ${u.pipelineStage==4?'selected':''}>4: Verified</option>
+                        <option value="5" ${u.pipelineStage==5?'selected':''}>5: Meeting Set</option>
+                        <option value="6" ${u.pipelineStage==6?'selected':''}>6: Job Offer</option>
+                    </select>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="p-4">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-white text-sm md:text-base">${u.fullName}</span>
+                                <span class="text-slate-400 text-xs md:text-sm">${u.email}</span>
+                            </div>
+                        </td>
+                        <td class="p-4">${roleSelect}</td>
+                        <td class="p-4">${statusSelect}</td>
+                        <td class="p-4">${stageSelect}</td>
+                        <td class="p-4 text-right flex justify-end items-center gap-2">
+                            <button onclick="quickMessageUser('${u.id}')" class="px-3 py-2 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-xl hover:bg-brand-500 hover:text-brand-950 text-xs font-bold transition-all inline-flex items-center gap-1.5" title="Open Support Conversation">
+                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Message
+                            </button>
+                            <button onclick="openProfileModal('${u.id}', '${u.role}')" class="px-4 py-2 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-brand-500 hover:text-black hover:border-brand-500 text-xs font-bold transition-all inline-flex justify-center items-center gap-2">
+                                <i data-lucide="scan-face" class="w-4 h-4"></i> Inspect
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            if(window.lucide) window.lucide.createIcons();
+        }
+
+        window.quickMessageUser = (uid) => {
+            const user = userMap[uid];
+            if(!user) return;
+            openNewTicketModal();
+            const select = document.getElementById('newTicketUserSelect');
+            if (select) select.value = uid;
+        };
+
+        window.instantUpdate = async (uid, field, selectEl) => {
+            const newValue = selectEl.value;
+            const userName = userMap[uid]?.name || 'Unknown User';
             
-            // Mark as read
-            await updateDoc(doc(db, "supportTickets", ticketId), { unreadAdmin: false });
+            try {
+                if (field === 'role') {
+                    if(!confirm(`WARNING: Changing role to ${newValue.toUpperCase()} alters access rights. Proceed?`)) {
+                        renderUsers(); return; 
+                    }
+                    if (newValue !== 'employee') {
+                        await deleteDoc(doc(db, "employeeProfiles", uid));
+                        logAction("DIRECTORY_PRUNE", `Auto-removed ${userName} from Talent Directory due to role change.`);
+                    }
+                }
 
-            // Unsubscribe previous message listener if exists
-            if(messagesUnsubscribe) messagesUnsubscribe();
+                const updateObj = {};
+                updateObj[field] = field === 'pipelineStage' ? parseInt(newValue) : newValue;
+                await updateDoc(doc(db, "users", uid), updateObj);
 
-            // Listen to messages
-            const q = query(collection(db, `supportTickets/${ticketId}/messages`), orderBy("timestamp", "asc"));
-            messagesUnsubscribe = onSnapshot(q, (snap) => {
-                const chatArea = document.getElementById('chatMessages');
-                chatArea.innerHTML = '';
+                selectEl.classList.remove('select-success');
+                void selectEl.offsetWidth; 
+                selectEl.classList.add('select-success');
+                
+                if(field === 'accountStatus') {
+                    selectEl.className = selectEl.className.replace(/text-(red|emerald)-400/g, '');
+                    selectEl.classList.add(newValue === 'suspended' ? 'text-red-400' : 'text-emerald-400');
+                }
+
+                logAction(`UPDATE_${field.toUpperCase()}`, `Changed ${field} for ${userName} to [${newValue}].`);
+            } catch (e) { 
+                alert("Database Error: " + e.message); 
+                renderUsers(); 
+            }
+        };
+
+        // ================= PROFILE INSPECTOR =================
+        window.openProfileModal = async (uid, role) => {
+            const u = allUsers.find(x => x.id === uid);
+            if(!u) return;
+
+            document.getElementById('insp-initial').innerText = (u.fullName || 'U').charAt(0).toUpperCase();
+            document.getElementById('insp-name').innerHTML = `${u.fullName} <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest align-middle ml-2">${u.role}</span>`;
+            document.getElementById('insp-email').innerText = u.email;
+            document.getElementById('insp-phone').innerText = u.phone || 'Not provided';
+            document.getElementById('insp-created').innerText = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : 'Unknown';
+
+            const extGrid = document.getElementById('insp-extended-grid');
+            extGrid.innerHTML = '<div class="col-span-1 sm:col-span-2 text-center text-slate-500 text-sm py-4"><div class="w-5 h-5 border-2 border-slate-500/30 border-t-slate-500 rounded-full animate-spin mx-auto mb-2"></div>Fetching database...</div>';
+            document.getElementById('profileModal').classList.add('active');
+
+            try {
+                let html = '';
+                if (role === 'employee') {
+                    const snap = await getDoc(doc(db, "employeeProfiles", uid));
+                    if(snap.exists()) {
+                        const d = snap.data();
+                        html += `
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">City</span><span class="text-white font-bold text-sm">${d.city || '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Qualification</span><span class="text-white font-bold text-sm">${d.qualification || '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Experience</span><span class="text-white font-bold text-sm">${d.experienceLevel || '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Skills</span><div class="flex flex-wrap gap-2 mt-2">${(d.skills||[]).map(s=>`<span class="px-2 py-1 bg-black border border-white/10 rounded text-xs font-bold text-slate-300">${s}</span>`).join('')}</div></div>
+                        `;
+                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No public directory profile found.</div>'; }
+                } else if (role === 'employer') {
+                    const snap = await getDoc(doc(db, "employerProfiles", uid));
+                    if(snap.exists()) {
+                        const d = snap.data();
+                        html += `
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Company Name</span><span class="text-white font-bold text-sm">${d.companyName || '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Industry</span><span class="text-white font-bold text-sm">${d.industry || '-'}</span></div>
+                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Website</span><span class="text-brand-500 font-bold text-sm">${d.website ? `<a href="${d.website}" target="_blank" class="hover:underline">${d.website}</a>` : '-'}</span></div>
+                        `;
+                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No employer data found.</div>'; }
+                } else {
+                    html = '<div class="sm:col-span-2 text-slate-500 text-sm">System administrators do not have extended profiles.</div>';
+                }
+                extGrid.innerHTML = html;
+            } catch(e) { extGrid.innerHTML = '<div class="sm:col-span-2 text-red-500 text-sm">Failed to load extended data.</div>'; }
+        };
+
+        // ================= PAYMENTS (UTR) =================
+        function initPaymentsListener() {
+            onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
+                const count = snap.size;
+                const badge = document.getElementById('badge-payments');
+                if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+
+                // Check for new incoming UTR payments to trigger sound & toast
+                if (!isInitialLoadPayments) {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' && !knownPaymentIds.has(change.doc.id)) {
+                            knownPaymentIds.add(change.doc.id);
+                            const pData = change.doc.data();
+                            const empName = userMap[pData.employeeUid]?.name || 'Professional';
+                            showToastNotification({
+                                title: 'New UTR Payment Received',
+                                message: `UTR: ${pData.utr} (₹${pData.amount}) submitted by ${empName}`,
+                                tab: 'payments',
+                                icon: 'indian-rupee'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => knownPaymentIds.add(d.id));
+                    isInitialLoadPayments = false;
+                }
+
+                let rev = 0;
+                getDocs(query(collection(db, "payments"), where("status", "==", "approved"))).then(s => {
+                    s.forEach(d => rev += (d.data().amount || 0));
+                    document.getElementById('metric-revenue').innerText = rev.toLocaleString('en-IN');
+                }).catch(e => console.error(e));
+
+                const tbody = document.getElementById('paymentsBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                if(snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium">Queue empty. No pending verifications.</td></tr>'; 
+                    return; 
+                }
                 
                 snap.forEach(docSnap => {
-                    const m = docSnap.data();
-                    const isSystem = m.senderRole === 'admin';
-                    
-                    const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    const align = isSystem ? 'self-end' : 'self-start';
-                    const bg = isSystem ? 'bg-brand-500 text-black rounded-tl-xl rounded-tr-xl rounded-bl-xl' : 'bg-[#1a1a1a] border border-white/10 text-white rounded-tr-xl rounded-bl-xl rounded-br-xl';
-                    
-                    let imageHtml = '';
-                    if(m.imageBase64) {
-                        imageHtml = `<img src="${m.imageBase64}" class="max-w-xs md:max-w-sm rounded-lg mb-2 cursor-pointer border ${isSystem ? 'border-brand-600/30' : 'border-white/10'}" onclick="window.open('${m.imageBase64}')">`;
-                    }
+                    const data = docSnap.data();
+                    const empName = userMap[data.employeeUid]?.name || 'Unknown User';
+                    const date = data.submittedAt ? new Date(data.submittedAt.seconds * 1000).toLocaleDateString() : 'Recent';
 
-                    chatArea.innerHTML += `
-                        <div class="flex flex-col max-w-[85%] ${align} mb-4">
-                            <span class="text-[10px] text-slate-500 mb-1 px-1 ${isSystem ? 'text-right' : 'text-left'}">${isSystem ? 'You (Admin)' : userName} • ${time}</span>
-                            <div class="p-3 md:p-4 shadow-md ${bg}">
-                                ${imageHtml}
-                                <p class="text-sm">${m.message}</p>
-                            </div>
-                        </div>
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="p-5 font-bold text-white text-xs md:text-sm">${empName}</td>
+                            <td class="p-5 font-mono font-bold text-white tracking-widest bg-black/40 rounded">${data.utr}</td>
+                            <td class="p-5 text-brand-500 font-bold">₹${data.amount}</td>
+                            <td class="p-5 text-slate-400 text-xs md:text-sm">${date}</td>
+                            <td class="p-5 text-right">
+                                <button onclick="openUtrModal('${docSnap.id}', '${empName.replace(/'/g,"\\'")}', '${data.utr}', '${data.amount}', '${data.employeeUid}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-xs font-bold transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                    Review UTR
+                                </button>
+                            </td>
+                        </tr>
                     `;
                 });
+            });
+        }
+
+        window.openUtrModal = (payId, name, utr, amount, uid) => {
+            currentReviewPaymentId = { id: payId, name: name, uid: uid };
+            document.getElementById('modal-pay-name').innerText = name;
+            document.getElementById('modal-utr').innerText = utr;
+            document.getElementById('modal-amount').innerText = `₹${amount}`;
+            document.getElementById('utrModal').classList.add('active');
+        };
+
+        document.getElementById('btn-approve-utr').addEventListener('click', async () => {
+            if(!currentReviewPaymentId) return;
+            const btn = document.getElementById('btn-approve-utr');
+            btn.innerHTML = 'Verifying...'; btn.disabled = true;
+            try {
+                await updateDoc(doc(db, "payments", currentReviewPaymentId.id), {
+                    status: 'approved', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid
+                });
                 
-                // Auto scroll to bottom
-                chatArea.scrollTop = chatArea.scrollHeight;
+                await updateDoc(doc(db, "users", currentReviewPaymentId.uid), { pipelineStage: 4 });
+
+                logAction("APPROVE_UTR", `Verified ₹99 payment for professional ${currentReviewPaymentId.name}.`);
+                closeUtrModal();
+            } catch(e) { alert("Failed: " + e.message); } 
+            finally { btn.innerHTML = '<i data-lucide="check-circle-2" class="w-5 h-5"></i> Approve & Verify'; btn.disabled = false; if(window.lucide) window.lucide.createIcons(); }
+        });
+
+        document.getElementById('btn-reject-utr').addEventListener('click', async () => {
+            if(!currentReviewPaymentId) return;
+            if(!confirm("Are you sure you want to REJECT this UTR submission?")) return;
+            try {
+                await updateDoc(doc(db, "payments", currentReviewPaymentId.id), {
+                    status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid, adminNotes: 'Invalid UTR submitted.'
+                });
+                
+                await updateDoc(doc(db, "users", currentReviewPaymentId.uid), { pipelineStage: 1 });
+
+                logAction("REJECT_UTR", `Rejected invalid UTR from professional ${currentReviewPaymentId.name}.`);
+                closeUtrModal();
+            } catch(e) { alert("Failed: " + e.message); }
+        });
+
+        // ================= CONTACT REQUESTS =================
+        function initContactsListener() {
+            onSnapshot(query(collection(db, "contactRequests"), where("status", "==", "pending")), (snap) => {
+                const count = snap.size;
+                const badge = document.getElementById('badge-contacts');
+                if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+
+                // Check for new incoming contact access requests
+                if (!isInitialLoadContacts) {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' && !knownContactIds.has(change.doc.id)) {
+                            knownContactIds.add(change.doc.id);
+                            const cData = change.doc.data();
+                            const empName = userMap[cData.employerUid]?.name || 'Employer';
+                            const profName = userMap[cData.employeeUid]?.name || 'Professional';
+                            showToastNotification({
+                                title: 'New Access Request',
+                                message: `${empName} requested direct contact info of ${profName}`,
+                                tab: 'contacts',
+                                icon: 'shield-check'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => knownContactIds.add(d.id));
+                    isInitialLoadContacts = false;
+                }
+
+                const tbody = document.getElementById('contactsBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                if(snap.empty) { 
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-12 text-center text-slate-500 font-medium">Queue empty. No pending access requests.</td></tr>'; 
+                    return; 
+                }
+                
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const employerName = userMap[data.employerUid]?.name || 'Unknown Employer';
+                    const employeeName = userMap[data.employeeUid]?.name || 'Unknown Professional';
+                    const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'Recent';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="p-5 font-bold text-white text-xs md:text-sm flex items-center gap-2"><i data-lucide="building" class="w-4 h-4 text-slate-500"></i> ${employerName}</td>
+                            <td class="p-5 font-bold text-white text-xs md:text-sm"><i data-lucide="user" class="w-4 h-4 text-slate-500 inline mr-1"></i> ${employeeName}</td>
+                            <td class="p-5 text-slate-400 text-xs md:text-sm">${date}</td>
+                            <td class="p-5 text-right flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <button onclick="approveContact('${docSnap.id}', '${data.employerUid}', '${data.employeeUid}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-[10px] md:text-xs font-bold flex items-center gap-2 transition-colors shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                    <i data-lucide="unlock" class="w-4 h-4"></i> Release
+                                </button>
+                                <button onclick="rejectContact('${docSnap.id}', '${employerName.replace(/'/g,"\\'")}', '${employeeName.replace(/'/g,"\\'")}')" class="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl hover:bg-red-500/20 text-[10px] md:text-xs font-bold flex items-center gap-2 transition-colors">
+                                    <i data-lucide="shield-ban" class="w-4 h-4"></i> Deny
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                if(window.lucide) window.lucide.createIcons();
+            });
+        }
+
+        window.approveContact = async (reqId, employerUid, employeeUid, empName, profName) => {
+            if(!confirm(`SECURITY WARNING: This action permanently exposes ${profName}'s private phone & email to ${empName}. Proceed?`)) return;
+            try {
+                const userDoc = await getDoc(doc(db, "users", employeeUid));
+                if (!userDoc.exists()) throw new Error("Professional's private record missing.");
+                
+                const privateData = userDoc.data();
+                await addDoc(collection(db, "contactShares"), {
+                    employerUid, employeeUid, phone: privateData.phone, email: privateData.email,
+                    sharedBy: currentUser.uid, sharedAt: serverTimestamp()
+                });
+                await updateDoc(doc(db, "contactRequests", reqId), { status: 'approved', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
+                
+                logAction("APPROVE_ACCESS", `Released secure contact details of ${profName} to employer ${empName}.`);
+            } catch (e) { alert("Failed: " + e.message); }
+        };
+
+        window.rejectContact = async (reqId, empName, profName) => {
+            if(!confirm(`Deny access request from ${empName}?`)) return;
+            try {
+                await updateDoc(doc(db, "contactRequests", reqId), { status: 'rejected', reviewedAt: serverTimestamp(), reviewedBy: currentUser.uid });
+                logAction("REJECT_ACCESS", `Denied access request from ${empName} for professional ${profName}.`);
+            } catch(e) { alert("Failed: " + e.message); }
+        };
+
+        // ================= SUPPORT SYSTEM & CHAT =================
+        function initSupportListener() {
+            onSnapshot(collection(db, "supportTickets"), (snap) => {
+                allTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                // Sort by updatedAt descending
+                allTickets.sort((a,b) => {
+                    const tA = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+                    const tB = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+                    return tB - tA;
+                });
+
+                // Update unread / open badge
+                const unreadCount = allTickets.filter(t => t.unreadAdmin === true || t.status === 'open').length;
+                const badge = document.getElementById('badge-support');
+                if (badge) {
+                    badge.innerText = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                }
+
+                // Check for new incoming support tickets or user messages
+                if (!isInitialLoadTickets) {
+                    snap.docChanges().forEach(change => {
+                        const tData = change.doc.data();
+                        const prevTime = knownTicketMessageTimestamps.get(change.doc.id) || 0;
+                        const currTime = tData.updatedAt?.seconds || tData.createdAt?.seconds || 0;
+
+                        if (currTime > prevTime && tData.lastSender !== 'admin') {
+                            knownTicketMessageTimestamps.set(change.doc.id, currTime);
+                            showToastNotification({
+                                title: `Support Alert: ${tData.userName || 'User'}`,
+                                message: tData.lastMessage || 'New inquiry received in Support Desk',
+                                tab: 'support',
+                                icon: 'headphones'
+                            });
+                        }
+                    });
+                } else {
+                    snap.forEach(d => {
+                        const tData = d.data();
+                        knownTicketMessageTimestamps.set(d.id, tData.updatedAt?.seconds || tData.createdAt?.seconds || 0);
+                    });
+                    isInitialLoadTickets = false;
+                }
+
+                renderTicketsList();
+
+                // If active ticket updated remotely, refresh its header info
+                if (activeTicketId) {
+                    const activeTicket = allTickets.find(t => t.id === activeTicketId);
+                    if (activeTicket) updateActiveTicketHeaderUI(activeTicket);
+                }
+            });
+
+            document.getElementById('ticketSearch').addEventListener('input', renderTicketsList);
+        }
+
+        window.filterTickets = (status) => {
+            currentTicketFilter = status;
+            ['all', 'open', 'in-progress', 'resolved'].forEach(s => {
+                const btn = document.getElementById(`ticketFilter-${s}`);
+                if (!btn) return;
+                if (s === status) {
+                    btn.className = 'px-3 py-1 rounded-lg bg-brand-500/20 text-brand-500 border border-brand-500/30 whitespace-nowrap text-[11px] font-bold transition-all';
+                } else {
+                    btn.className = 'px-3 py-1 rounded-lg text-slate-400 hover:text-white bg-white/5 border border-transparent whitespace-nowrap text-[11px] transition-all';
+                }
+            });
+            renderTicketsList();
+        };
+
+        function renderTicketsList() {
+            const container = document.getElementById('ticketsListContainer');
+            if(!container) return;
+
+            const search = (document.getElementById('ticketSearch')?.value || '').toLowerCase();
+
+            const filtered = allTickets.filter(t => {
+                const matchStatus = currentTicketFilter === 'all' || t.status === currentTicketFilter;
+                const matchSearch = !search || 
+                    t.userName?.toLowerCase().includes(search) || 
+                    t.userEmail?.toLowerCase().includes(search) || 
+                    t.subject?.toLowerCase().includes(search) || 
+                    t.id.toLowerCase().includes(search);
+                return matchStatus && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                        <i data-lucide="search-x" class="w-8 h-8 mb-2 opacity-30"></i>
+                        No tickets matching filter.
+                    </div>
+                `;
+                if(window.lucide) window.lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(ticket => {
+                const isActive = ticket.id === activeTicketId;
+                const isUnread = ticket.unreadAdmin === true;
+                const date = ticket.updatedAt ? new Date(ticket.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+
+                let statusBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                if (ticket.status === 'in-progress') statusBadge = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                if (ticket.status === 'resolved') statusBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+
+                let roleBadge = ticket.userRole === 'employer' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-brand-500/10 text-brand-500 border-brand-500/20';
+
+                const card = document.createElement('div');
+                card.className = `p-4 cursor-pointer transition-all border-l-4 ${isActive ? 'bg-white/10 border-brand-500' : 'hover:bg-white/5 border-transparent'}`;
+                card.onclick = () => selectTicket(ticket.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-1.5">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-[#1c1c1c] border border-white/10 flex items-center justify-center text-xs font-bold text-brand-500 flex-shrink-0">
+                                ${(ticket.userName || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-bold text-sm text-white truncate">${ticket.userName || 'Unknown'}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider border ${roleBadge}">${ticket.userRole || 'User'}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            ${isUnread ? '<span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>' : ''}
+                            <span class="text-[11px] text-slate-500 font-mono">${date}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-300 truncate mb-1">${ticket.subject || 'Support Request'}</p>
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[11px] text-slate-400 font-inter truncate flex-1">
+                            ${ticket.lastSender === 'admin' ? '<span class="text-brand-500 font-bold">You: </span>' : ''}
+                            ${ticket.lastMessage || 'Attachment sent'}
+                        </p>
+                        <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${statusBadge}">${ticket.status || 'open'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            if(window.lucide) window.lucide.createIcons();
+        }
+
+        window.selectTicket = async (ticketId) => {
+            activeTicketId = ticketId;
+            const ticket = allTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('ticketEmptyState').classList.add('hidden');
+            const chatContainer = document.getElementById('ticketChatContainer');
+            chatContainer.classList.remove('hidden');
+
+            updateActiveTicketHeaderUI(ticket);
+            renderTicketsList(); // Refresh active highlight
+
+            // Mark unreadAdmin as false
+            if (ticket.unreadAdmin) {
+                try {
+                    await updateDoc(doc(db, "supportTickets", ticketId), { unreadAdmin: false });
+                } catch(e) {}
+            }
+
+            // Unsubscribe existing messages listener
+            if (activeTicketMessagesUnsub) {
+                activeTicketMessagesUnsub();
+                activeTicketMessagesUnsub = null;
+            }
+
+            // Listen to messages subcollection
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.innerHTML = '<div class="p-12 text-center text-slate-500 text-xs font-inter"><div class="w-6 h-6 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto mb-2"></div>Loading conversation...</div>';
+
+            const msgsQuery = query(collection(db, "supportTickets", ticketId, "messages"), orderBy("createdAt", "asc"));
+            activeTicketMessagesUnsub = onSnapshot(msgsQuery, (snapshot) => {
+                messagesArea.innerHTML = '';
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = `
+                        <div class="p-8 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                            <i data-lucide="message-circle" class="w-8 h-8 mb-2 opacity-30"></i>
+                            No messages yet. Send a greeting or instruction below.
+                        </div>
+                    `;
+                    if(window.lucide) window.lucide.createIcons();
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const isAdmin = msg.senderRole === 'admin';
+                    const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
+
+                    const msgEl = document.createElement('div');
+                    msgEl.className = `flex flex-col ${isAdmin ? 'items-end' : 'items-start'} space-y-1`;
+
+                    let imageHtml = '';
+                    if (msg.imageBase64) {
+                        imageHtml = `
+                            <div class="mt-2">
+                                <img src="${msg.imageBase64}" alt="Proof Attachment" class="max-w-xs md:max-w-sm max-h-60 rounded-xl object-cover border border-white/10 shadow-md cursor-pointer hover:opacity-90 transition-opacity" onclick="openImagePreview('${msg.imageBase64.replace(/'/g, "\\'")}')">
+                            </div>
+                        `;
+                    }
+
+                    if (isAdmin) {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-brand-500">${msg.senderName || 'Support Admin'}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-gradient-to-r from-brand-500 to-amber-500 text-brand-950 font-medium px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm max-w-lg shadow-[0_0_15px_rgba(234,179,8,0.2)] break-words">
+                                ${msg.text ? `<p class="font-inter whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    } else {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-white">${msg.senderName || ticket.userName}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-white/10 text-white px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm max-w-lg shadow-md break-words">
+                                ${msg.text ? `<p class="font-inter text-slate-200 whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    }
+
+                    messagesArea.appendChild(msgEl);
+                });
+
+                // Scroll to bottom
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                if(window.lucide) window.lucide.createIcons();
             });
         };
 
-        window.closeTicket = async () => {
-            if(!activeTicketId || !confirm("Mark this ticket as resolved and close it?")) return;
-            await updateDoc(doc(db, "supportTickets", activeTicketId), { status: 'closed', updatedAt: serverTimestamp() });
+        function updateActiveTicketHeaderUI(ticket) {
+            document.getElementById('chatUserName').innerText = ticket.userName || 'User';
+            document.getElementById('chatUserAvatar').innerText = (ticket.userName || 'U').charAt(0).toUpperCase();
             
-            document.getElementById('activeChatView').classList.add('hidden');
-            document.getElementById('ticketEmptyState').classList.remove('hidden');
-            activeTicketId = null;
-            if(messagesUnsubscribe) messagesUnsubscribe();
+            const roleEl = document.getElementById('chatUserRoleBadge');
+            roleEl.innerText = (ticket.userRole || 'USER').toUpperCase();
+            
+            const priorityEl = document.getElementById('chatPriorityBadge');
+            priorityEl.innerText = (ticket.priority || 'NORMAL').toUpperCase();
+            if (ticket.priority === 'urgent') {
+                priorityEl.className = 'px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse';
+            } else {
+                priorityEl.className = 'px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20';
+            }
+
+            document.getElementById('chatTicketSubject').innerText = `ID: ${ticket.id.substring(0,8)} • ${ticket.subject || 'No Subject'}`;
+            document.getElementById('chatStatusSelect').value = ticket.status || 'open';
+
+            const inspectBtn = document.getElementById('chatInspectUserBtn');
+            inspectBtn.onclick = () => openProfileModal(ticket.userId, ticket.userRole || 'employee');
+        }
+
+        window.updateActiveTicketStatus = async (newStatus) => {
+            if (!activeTicketId) return;
+            try {
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    status: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+                logAction("SUPPORT_STATUS", `Ticket ${activeTicketId.substring(0,8)} status updated to [${newStatus}].`);
+            } catch(e) {
+                alert("Failed to update status: " + e.message);
+            }
         };
 
-        document.getElementById('replyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(!activeTicketId) return;
+        // Preloaded Canned Messages helper
+        window.insertQuickMessage = (msg) => {
+            const input = document.getElementById('chatInputMessage');
+            if (input) {
+                input.value = msg;
+                input.focus();
+            }
+        };
 
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            const imgData = window.currentBase64Image; // from global scope
+        // Base64 Image Compression & Handling
+        window.handleImageSelection = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            if(!msg && !imgData) return;
-            
-            const btn = document.getElementById('sendReplyBtn');
-            btn.disabled = true; btn.innerHTML = '<div class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>';
+            if (!file.type.startsWith('image/')) {
+                alert('Only image attachments are supported.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressedBase64) => {
+                    currentAttachedBase64 = compressedBase64;
+                    const preview = document.getElementById('imageAttachmentPreview');
+                    const thumb = document.getElementById('imageAttachmentThumb');
+                    const sizeEl = document.getElementById('imageAttachmentSize');
+                    
+                    thumb.src = compressedBase64;
+                    const sizeKb = Math.round((compressedBase64.length * 3 / 4) / 1024);
+                    sizeEl.innerText = `Base64 Image (${sizeKb} KB)`;
+                    preview.classList.remove('hidden');
+                    if(window.lucide) window.lucide.createIcons();
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImageAttachment = () => {
+            currentAttachedBase64 = null;
+            document.getElementById('imageAttachmentPreview').classList.add('hidden');
+            document.getElementById('ticketImageInput').value = '';
+        };
+
+        // Utility: HTML5 Canvas Image Compression to keep Base64 safely under Firestore 1MB doc limits
+        function compressImage(base64Str, maxWidth, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
+
+        window.handleChatInputKeyDown = (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        };
+
+        // Send Support Message
+        window.sendChatMessage = async () => {
+            if (!activeTicketId) return;
+
+            const input = document.getElementById('chatInputMessage');
+            const text = input.value.trim();
+            const imageBase64 = currentAttachedBase64;
+
+            if (!text && !imageBase64) return;
+
+            const btn = document.getElementById('chatSendBtn');
+            btn.disabled = true;
 
             try {
                 // Add message to subcollection
-                await addDoc(collection(db, `supportTickets/${activeTicketId}/messages`), {
+                await addDoc(collection(db, "supportTickets", activeTicketId, "messages"), {
                     senderId: currentUser.uid,
+                    senderName: currentUser.fullName,
                     senderRole: 'admin',
-                    message: msg,
-                    imageBase64: imgData,
-                    timestamp: serverTimestamp()
+                    text: text || '',
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
                 });
 
-                // Update parent ticket to notify user
+                // Update ticket parent doc
                 await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    lastMessage: text || 'Sent an image attachment',
+                    lastSender: 'admin',
                     updatedAt: serverTimestamp(),
                     unreadUser: true
                 });
 
+                // Clear input & attachment
                 input.value = '';
-                window.removeImagePreview(); // clears the preview and global var
-            } catch(err) {
-                alert("Failed to send message: " + err.message);
+                clearImageAttachment();
+            } catch (e) {
+                alert("Failed to send message: " + e.message);
             } finally {
-                btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i>';
+                btn.disabled = false;
+            }
+        };
+
+        // New Ticket Form handling
+        window.handleNewTicketImage = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    newTicketAttachedBase64 = compressed;
+                    document.getElementById('newTicketImagePreview').src = compressed;
+                    document.getElementById('newTicketImagePreviewContainer').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearNewTicketImage = () => {
+            newTicketAttachedBase64 = null;
+            document.getElementById('newTicketImagePreviewContainer').classList.add('hidden');
+            document.getElementById('newTicketImageInput').value = '';
+        };
+
+        window.submitNewTicket = async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('newTicketUserSelect').value;
+            const subject = document.getElementById('newTicketSubject').value.trim();
+            const priority = document.getElementById('newTicketPriority').value;
+            const message = document.getElementById('newTicketMessage').value.trim();
+            const imageBase64 = newTicketAttachedBase64;
+
+            if (!userId || !subject || !message) {
+                alert('Please complete all required fields.');
+                return;
+            }
+
+            const targetUser = userMap[userId];
+            const btn = document.getElementById('btnSubmitNewTicket');
+            btn.disabled = true;
+            btn.innerHTML = 'Dispatching Ticket...';
+
+            try {
+                // 1. Create ticket doc
+                const ticketRef = await addDoc(collection(db, "supportTickets"), {
+                    userId: userId,
+                    userName: targetUser?.name || 'User',
+                    userEmail: targetUser?.email || '',
+                    userRole: targetUser?.role || 'employee',
+                    subject: subject,
+                    priority: priority,
+                    status: 'open',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    lastMessage: message,
+                    lastSender: 'admin',
+                    unreadAdmin: false,
+                    unreadUser: true
+                });
+
+                // 2. Add first message
+                await addDoc(collection(db, "supportTickets", ticketRef.id, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: currentUser.fullName,
+                    senderRole: 'admin',
+                    text: message,
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                logAction("CREATE_TICKET", `Created support ticket for ${targetUser?.name || 'User'} [Subject: ${subject}].`);
+
+                // Reset and close
+                document.getElementById('newTicketForm').reset();
+                clearNewTicketImage();
+                closeNewTicketModal();
+
+                // Switch to support tab and select the ticket
+                switchTab('support');
+                setTimeout(() => selectTicket(ticketRef.id), 500);
+
+            } catch (err) {
+                alert("Failed to create support ticket: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Create & Dispatch';
                 if(window.lucide) window.lucide.createIcons();
             }
+        };
+
+        // ================= SMOOTH LOGOUT =================
+        document.getElementById('logoutBtn').addEventListener('click', () => { 
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 bg-[#050505] z-[9999] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center";
+            overlay.innerHTML = `
+                <div class="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4"></div>
+                <p class="text-brand-500 font-bold tracking-widest uppercase text-sm">Destroying Session...</p>
+            `;
+            document.body.appendChild(overlay);
+            
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            });
+
+            setTimeout(() => {
+                logAction("LOGOUT", `System Operator session securely terminated.`);
+                setTimeout(() => signOut(auth).then(() => window.location.href = 'index.html'), 300);
+            }, 600);
         });
 
     </script>
