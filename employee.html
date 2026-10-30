@@ -961,15 +961,7 @@
                     badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
                 }
 
-                // Check for new incoming replies from admin
-                if (!isInitialLoadTickets) {
-                    snapshot.docChanges().forEach(change => {
-                        const tData = change.doc.data();
-                        const prevTime = knownTicketTimestamps.get(change.doc.id) || 0;
-                        const currTime = tData.updatedAt?.seconds || tData.createdAt?.seconds || 0;
 
-                    });
-                }
 
                 renderUserTicketsList();
 
@@ -979,6 +971,18 @@
                         const badgeEl = document.getElementById('activeTicketStatusBadge');
                         if (badgeEl) badgeEl.innerText = (currentActive.status || 'open').toUpperCase();
                     }
+                }
+            }, (error) => {
+                console.error("Error loading employee tickets:", error);
+                const container = document.getElementById('userTicketsList');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                            <i data-lucide="alert-circle" class="w-8 h-8 mb-2 text-amber-500/50"></i>
+                            <span>Unable to load inquiries. Please check your connection.</span>
+                        </div>
+                    `;
+                    if (window.lucide) window.lucide.createIcons();
                 }
             });
         }
