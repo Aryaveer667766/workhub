@@ -26,15 +26,13 @@
                         brand: {
                             500: '#eab308', /* Primary Gold */
                             600: '#ca8a04', 
-                            800: '#1a1a1a', 
                             900: '#111111', 
                             950: '#0a0a0a',
                         }
                     },
                     animation: {
-                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'glow': 'glow 3s ease-in-out infinite alternate',
-                        'marquee': 'marquee 25s linear infinite',
+                        'marquee': 'marquee 20s linear infinite',
                     },
                     keyframes: {
                         glow: {
@@ -43,7 +41,7 @@
                         },
                         marquee: {
                             '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-50%)' }
+                            '100%': { transform: 'translateX(-100%)' }
                         }
                     }
                 }
@@ -55,11 +53,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Mobile strict viewport handling */
+        /* Strict Layout Rules */
         html, body {
             overflow-x: hidden;
             width: 100%;
-            position: relative;
             background-color: #050505;
             color: #f8fafc;
             -webkit-font-smoothing: antialiased;
@@ -73,22 +70,13 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
         }
 
-        /* Hero Background - constrained to prevent scroll */
-        .hero-bg {
-            background-image: 
-                radial-gradient(circle at 100% 0%, rgba(234, 179, 8, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
-            background-size: cover;
-            background-position: center;
-        }
-
         /* Marquee Fading Edges */
         .mask-marquee { 
-            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); 
-            mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); 
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); 
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); 
         }
 
-        /* Mobile-Optimized Modal Transitions */
+        /* Modal Transitions */
         .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -103,11 +91,8 @@
         .reveal { opacity: 0; transform: translateY(20px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
         
-        /* Select Form Styling Fix for Dark Mode */
         select option { background-color: #111; color: #fff; }
-        
-        /* Stop iOS Safari from zooming in on inputs */
-        input, select, textarea { font-size: 16px !important; }
+        input, select { font-size: 16px !important; } /* Prevents iOS zooming */
     </style>
 </head>
 <body class="relative">
@@ -116,7 +101,7 @@
     <nav class="glass-nav fixed w-full top-0 z-[60] transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <!-- Exact SVG Logo[cite: 1] -->
+                <!-- Exact SVG Logo -->
                 <a href="#" class="flex items-center gap-3 group shrink-0">
                     <div class="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 animate-glow">
                         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full group-hover:scale-105 transition-transform duration-300">
@@ -147,7 +132,7 @@
                     <div class="h-5 w-px bg-white/10"></div>
                     
                     <button onclick="openAuth('login')" class="text-sm font-bold text-white hover:text-brand-500 transition-colors">Log In</button>
-                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_25px_rgba(234,179,8,0.4)] hover:-translate-y-0.5">Join Network</button>
+                    <button onclick="openAuth('register-employee')" class="px-5 py-2.5 text-sm font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_15px_rgba(234,179,8,0.2)]">Join Network</button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -165,19 +150,16 @@
             <a href="#advantage" class="text-white hover:text-brand-500 transition-colors" onclick="closeMobileMenu()">The Advantage</a>
             <hr class="border-white/10">
             <button onclick="openAuth('login'); closeMobileMenu();" class="text-left text-brand-500 w-full">Secure Log In</button>
-            <button onclick="openAuth('register-employee'); closeMobileMenu();" class="w-full py-4 bg-brand-500 text-black font-extrabold rounded-xl text-center shadow-lg shadow-brand-500/20">Join Network</button>
-            <button onclick="openAuth('register-employer'); closeMobileMenu();" class="w-full py-4 bg-transparent border border-white/20 text-white font-extrabold rounded-xl text-center">Hire Talent</button>
+            <button onclick="openAuth('register-employee'); closeMobileMenu();" class="w-full py-4 bg-brand-500 text-black font-extrabold rounded-xl text-center">Join Network</button>
         </div>
     </div>
 
-    <!-- Hero Section (Strictly constrained overflow) -->
-    <section class="relative pt-32 pb-16 md:pt-48 md:pb-24 px-4 overflow-hidden hero-bg min-h-[90svh] flex flex-col justify-center">
-        <!-- Background glows securely positioned -->
-        <div class="absolute top-0 right-0 w-[50vw] h-[50vw] max-w-[400px] max-h-[400px] bg-brand-500/10 rounded-full mix-blend-screen filter blur-[80px] md:blur-[120px] pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto relative z-10 text-center w-full">
-            <!-- Trust Badge -->
-            <div class="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 reveal backdrop-blur-sm">
+    <!-- 100% BULLETPROOF HERO SECTION -->
+    <section class="relative pt-32 pb-16 md:pt-48 md:pb-24 w-full flex flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-600/10 via-[#050505] to-[#050505]">
+        
+        <div class="max-w-5xl mx-auto px-4 text-center z-10 w-full">
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 md:py-2 rounded-full bg-white/5 border border-white/10 text-brand-400 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 reveal">
                 <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
@@ -185,92 +167,85 @@
                 100% Manually Verified Profiles
             </div>
 
-            <!-- Headline (Scaled for Mobile) -->
             <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-4 md:mb-6 leading-[1.15] reveal" style="transition-delay: 100ms;">
                 The premium network for <br class="hidden sm:block" />
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-brand-500 to-brand-600">verified talent.</span>
             </h1>
             
-            <!-- Subheadline -->
-            <p class="text-sm sm:text-base md:text-xl text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-inter leading-relaxed reveal px-2" style="transition-delay: 200ms;">
-                WorkHub connects industry-leading companies with rigorously vetted professionals. 
-                Privacy-first, manually verified, and engineered for serious career growth.
+            <p class="text-sm sm:text-base md:text-xl text-slate-400 mb-8 md:mb-10 max-w-2xl mx-auto font-inter leading-relaxed reveal" style="transition-delay: 200ms;">
+                WorkHub connects industry-leading companies with rigorously vetted professionals. Privacy-first, manually verified, and engineered for serious career growth.
             </p>
             
-            <!-- CTA Buttons (Stack on mobile) -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-4 sm:px-0 reveal" style="transition-delay: 300ms;">
-                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-sm md:text-base font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all duration-300 shadow-[0_0_20px_rgba(234,179,8,0.2)] md:hover:shadow-[0_0_35px_rgba(234,179,8,0.4)] md:hover:-translate-y-1 flex items-center justify-center gap-2 group">
+                <button onclick="openAuth('register-employee')" class="w-full sm:w-auto px-8 py-4 text-sm md:text-base font-extrabold text-black bg-brand-500 rounded-xl hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex items-center justify-center gap-2 group">
                     Join as Professional
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
-                <button onclick="openAuth('register-employer')" class="w-full sm:w-auto px-8 py-4 text-sm md:text-base font-bold text-white bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 md:hover:-translate-y-1">
+                <button onclick="openAuth('register-employer')" class="w-full sm:w-auto px-8 py-4 text-sm md:text-base font-bold text-white bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2">
                     Hire Talent <span class="text-slate-500 font-medium ml-1">— Free</span>
                 </button>
             </div>
             
-            <!-- Infinite Marquee: Real Industry Leaders -->
-            <div class="mt-16 md:mt-24 pt-8 border-t border-white/5 w-full overflow-hidden reveal" style="transition-delay: 400ms;">
-                <p class="text-[0.6rem] md:text-[0.65rem] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Professionals hired by industry leaders</p>
+            <!-- FIXED BULLETPROOF MARQUEE -->
+            <div class="mt-16 md:mt-24 pt-8 border-t border-white/5 w-full reveal" style="transition-delay: 400ms;">
+                <p class="text-[0.6rem] md:text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest mb-6">Professionals hired by industry leaders</p>
                 
-                <div class="relative w-full mask-marquee">
-                    <div class="flex w-[200%] md:w-[150%] animate-marquee items-center justify-around">
-                        <!-- SET 1 -->
-                        <div class="flex-1 flex justify-around items-center px-4">
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
-                        </div>
-                        <!-- SET 2 (Duplicate for loop) -->
-                        <div class="flex-1 flex justify-around items-center px-4">
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
-                            <span class="text-lg md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
-                        </div>
+                <div class="flex overflow-hidden mask-marquee w-full select-none">
+                    <!-- Setup 2 identical blocks that each take up minimum 100% of the screen width and translate completely off -->
+                    <div class="flex animate-marquee shrink-0 items-center justify-around gap-8 md:gap-16 pr-8 md:pr-16 min-w-full">
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
+                    </div>
+                    <!-- Identical duplicate -->
+                    <div class="flex animate-marquee shrink-0 items-center justify-around gap-8 md:gap-16 pr-8 md:pr-16 min-w-full" aria-hidden="true">
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Microsoft</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Google</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Amazon</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Meta</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Adobe</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Netflix</span>
+                        <span class="text-xl md:text-2xl lg:text-3xl font-extrabold text-slate-700 tracking-tight">Apple</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- The Advantage Section (Constrained) -->
-    <section id="advantage" class="py-16 md:py-24 bg-[#0a0a0a] relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <!-- The Advantage Section -->
+    <section id="advantage" class="py-16 md:py-24 bg-[#0a0a0a]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 md:mb-16 reveal">
-                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-2 md:mb-3">The WorkHub Advantage</h2>
+                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-2">The WorkHub Advantage</h2>
                 <h3 class="text-2xl md:text-4xl font-extrabold text-white">The Premium Standard</h3>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Card 1 -->
-                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl md:hover:border-brand-500/30 md:hover:bg-[#151515] transition-all duration-500 group reveal">
-                    <div class="w-12 h-12 md:w-14 md:h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 md:mb-6 md:group-hover:scale-110 md:group-hover:bg-brand-500 md:group-hover:text-black transition-all">
-                        <i data-lucide="shield-check" class="w-6 h-6 md:w-7 md:h-7"></i>
+                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl hover:border-brand-500/30 transition-all group reveal">
+                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand-500 group-hover:text-black transition-all">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
-                    <h4 class="text-lg md:text-xl font-bold text-white mb-2 md:mb-3">Absolute Privacy</h4>
+                    <h4 class="text-lg font-bold text-white mb-2">Absolute Privacy</h4>
                     <p class="text-slate-400 font-inter text-sm leading-relaxed">We never expose your email or phone number publicly. Employers must securely request access through our Verification Team.</p>
                 </div>
                 <!-- Card 2 -->
-                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl md:hover:border-brand-500/30 md:hover:bg-[#151515] transition-all duration-500 group reveal">
-                    <div class="w-12 h-12 md:w-14 md:h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 md:mb-6 md:group-hover:scale-110 md:group-hover:bg-brand-500 md:group-hover:text-black transition-all">
-                        <i data-lucide="check-square" class="w-6 h-6 md:w-7 md:h-7"></i>
+                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl hover:border-brand-500/30 transition-all group reveal">
+                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand-500 group-hover:text-black transition-all">
+                        <i data-lucide="check-square" class="w-6 h-6"></i>
                     </div>
-                    <h4 class="text-lg md:text-xl font-bold text-white mb-2 md:mb-3">Zero Spam</h4>
+                    <h4 class="text-lg font-bold text-white mb-2">Zero Spam</h4>
                     <p class="text-slate-400 font-inter text-sm leading-relaxed">Our mandatory verification barrier ensures only serious, high-intent professionals join the network, giving you higher visibility.</p>
                 </div>
                 <!-- Card 3 -->
-                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl md:hover:border-brand-500/30 md:hover:bg-[#151515] transition-all duration-500 group reveal">
-                    <div class="w-12 h-12 md:w-14 md:h-14 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 md:mb-6 md:group-hover:scale-110 md:group-hover:bg-brand-500 md:group-hover:text-black transition-all">
-                        <i data-lucide="zap" class="w-6 h-6 md:w-7 md:h-7"></i>
+                <div class="bg-[#111] border border-white/5 p-6 md:p-8 rounded-3xl hover:border-brand-500/30 transition-all group reveal">
+                    <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-brand-500 group-hover:text-black transition-all">
+                        <i data-lucide="zap" class="w-6 h-6"></i>
                     </div>
-                    <h4 class="text-lg md:text-xl font-bold text-white mb-2 md:mb-3">Direct Placement</h4>
+                    <h4 class="text-lg font-bold text-white mb-2">Direct Placement</h4>
                     <p class="text-slate-400 font-inter text-sm leading-relaxed">Once verified, our internal coordination team actively matches your profile with hiring partners looking for your exact skills.</p>
                 </div>
             </div>
@@ -278,46 +253,34 @@
     </section>
 
     <!-- Workflow Section -->
-    <section id="how-it-works" class="py-16 md:py-24 bg-[#050505] relative border-y border-white/5 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="how-it-works" class="py-16 md:py-24 bg-[#050505] border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 md:mb-16 reveal">
-                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-2 md:mb-3">Clear Process</h2>
+                <h2 class="text-brand-500 font-bold tracking-widest uppercase text-xs mb-2">Clear Process</h2>
                 <h3 class="text-2xl md:text-4xl font-extrabold text-white">Engineered for Trust</h3>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                 <!-- Professional Flow -->
-                <div class="bg-[#111] rounded-3xl p-6 md:p-10 border border-white/5 relative overflow-hidden group shadow-xl reveal">
-                    <div class="absolute top-0 right-0 p-6 md:p-8 opacity-5 text-brand-500">
-                        <i data-lucide="user-check" class="w-32 h-32 md:w-48 md:h-48"></i>
-                    </div>
-                    
+                <div class="bg-[#111] rounded-3xl p-6 md:p-10 border border-white/5 relative overflow-hidden reveal">
+                    <i data-lucide="user-check" class="absolute top-0 right-0 p-6 md:p-8 w-32 h-32 md:w-48 md:h-48 opacity-5 text-brand-500"></i>
                     <div class="relative z-10">
-                        <div class="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-brand-500/10 rounded-xl border border-brand-500/20 text-brand-500 mb-6 md:mb-8">
-                            <i data-lucide="user" class="w-5 h-5 md:w-6 md:h-6"></i>
+                        <div class="inline-flex items-center justify-center w-10 h-10 bg-brand-500/10 rounded-xl border border-brand-500/20 text-brand-500 mb-6">
+                            <i data-lucide="user" class="w-5 h-5"></i>
                         </div>
-                        <h4 class="text-xl md:text-2xl font-extrabold text-white mb-6 md:mb-8">For Professionals</h4>
-                        
+                        <h4 class="text-xl md:text-2xl font-extrabold text-white mb-6">For Professionals</h4>
                         <div class="space-y-6">
                             <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">1</div>
+                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">1</div>
                                 <div>
                                     <p class="text-sm md:text-base font-bold text-white">Create Profile</p>
                                     <p class="text-slate-400 text-sm mt-1 font-inter">Register and showcase your verified skills.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">2</div>
+                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">2</div>
                                 <div>
                                     <p class="text-sm md:text-base font-bold text-white">Verification (₹99)</p>
                                     <p class="text-slate-400 text-sm mt-1 font-inter">Submit the one-time fee to prove high intent.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">3</div>
-                                <div>
-                                    <p class="text-sm md:text-base font-bold text-white">Secure Connections</p>
-                                    <p class="text-slate-400 text-sm mt-1 font-inter">Your contact details are unlocked only upon approval.</p>
                                 </div>
                             </div>
                         </div>
@@ -325,37 +288,26 @@
                 </div>
 
                 <!-- Employer Flow -->
-                <div class="bg-[#111] rounded-3xl p-6 md:p-10 border border-white/5 relative overflow-hidden group shadow-xl reveal">
-                    <div class="absolute top-0 right-0 p-6 md:p-8 opacity-5 text-white">
-                        <i data-lucide="building-2" class="w-32 h-32 md:w-48 md:h-48"></i>
-                    </div>
-                    
+                <div class="bg-[#111] rounded-3xl p-6 md:p-10 border border-white/5 relative overflow-hidden reveal">
+                    <i data-lucide="building-2" class="absolute top-0 right-0 p-6 md:p-8 w-32 h-32 md:w-48 md:h-48 opacity-5 text-white"></i>
                     <div class="relative z-10">
-                        <div class="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-xl border border-white/10 text-white mb-6 md:mb-8">
-                            <i data-lucide="building" class="w-5 h-5 md:w-6 md:h-6"></i>
+                        <div class="inline-flex items-center justify-center w-10 h-10 bg-white/5 rounded-xl border border-white/10 text-white mb-6">
+                            <i data-lucide="building" class="w-5 h-5"></i>
                         </div>
-                        <h4 class="text-xl md:text-2xl font-extrabold text-white mb-6 md:mb-8">For Employers</h4>
-                        
+                        <h4 class="text-xl md:text-2xl font-extrabold text-white mb-6">For Employers</h4>
                         <div class="space-y-6">
                             <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">1</div>
+                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">1</div>
                                 <div>
                                     <p class="text-sm md:text-base font-bold text-white">Free Registration</p>
                                     <p class="text-slate-400 text-sm mt-1 font-inter">Set up your company account instantly.</p>
                                 </div>
                             </div>
                             <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">2</div>
+                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs mt-0.5">2</div>
                                 <div>
                                     <p class="text-sm md:text-base font-bold text-white">Browse Verified Talent</p>
                                     <p class="text-slate-400 text-sm mt-1 font-inter">Search a directory of 100% verified candidates.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center font-bold text-xs md:text-sm mt-0.5">3</div>
-                                <div>
-                                    <p class="text-sm md:text-base font-bold text-white">Request Access</p>
-                                    <p class="text-slate-400 text-sm mt-1 font-inter">Request contact details securely via the platform.</p>
                                 </div>
                             </div>
                         </div>
@@ -366,21 +318,10 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-[#050505] border-t border-white/5 py-8 md:py-10 overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-3">
-                <div class="h-6 w-6">
-                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                        <path d="M55 90 V 35 A 18 18 0 0 1 91 35 V 90" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
-                        <path d="M60 90 V 40 A 13 13 0 0 1 86 40 V 90" fill="#facc15"/>
-                        <line x1="5" y1="90" x2="95" y2="90" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="35" cy="52" r="5" fill="#ffffff"/>
-                        <path d="M35 57 L 32 75 L 25 90 M 32 75 L 42 90" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M34 62 L 45 72 L 48 72" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M34 62 L 27 70" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="46" y="69" width="7" height="5" rx="0.5" fill="#ffffff"/>
-                    </svg>
-                </div>
+    <footer class="bg-[#050505] border-t border-white/5 py-8">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <i data-lucide="briefcase" class="w-5 h-5 text-brand-500"></i>
                 <span class="font-extrabold text-white text-lg tracking-tight">WorkHub</span>
             </div>
             <div class="text-slate-500 font-inter text-xs text-center font-medium">
@@ -389,50 +330,35 @@
         </div>
     </footer>
 
-    <!-- Auth Modal Overlay (Mobile Optimized) -->
+    <!-- Auth Modal Overlay -->
     <div id="authModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
-        
-        <!-- Modal Content Container -->
-        <div class="modal-content bg-[#0a0a0a] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] sm:shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full sm:max-w-xl flex flex-col max-h-[90svh]">
+        <div class="modal-content bg-[#0a0a0a] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full sm:max-w-xl flex flex-col max-h-[90svh]">
             
-            <!-- Sticky Modal Header -->
-            <div class="px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 text-center relative border-b border-white/5 flex-shrink-0 bg-[#0a0a0a] rounded-t-3xl z-10">
-                <!-- Mobile drag indicator (visual only) -->
+            <div class="px-6 pt-6 pb-4 text-center relative border-b border-white/5 flex-shrink-0">
                 <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4 sm:hidden"></div>
-                
-                <button onclick="closeAuth()" class="absolute top-4 right-4 sm:top-6 sm:right-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mx-auto mb-3 md:mb-4">
-                    <i data-lucide="key" class="w-6 h-6 md:w-7 md:h-7" id="authIcon"></i>
+                <button onclick="closeAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-white rounded-full p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="key" class="w-6 h-6" id="authIcon"></i>
                 </div>
-                <h2 id="authTitle" class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Welcome</h2>
-                <p id="authSubtitle" class="text-slate-400 mt-1 md:mt-2 font-inter text-xs md:text-sm">Sign in to continue</p>
+                <h2 id="authTitle" class="text-2xl font-extrabold text-white tracking-tight">Welcome</h2>
+                <p id="authSubtitle" class="text-slate-400 mt-1 font-inter text-xs">Sign in to continue</p>
             </div>
 
-            <!-- Scrollable Form Body -->
-            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 relative bg-[#0a0a0a] sm:rounded-b-3xl">
-                
-                <!-- Alert Banner -->
-                <div id="authAlert" class="hidden mb-5 p-3 md:p-4 rounded-xl text-xs md:text-sm border flex items-start gap-2 md:gap-3 transition-all">
-                    <i data-lucide="alert-circle" class="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 mt-0.5" id="authAlertIcon"></i>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
+                <div id="authAlert" class="hidden mb-5 p-3 rounded-xl text-xs border flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5" id="authAlertIcon"></i>
                     <span id="authAlertMsg" class="font-inter font-medium leading-relaxed"></span>
                 </div>
 
-                <form id="authForm" class="space-y-4 md:space-y-6" onsubmit="handleAuth(event)">
-                    <!-- Dynamic Fields Injected Here -->
-                    <div id="formFields" class="space-y-4 md:space-y-5"></div>
-                    
-                    <button type="submit" id="submitBtn" class="w-full py-3.5 md:py-4 mt-2 md:mt-6 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(234,179,8,0.2)] flex justify-center items-center gap-2 group relative overflow-hidden">
+                <form id="authForm" class="space-y-4" onsubmit="handleAuth(event)">
+                    <div id="formFields" class="space-y-4"></div>
+                    <button type="submit" id="submitBtn" class="w-full py-3.5 mt-2 bg-brand-500 text-black rounded-xl font-extrabold hover:bg-brand-400 transition-all flex justify-center items-center gap-2 group relative">
                         <span id="submitText">Log In</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform text-black" id="submitArrow"></i>
-                        <svg class="spinner absolute right-4 w-5 h-5 border-black/30 border-t-black" id="submitLoader" viewBox="0 0 24 24"></svg>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform text-black" id="submitArrow"></i>
+                        <svg class="spinner absolute right-4 w-5 h-5 border-black/30 border-t-black hidden" id="submitLoader" viewBox="0 0 24 24"></svg>
                     </button>
                 </form>
-
-                <div class="mt-6 md:mt-8 text-center text-xs md:text-sm text-slate-400 border-t border-white/5 pt-5 md:pt-6 leading-loose" id="authToggle">
-                    <!-- Toggle injected via JS -->
-                </div>
+                <div class="mt-6 text-center text-xs text-slate-400 border-t border-white/5 pt-5 leading-loose" id="authToggle"></div>
             </div>
         </div>
     </div>
@@ -441,11 +367,16 @@
     <script type="module">
         lucide.createIcons();
         
-        // Firebase Auth Imports
-        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        // Import Auth functions & Persistence Enforcers
+        import { getAuth, sendPasswordResetEmail, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, onAuthStateChanged, getDoc } from './firebase.js';
 
-        // Scroll Animations (Mobile safe)
+        // Set Auth Persistence so users must log in every new session (Data isn't saved permanently)
+        setPersistence(auth, browserSessionPersistence).catch((error) => {
+            console.error("Auth persistence setup failed:", error);
+        });
+
+        // Scroll Animations
         const observerOptions = { root: null, rootMargin: '0px', threshold: 0.05 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -457,7 +388,7 @@
         }, observerOptions);
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // Navbar Sticky Scroll
+        // Navbar Scroll
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 10) {
@@ -469,7 +400,7 @@
             }
         });
 
-        // Mobile Menu Logic
+        // Mobile Menu
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         mobileMenuBtn.addEventListener('click', () => {
@@ -477,10 +408,8 @@
             if (isClosed) {
                 mobileMenu.classList.remove('translate-x-full');
                 mobileMenuBtn.innerHTML = '<i data-lucide="x" class="h-7 w-7"></i>';
-                document.body.style.overflow = 'hidden'; // Stop background scrolling
-            } else {
-                window.closeMobileMenu();
-            }
+                document.body.style.overflow = 'hidden';
+            } else { window.closeMobileMenu(); }
             lucide.createIcons();
         });
         
@@ -491,7 +420,7 @@
             lucide.createIcons();
         }
 
-        // Authentication Routing
+        // Routing
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
@@ -506,9 +435,8 @@
             }
         });
 
-        // Modal UI Logic
+        // Modal Logic
         let currentAuthMode = 'login';
-        
         window.openAuth = (mode) => {
             currentAuthMode = mode;
             document.getElementById('authModal').classList.add('active');
@@ -522,18 +450,11 @@
             document.body.style.overflow = '';
         };
 
-        // Click outside modal to close (only on desktop/tablet where there's padding)
-        document.getElementById('authModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('authModal')) window.closeAuth();
-        });
-
-        // Alert Helper Functions
         function showAlert(msg, isSuccess = false) {
             const alertDiv = document.getElementById('authAlert');
             const alertIcon = document.getElementById('authAlertIcon');
             const alertMsg = document.getElementById('authAlertMsg');
-            
-            alertDiv.className = `mb-5 p-3 md:p-4 rounded-xl text-xs md:text-sm border flex items-start gap-2 md:gap-3 transition-all ${isSuccess ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50' : 'bg-red-950/30 text-red-400 border-red-900/50'}`;
+            alertDiv.className = `mb-5 p-3 rounded-xl text-xs border flex items-start gap-2 transition-all ${isSuccess ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50' : 'bg-red-950/30 text-red-400 border-red-900/50'}`;
             alertIcon.setAttribute('data-lucide', isSuccess ? 'check-circle-2' : 'alert-circle');
             alertMsg.innerText = msg;
             alertDiv.classList.remove('hidden');
@@ -541,20 +462,14 @@
         }
         function hideAlert() { document.getElementById('authAlert').classList.add('hidden'); }
 
-        // Shared Input Styling (Using 16px to prevent iOS zoom)
-        const inputClass = "w-full px-3.5 md:px-4 py-3 md:py-3.5 bg-[#111] border border-white/10 rounded-xl focus:bg-[#1a1a1a] focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all duration-200 font-medium text-white placeholder-slate-600 text-base";
-        const labelClass = "block text-xs md:text-sm font-bold text-slate-300 mb-1.5";
+        const inputClass = "w-full px-3.5 py-3 bg-[#111] border border-white/10 rounded-xl focus:bg-[#1a1a1a] focus:border-brand-500 outline-none transition-all font-medium text-white placeholder-slate-600 text-base";
+        const labelClass = "block text-xs font-bold text-slate-300 mb-1.5";
 
         // Password Reset
         window.triggerPasswordReset = async () => {
             const emailInput = document.getElementById('email');
             const email = emailInput ? emailInput.value.trim() : '';
-            
-            if (!email) {
-                showAlert("Please enter your email address below to reset your password.");
-                return;
-            }
-            
+            if (!email) { showAlert("Please enter your email address below to reset your password."); return; }
             const btn = document.getElementById('forgotPwdBtn');
             btn.innerText = "Sending..."; btn.disabled = true;
 
@@ -563,167 +478,78 @@
                 showAlert("Reset link sent! Check your inbox and spam folder.", true);
             } catch (error) {
                 let msg = error.message.replace('Firebase:', '').trim();
-                if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
-                    msg = "No account found with this email.";
-                }
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') msg = "No account found with this email.";
                 showAlert(msg);
             } finally {
                 btn.innerText = "Forgot Password?"; btn.disabled = false;
             }
         };
 
-        // Form Builder
         function renderFormFields() {
             const fieldsDiv = document.getElementById('formFields');
             const title = document.getElementById('authTitle');
-            const subtitle = document.getElementById('authSubtitle');
             const submitText = document.getElementById('submitText');
             const toggle = document.getElementById('authToggle');
             const icon = document.getElementById('authIcon');
-            
             let html = '';
             
             if (currentAuthMode === 'login') {
-                title.innerText = "Welcome Back"; subtitle.innerText = "Sign in to access your dashboard"; submitText.innerText = "Secure Log In";
-                icon.setAttribute('data-lucide', 'log-in');
-                
+                title.innerText = "Welcome Back"; submitText.innerText = "Secure Log In"; icon.setAttribute('data-lucide', 'log-in');
                 html = `
-                    <div class="space-y-1">
-                        <label class="${labelClass}">Email Address</label>
-                        <input type="email" id="email" required placeholder="name@example.com" class="${inputClass}">
-                    </div>
-                    <div class="space-y-1 relative">
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="text-xs md:text-sm font-bold text-slate-300 block mb-0">Password</label>
-                            <button type="button" id="forgotPwdBtn" onclick="triggerPasswordReset()" class="text-[10px] md:text-xs font-bold text-brand-500 hover:text-brand-400 transition-colors">Forgot Password?</button>
-                        </div>
-                        <input type="password" id="password" required placeholder="••••••••" class="${inputClass}">
-                    </div>
+                    <div><label class="${labelClass}">Email Address</label><input type="email" id="email" required placeholder="name@example.com" class="${inputClass}"></div>
+                    <div class="relative"><div class="flex justify-between items-center mb-1.5"><label class="text-xs font-bold text-slate-300 block mb-0">Password</label><button type="button" id="forgotPwdBtn" onclick="triggerPasswordReset()" class="text-[10px] font-bold text-brand-500 hover:text-brand-400">Forgot Password?</button></div><input type="password" id="password" required placeholder="••••••••" class="${inputClass}"></div>
                 `;
-                toggle.innerHTML = `New to WorkHub?<br class="sm:hidden"/> <button type="button" onclick="openAuth('register-employee')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Join as Professional</button> <span class="text-slate-700 mx-1 md:mx-2">|</span> <button type="button" onclick="openAuth('register-employer')" class="text-brand-500 font-bold hover:text-brand-400 transition">Employer Setup</button>`;
-            
+                toggle.innerHTML = `New to WorkHub?<br class="sm:hidden"/> <button type="button" onclick="openAuth('register-employee')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Join as Professional</button> <span class="text-slate-700 mx-1">|</span> <button type="button" onclick="openAuth('register-employer')" class="text-brand-500 font-bold hover:text-brand-400 transition">Employer Setup</button>`;
             } else if (currentAuthMode === 'register-employee') {
-                title.innerText = "Join as Professional"; subtitle.innerText = "Create your verified profile to get discovered"; submitText.innerText = "Continue to Verification";
-                icon.setAttribute('data-lucide', 'user-plus');
-                
+                title.innerText = "Join as Professional"; submitText.innerText = "Continue to Verification"; icon.setAttribute('data-lucide', 'user-plus');
                 html = `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Full Legal Name</label>
-                            <input type="text" id="fullName" required placeholder="John Doe" class="${inputClass}">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2"><label class="${labelClass}">Full Legal Name</label><input type="text" id="fullName" required placeholder="John Doe" class="${inputClass}"></div>
+                        <div><label class="${labelClass}">Mobile Number</label><input type="tel" id="phone" required placeholder="+91..." class="${inputClass}"></div>
+                        <div><label class="${labelClass}">Current City</label><input type="text" id="city" required placeholder="e.g. Mumbai, Delhi" class="${inputClass}"></div>
+                        <div class="sm:col-span-2 relative"><label class="${labelClass}">Highest Qualification</label>
+                            <select id="qualification" required class="${inputClass} appearance-none pr-10 cursor-pointer">
+                                <option value="" disabled selected>Select your qualification...</option>
+                                <option value="10th Pass">10th Pass</option><option value="12th Pass">12th Pass</option><option value="Diploma / Certification">Diploma / Certification</option><option value="Bachelor's Degree">Bachelor's Degree</option><option value="Master's Degree">Master's Degree</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 mt-3 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
                         </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Mobile Number</label>
-                            <input type="tel" id="phone" required placeholder="+91..." class="${inputClass}">
+                        <div class="sm:col-span-2"><label class="${labelClass}">Top Skills (Comma separated)</label><input type="text" id="skills" required placeholder="React, Operations, Design, etc." class="${inputClass}"></div>
+                        <div class="sm:col-span-2 relative"><label class="${labelClass}">Total Experience Level</label>
+                            <select id="experience" required class="${inputClass} appearance-none pr-10 cursor-pointer">
+                                <option value="" disabled selected>Select experience...</option>
+                                <option value="Fresher">Fresher (0 years)</option><option value="1-3 Years">1 to 3 Years</option><option value="3-5 Years">3 to 5 Years</option><option value="5+ Years">5+ Years</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 mt-3 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
                         </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Current City</label>
-                            <input type="text" id="city" required placeholder="e.g. Mumbai, Delhi" class="${inputClass}">
-                        </div>
-                        
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Highest Qualification</label>
-                            <div class="relative">
-                                <select id="qualification" required class="${inputClass} appearance-none pr-10 cursor-pointer">
-                                    <option value="" disabled selected>Select your qualification...</option>
-                                    <option value="10th Pass (Matriculation)">10th Pass (Matriculation)</option>
-                                    <option value="12th Pass (Intermediate)">12th Pass (Intermediate)</option>
-                                    <option value="Diploma / Certification">Diploma / Certification</option>
-                                    <option value="Bachelor's Degree (UG)">Bachelor's Degree (UG)</option>
-                                    <option value="Master's Degree (PG)">Master's Degree (PG)</option>
-                                    <option value="Doctorate (PhD)">Doctorate (PhD)</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-500 pointer-events-none"></i>
-                            </div>
-                        </div>
-
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Top Skills (Comma separated)</label>
-                            <input type="text" id="skills" required placeholder="React, Operations, Design, etc." class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Total Experience Level</label>
-                            <div class="relative">
-                                <select id="experience" required class="${inputClass} appearance-none pr-10 cursor-pointer">
-                                    <option value="" disabled selected>Select experience...</option>
-                                    <option value="Fresher">Fresher (0 years)</option>
-                                    <option value="1-3 Years">1 to 3 Years</option>
-                                    <option value="3-5 Years">3 to 5 Years</option>
-                                    <option value="5+ Years">5+ Years</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-500 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="sm:col-span-2 border-t border-white/5 pt-3 md:pt-4 mt-1"></div>
-                        
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Email Address</label>
-                            <input type="email" id="email" required placeholder="name@example.com" class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Create Password</label>
-                            <input type="password" id="password" required placeholder="Min. 6 characters" class="${inputClass}" minlength="6">
-                        </div>
+                        <div class="sm:col-span-2 border-t border-white/5 pt-3 mt-1"></div>
+                        <div class="sm:col-span-2"><label class="${labelClass}">Email Address</label><input type="email" id="email" required placeholder="name@example.com" class="${inputClass}"></div>
+                        <div class="sm:col-span-2"><label class="${labelClass}">Create Password</label><input type="password" id="password" required placeholder="Min. 6 characters" class="${inputClass}" minlength="6"></div>
                     </div>
                 `;
-                toggle.innerHTML = `Already have a professional account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
-            
+                toggle.innerHTML = `Already have an account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
             } else if (currentAuthMode === 'register-employer') {
-                title.innerText = "Hire Top Talent"; subtitle.innerText = "Set up your free employer account"; submitText.innerText = "Create Employer Account";
-                icon.setAttribute('data-lucide', 'building');
-                
+                title.innerText = "Hire Top Talent"; submitText.innerText = "Create Employer Account"; icon.setAttribute('data-lucide', 'building');
                 html = `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Company / Business Name</label>
-                            <input type="text" id="companyName" required placeholder="Acme Corp" class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Contact Person Name</label>
-                            <input type="text" id="fullName" required placeholder="Jane Doe" class="${inputClass}">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Business Phone</label>
-                            <input type="tel" id="phone" required placeholder="+91..." class="${inputClass}">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="${labelClass}">Industry</label>
-                            <input type="text" id="industry" required placeholder="IT, Healthcare, Retail..." class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 border-t border-white/5 pt-3 md:pt-4 mt-1"></div>
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Work Email</label>
-                            <input type="email" id="email" required placeholder="jane@acmecorp.com" class="${inputClass}">
-                        </div>
-                        <div class="sm:col-span-2 space-y-1">
-                            <label class="${labelClass}">Create Password</label>
-                            <input type="password" id="password" required placeholder="Min. 6 characters" class="${inputClass}" minlength="6">
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2"><label class="${labelClass}">Company / Business Name</label><input type="text" id="companyName" required placeholder="Acme Corp" class="${inputClass}"></div>
+                        <div class="sm:col-span-2"><label class="${labelClass}">Contact Person Name</label><input type="text" id="fullName" required placeholder="Jane Doe" class="${inputClass}"></div>
+                        <div><label class="${labelClass}">Business Phone</label><input type="tel" id="phone" required placeholder="+91..." class="${inputClass}"></div>
+                        <div><label class="${labelClass}">Industry</label><input type="text" id="industry" required placeholder="IT, Healthcare..." class="${inputClass}"></div>
+                        <div class="sm:col-span-2 border-t border-white/5 pt-3 mt-1"></div>
+                        <div class="sm:col-span-2"><label class="${labelClass}">Work Email</label><input type="email" id="email" required placeholder="jane@acmecorp.com" class="${inputClass}"></div>
+                        <div class="sm:col-span-2"><label class="${labelClass}">Create Password</label><input type="password" id="password" required placeholder="Min. 6 characters" class="${inputClass}" minlength="6"></div>
                     </div>
                 `;
-                toggle.innerHTML = `Already have an employer account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
+                toggle.innerHTML = `Already have an account? <button type="button" onclick="openAuth('login')" class="text-brand-500 font-bold hover:text-brand-400 transition ml-1">Log In</button>`;
             }
-            fieldsDiv.innerHTML = html;
-            lucide.createIcons();
+            fieldsDiv.innerHTML = html; lucide.createIcons();
         }
 
-        // Form Submit Handler
         window.handleAuth = async (e) => {
             e.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const arrow = document.getElementById('submitArrow');
-            const loader = document.getElementById('submitLoader');
-            
-            hideAlert();
-            btn.disabled = true;
-            btn.classList.add('opacity-90', 'cursor-not-allowed');
-            submitText.classList.add('opacity-0');
-            arrow.classList.add('hidden');
-            loader.style.display = 'block';
+            const btn = document.getElementById('submitBtn'), submitText = document.getElementById('submitText'), arrow = document.getElementById('submitArrow'), loader = document.getElementById('submitLoader');
+            hideAlert(); btn.disabled = true; btn.classList.add('opacity-90', 'cursor-not-allowed'); submitText.classList.add('opacity-0'); arrow.classList.add('hidden'); loader.style.display = 'block';
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -733,50 +559,26 @@
                     await signInWithEmailAndPassword(auth, email, password);
                 } else {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
-                    const uid = cred.user.uid;
-                    const fullName = document.getElementById('fullName').value.trim();
-                    const phone = document.getElementById('phone').value.trim();
-
-                    const userData = {
-                        uid: uid, email: email, fullName: fullName, phone: phone,
-                        role: currentAuthMode === 'register-employee' ? 'employee' : 'employer',
-                        accountStatus: 'active', createdAt: serverTimestamp()
-                    };
+                    const uid = cred.user.uid, fullName = document.getElementById('fullName').value.trim(), phone = document.getElementById('phone').value.trim();
+                    const userData = { uid: uid, email: email, fullName: fullName, phone: phone, role: currentAuthMode === 'register-employee' ? 'employee' : 'employer', accountStatus: 'active', createdAt: serverTimestamp() };
                     await setDoc(doc(db, "users", uid), userData);
 
                     if (currentAuthMode === 'register-employee') {
                         await setDoc(doc(db, "employeeProfiles", uid), {
-                            fullName: fullName,
-                            city: document.getElementById('city').value.trim(),
-                            skills: document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(Boolean),
-                            experienceLevel: document.getElementById('experience').value,
-                            qualification: document.getElementById('qualification').value,
-                            createdAt: serverTimestamp()
+                            fullName: fullName, city: document.getElementById('city').value.trim(), skills: document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(Boolean), experienceLevel: document.getElementById('experience').value, qualification: document.getElementById('qualification').value, createdAt: serverTimestamp()
                         });
                         window.location.href = 'employee.html';
                     } else {
-                        await setDoc(doc(db, "employerProfiles", uid), {
-                            fullName: fullName,
-                            companyName: document.getElementById('companyName').value.trim(),
-                            industry: document.getElementById('industry').value.trim(),
-                            createdAt: serverTimestamp()
-                        });
+                        await setDoc(doc(db, "employerProfiles", uid), { fullName: fullName, companyName: document.getElementById('companyName').value.trim(), industry: document.getElementById('industry').value.trim(), createdAt: serverTimestamp() });
                         window.location.href = 'employer.html';
                     }
                 }
             } catch (error) {
                 let msg = error.message.replace('Firebase:', '').trim();
                 if (error.code === 'auth/email-already-in-use') msg = "This email is already registered. Please log in.";
-                if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password. Please try again.";
-                if (error.code === 'auth/weak-password') msg = "Password must be at least 6 characters long.";
-                
+                if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
                 showAlert(msg);
-                
-                btn.disabled = false;
-                btn.classList.remove('opacity-90', 'cursor-not-allowed');
-                submitText.classList.remove('opacity-0');
-                arrow.classList.remove('hidden');
-                loader.style.display = 'none';
+                btn.disabled = false; btn.classList.remove('opacity-90', 'cursor-not-allowed'); submitText.classList.remove('opacity-0'); arrow.classList.remove('hidden'); loader.style.display = 'none';
             }
         };
     </script>
