@@ -80,21 +80,20 @@
             background: #1a1a1a;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
         select option { background-color: #111; color: #fff; }
         input, select { font-size: 16px !important; }
         
-        /* Smooth Tab Transition Utility */
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .tab-content.active { display: block; opacity: 1; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden font-sans relative">
 
-    <!-- Mobile Header (Visible only on small screens) -->
+    <!-- Mobile Header -->
     <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
         <div class="flex items-center gap-2">
             <i data-lucide="briefcase" class="w-6 h-6 text-brand-500"></i>
@@ -178,72 +177,113 @@
             <!-- ================= STATUS TAB ================= -->
             <div id="dashboardTab" class="tab-content active animate-slide-up">
                 
-                <!-- Dynamic Progress Tracker -->
+                <!-- Expanded 6-Step Dynamic Progress Tracker -->
                 <div class="bg-[#111] border border-white/10 rounded-3xl p-6 md:p-8 mb-8 shadow-2xl relative overflow-hidden">
-                    <h3 class="text-lg font-bold text-white mb-6 md:mb-8 tracking-wide uppercase text-center md:text-left">Verification Progress</h3>
+                    <h3 class="text-lg font-bold text-white mb-6 md:mb-8 tracking-wide uppercase text-center md:text-left flex items-center justify-center md:justify-start gap-2">
+                        <i data-lucide="git-commit" class="w-5 h-5 text-brand-500"></i> Placement Pipeline
+                    </h3>
                     
-                    <div class="relative">
-                        <!-- Progress Line Background -->
-                        <div class="absolute top-5 left-0 w-full h-1 bg-white/5 rounded-full hidden md:block"></div>
-                        <!-- Active Progress Line -->
-                        <div id="progressLine" class="absolute top-5 left-0 h-1 bg-brand-500 rounded-full transition-all duration-1000 ease-out hidden md:block shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%;"></div>
-                        
-                        <!-- Steps -->
-                        <div class="flex flex-col md:flex-row justify-between relative z-10 gap-6 md:gap-0">
-                            <!-- Step 1 -->
-                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
-                                <div id="step1-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all">
-                                    <i data-lucide="check" class="w-5 h-5 md:w-6 md:h-6"></i>
-                                </div>
-                                <div class="text-left md:text-center">
-                                    <p class="text-white font-bold text-sm md:text-base">Registered</p>
-                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Profile Created</p>
-                                </div>
-                            </div>
+                    <!-- Scrollable wrapper for mobile to handle 6 steps beautifully -->
+                    <div class="overflow-x-auto custom-scrollbar pb-6 -mx-6 px-6 md:mx-0 md:px-0 md:pb-0 md:overflow-visible">
+                        <div class="min-w-[700px] md:min-w-0 relative pt-2">
+                            <!-- Progress Line Background -->
+                            <div class="absolute top-6 md:top-5 left-0 w-full h-1 bg-white/5 rounded-full"></div>
+                            <!-- Active Progress Line -->
+                            <div id="progressLine" class="absolute top-6 md:top-5 left-0 h-1 bg-brand-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%;"></div>
                             
-                            <!-- Step 2 -->
-                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
-                                <div id="step2-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
-                                    2
+                            <!-- Steps -->
+                            <div class="flex justify-between relative z-10 text-center">
+                                
+                                <!-- Step 1: Registered -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step1-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all">
+                                        <i data-lucide="check" class="w-5 h-5 md:w-6 md:h-6"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-bold text-xs md:text-sm">Registered</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Profile Created</p>
+                                    </div>
                                 </div>
-                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step2-text">
-                                    <p class="text-white font-bold text-sm md:text-base">Verification Fee</p>
-                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Action Required</p>
+                                
+                                <!-- Step 2: Payment -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step2-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">2</div>
+                                    <div class="opacity-50 transition-opacity duration-500" id="step2-text">
+                                        <p class="text-white font-bold text-xs md:text-sm">Action Req</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Submit Fee</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Step 3 -->
-                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
-                                <div id="step3-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
-                                    3
+                                <!-- Step 3: Review -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step3-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">3</div>
+                                    <div class="opacity-50 transition-opacity duration-500" id="step3-text">
+                                        <p class="text-white font-bold text-xs md:text-sm">Under Review</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Pending Admin</p>
+                                    </div>
                                 </div>
-                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step3-text">
-                                    <p class="text-white font-bold text-sm md:text-base">Team Review</p>
-                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Pending Admin</p>
-                                </div>
-                            </div>
 
-                            <!-- Step 4 -->
-                            <div class="flex md:flex-col items-center gap-4 md:gap-3 group">
-                                <div id="step4-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">
-                                    4
+                                <!-- Step 4: Verified -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step4-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">4</div>
+                                    <div class="opacity-50 transition-opacity duration-500" id="step4-text">
+                                        <p class="text-white font-bold text-xs md:text-sm">Verified</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Profile Active</p>
+                                    </div>
                                 </div>
-                                <div class="text-left md:text-center opacity-50 transition-opacity duration-500" id="step4-text">
-                                    <p class="text-white font-bold text-sm md:text-base">Meeting Set</p>
-                                    <p class="text-slate-400 text-xs mt-0.5 font-inter">Placement Active</p>
+
+                                <!-- Step 5: Meeting -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step5-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">5</div>
+                                    <div class="opacity-50 transition-opacity duration-500" id="step5-text">
+                                        <p class="text-white font-bold text-xs md:text-sm">Meeting Set</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Interviewing</p>
+                                    </div>
                                 </div>
+
+                                <!-- Step 6: Offer -->
+                                <div class="flex flex-col items-center gap-3 w-20 md:w-auto">
+                                    <div id="step6-icon" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500">6</div>
+                                    <div class="opacity-50 transition-opacity duration-500" id="step6-text">
+                                        <p class="text-white font-bold text-xs md:text-sm">Job Offer</p>
+                                        <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 font-inter">Placement Won</p>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Dynamic Status Content Container -->
-                <div id="statusContainer" class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+                <div id="statusContainer" class="bg-[#111] rounded-3xl shadow-2xl border border-white/10 overflow-hidden mb-8">
                     <div class="p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
                         <div class="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-4"></div>
                         <p class="text-slate-400 font-inter text-sm">Retrieving your secure application state...</p>
                     </div>
                 </div>
+
+                <!-- Referral Section -->
+                <div class="bg-gradient-to-br from-[#111] to-[#1a1a1a] border border-brand-500/20 rounded-3xl p-6 md:p-8 shadow-[0_0_20px_rgba(234,179,8,0.05)] relative overflow-hidden group">
+                    <div class="absolute -right-8 -top-8 text-brand-500/10 group-hover:scale-110 transition-transform duration-700">
+                        <i data-lucide="gift" class="w-40 h-40"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i data-lucide="share-2" class="w-6 h-6 text-brand-500"></i>
+                            <h3 class="text-xl font-bold text-white">Refer & Earn Rewards</h3>
+                        </div>
+                        <p class="text-slate-400 text-sm font-inter mb-6 max-w-lg">Invite other talented professionals to WorkHub. When they register and verify their profile, your network strength grows and you earn exclusive platform perks.</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 max-w-lg">
+                            <input type="text" id="referralLink" readonly class="flex-1 px-4 py-3 bg-black border border-white/10 rounded-xl text-slate-300 font-mono text-xs cursor-text focus:outline-none focus:border-brand-500 transition-colors">
+                            <button onclick="copyReferral()" class="px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ================= PROFILE TAB ================= -->
@@ -370,6 +410,10 @@
                 // Populate Headers
                 document.getElementById('userNameLabel').innerText = data.fullName;
                 document.getElementById('userInitial').innerText = data.fullName.charAt(0).toUpperCase();
+                
+                // Populate Referral Link
+                document.getElementById('referralLink').value = `https://workhub.example.com/join?ref=${user.uid.substring(0,8).toUpperCase()}`;
+
                 document.getElementById('mainContent').style.display = 'block';
 
                 // Populate Profile Form (Read-only fields)
@@ -399,11 +443,14 @@
                         payments.sort((a, b) => b.submittedAt - a.submittedAt);
                         const latestPayment = payments[0];
                         
+                        // Status mapping
                         if (latestPayment.status === 'pending') {
-                            updateProgressUI(2);
+                            updateProgressUI(2); // Action Req fulfilled -> Pending Review
                             renderPendingVerification(latestPayment);
                         } else if (latestPayment.status === 'approved') {
-                            updateProgressUI(3);
+                            // Defaulting to Verified (Step 4) upon approval. 
+                            // When Admin Panel receives further updates for Meeting/Offers, these will map to 5 & 6.
+                            updateProgressUI(4); 
                             renderApproved(latestPayment);
                         } else if (latestPayment.status === 'rejected') {
                             updateProgressUI(1);
@@ -441,7 +488,7 @@
                 btnD.classList.add(...inactiveClass); btnD.classList.remove(...activeClass);
             }
 
-            if(window.innerWidth < 768) toggleMobileMenu(); // close mobile menu on selection
+            if(window.innerWidth < 768) toggleMobileMenu();
         };
 
         // Profile Form Submission
@@ -471,15 +518,29 @@
             }
         });
 
-        // Dynamic Progress Bar Updater
+        // Dynamic 6-Step Progress Bar Updater
         function updateProgressUI(step) {
             const line = document.getElementById('progressLine');
             
-            // Widths: Step 1: 0%, Step 2: 33%, Step 3: 66%, Step 4: 100%
-            const widths = {1: '0%', 2: '33%', 3: '66%', 4: '100%'};
-            if(line) line.style.width = widths[step];
+            // Widths for 6 steps: 0, 20, 40, 60, 80, 100%
+            const widths = {1: '0%', 2: '20%', 3: '40%', 4: '60%', 5: '80%', 6: '100%'};
+            if(line) line.style.width = widths[step] || '0%';
 
-            // Helper to activate a step
+            // Reset all to base styles
+            for(let i=2; i<=6; i++) {
+                const iconDiv = document.getElementById(`step${i}-icon`);
+                const textDiv = document.getElementById(`step${i}-text`);
+                if(iconDiv) {
+                    iconDiv.className = "w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#1a1a1a] border-2 border-white/10 text-slate-500 flex items-center justify-center font-bold transition-all duration-500";
+                    iconDiv.innerHTML = i;
+                }
+                if(textDiv) {
+                    textDiv.classList.add('opacity-50');
+                    textDiv.classList.remove('opacity-100');
+                }
+            }
+
+            // Helper to activate a step up to the current status
             const activateStep = (num, iconName) => {
                 const iconDiv = document.getElementById(`step${num}-icon`);
                 const textDiv = document.getElementById(`step${num}-text`);
@@ -493,13 +554,23 @@
                 }
             };
 
-            // Apply based on step
+            // Apply based on progress
             if(step >= 2) activateStep(2, 'indian-rupee');
-            if(step >= 3) activateStep(3, 'shield-check');
-            if(step >= 4) activateStep(4, 'calendar-check'); // For future placement stage
+            if(step >= 3) activateStep(3, 'clock');
+            if(step >= 4) activateStep(4, 'shield-check');
+            if(step >= 5) activateStep(5, 'calendar-check');
+            if(step >= 6) activateStep(6, 'briefcase');
 
             lucide.createIcons();
         }
+
+        // Referral Copy Button
+        window.copyReferral = () => {
+            const input = document.getElementById('referralLink');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            alert("Referral link copied to clipboard!");
+        };
 
         // ================= RENDERING STATUS VIEWS =================
         function renderPaymentRequired(errorMsg = null) {
@@ -531,7 +602,7 @@
                     <div class="p-8 md:p-12 flex flex-col justify-center bg-[#111]">
                         <div class="mb-8">
                             <h3 class="text-2xl font-bold text-white mb-2">Submit Details</h3>
-                            <p class="text-slate-400 text-sm font-inter">Enter your payment reference to unlock step 2.</p>
+                            <p class="text-slate-400 text-sm font-inter">Enter your payment reference to unlock review.</p>
                         </div>
                         
                         ${errorMsg ? `<div class="mb-6 p-4 bg-red-950/30 text-red-400 rounded-xl border border-red-900/50 flex gap-3 text-sm font-inter items-start"><i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><span>${errorMsg}</span></div>` : ''}
@@ -573,7 +644,6 @@
                         employeeUid: currentUser.uid, amount: 99, currency: "INR", paymentMethod: "UPI",
                         utr: document.getElementById('utrInput').value.trim(), status: 'pending', submittedAt: serverTimestamp()
                     });
-                    // UI will auto-update via onSnapshot listener
                 } catch(err) {
                     alert("Error submitting payment: " + err.message);
                     btn.disabled = false; btn.innerText = 'Submit for Verification';
@@ -634,11 +704,11 @@
                             </li>
                             <li class="flex gap-4">
                                 <div class="mt-0.5"><i data-lucide="lock" class="w-5 h-5 text-slate-500"></i></div>
-                                <span>Your contact details remain strictly hidden. They are only shared when an employer requests connection and our team approves it.</span>
+                                <span>Your contact details remain strictly hidden. They are only shared when an employer requests connection.</span>
                             </li>
                             <li class="flex gap-4">
                                 <div class="mt-0.5"><i data-lucide="calendar-check" class="w-5 h-5 text-brand-500"></i></div>
-                                <span class="text-slate-300 font-medium">Keep your profile updated. Our placement coordinators will reach out directly to your registered number regarding immediate opportunities.</span>
+                                <span class="text-slate-300 font-medium">Keep your profile updated. Our placement coordinators will reach out directly regarding opportunities.</span>
                             </li>
                         </ul>
                     </div>
@@ -649,7 +719,6 @@
 
         // ================= SMOOTH ANIMATED LOGOUT =================
         document.getElementById('logoutBtn').addEventListener('click', () => { 
-            // 1. Create the smooth fade-out overlay
             const overlay = document.createElement('div');
             overlay.className = "fixed inset-0 bg-[#050505] z-[9999] opacity-0 transition-opacity duration-500 flex flex-col items-center justify-center";
             overlay.innerHTML = `
@@ -658,13 +727,11 @@
             `;
             document.body.appendChild(overlay);
             
-            // 2. Trigger the CSS transition
             requestAnimationFrame(() => {
                 overlay.classList.remove('opacity-0');
                 overlay.classList.add('opacity-100');
             });
 
-            // 3. Wait for fade to complete before firing auth signout
             setTimeout(() => {
                 signOut(auth).then(() => window.location.href = 'index.html');
             }, 600);
