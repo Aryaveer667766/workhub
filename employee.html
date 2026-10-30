@@ -89,9 +89,44 @@
         
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .tab-content.active { display: block; opacity: 1; }
+
+        /* Modal Transitions */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+
+        /* Audio Ring Wave Animation */
+        @keyframes ringWave {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+        .ring-active { animation: ringWave 1s infinite; }
+
+        /* Toast animation */
+        @keyframes toastIn {
+            0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-exit { animation: toastOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden font-sans relative">
+
+    <!-- Audio Element for sound.mp3 notifications -->
+    <audio id="notificationAudio" preload="auto">
+        <source src="sound.mp3" type="audio/mp3">
+        <source src="sound.wav" type="audio/wav">
+    </audio>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 md:right-8 z-[200] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
 
     <!-- Mobile Header -->
     <div class="md:hidden fixed top-0 w-full h-16 glass-panel z-40 flex items-center justify-between px-4">
@@ -99,9 +134,14 @@
             <i data-lucide="briefcase" class="w-6 h-6 text-brand-500"></i>
             <span class="font-bold text-white tracking-tight">WorkHub</span>
         </div>
-        <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleAudioNotifications()" id="mobileSoundBtn" class="p-2 text-brand-500 bg-white/5 rounded-xl border border-white/10" title="Sound Alert Toggle">
+                <i id="mobileSoundIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            <button id="mobileMenuBtn" class="text-slate-300 hover:text-white transition-colors p-2">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar / Mobile Menu -->
@@ -140,6 +180,10 @@
                 <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
                     <i data-lucide="user-cog" class="w-5 h-5"></i> Edit Profile Data
                 </button>
+                <button onclick="switchTab('support')" id="nav-support" class="w-full flex items-center justify-between px-4 py-3.5 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-semibold transition-all border border-transparent">
+                    <div class="flex items-center gap-3"><i data-lucide="headphones" class="w-5 h-5"></i> Help & Support</div>
+                    <span id="badge-support" class="bg-brand-500 text-brand-950 text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                </button>
             </nav>
         </div>
         
@@ -163,7 +207,21 @@
             <h1 class="text-2xl font-extrabold text-white flex items-center gap-3" id="headerTitle">
                 <i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Application Status
             </h1>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-5">
+                <!-- Sound Toggle Pill -->
+                <div class="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-2xl px-3 py-1.5 shadow-inner">
+                    <button id="soundToggleBtn" onclick="toggleAudioNotifications()" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-brand-500 transition-colors" title="Toggle Sound Chime">
+                        <span id="soundRingWrapper" class="relative flex items-center justify-center w-6 h-6 rounded-lg bg-brand-500/10 text-brand-500 border border-brand-500/20 transition-all">
+                            <i id="desktopSoundIcon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                        </span>
+                        <span id="soundStatusText" class="text-xs text-slate-300">Sound ON</span>
+                    </button>
+                    <span class="w-[1px] h-3.5 bg-white/10"></span>
+                    <button onclick="playNotificationSound(true)" class="text-[11px] font-bold text-brand-500 hover:text-white bg-brand-500/10 hover:bg-brand-500/20 px-2 py-0.5 rounded-lg border border-brand-500/20 transition-all flex items-center gap-1" title="Test Chime">
+                        <i data-lucide="bell-ring" class="w-3 h-3"></i> Test
+                    </button>
+                </div>
+
                 <div class="text-right">
                     <p class="text-sm font-bold text-white" id="userNameLabel">Loading...</p>
                     <p class="text-xs text-brand-500 font-bold tracking-widest uppercase">Verified Talent</p>
@@ -361,16 +419,336 @@
                 </div>
             </div>
 
+            <!-- ================= SUPPORT TAB ================= -->
+            <div id="supportTab" class="tab-content animate-slide-up space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px]">
+                    <!-- Left: My Inquiries List (lg:col-span-5) -->
+                    <div class="lg:col-span-5 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[700px]">
+                        <div class="p-5 border-b border-white/5 bg-[#151515] flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                                    <i data-lucide="headphones" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-white leading-none">Support Desk</h3>
+                                    <span class="text-[11px] text-slate-400 font-inter">Direct Help & Verification</span>
+                                </div>
+                            </div>
+                            <button onclick="openNewTicketModal()" class="px-3 py-1.5 bg-brand-500 text-brand-950 font-bold text-xs rounded-xl hover:bg-brand-400 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Query
+                            </button>
+                        </div>
+
+                        <!-- Ticket List -->
+                        <div id="userTicketsList" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-white/5">
+                            <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                                <i data-lucide="message-square" class="w-8 h-8 mb-2 opacity-30"></i>
+                                Loading your inquiries...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Chat Window (lg:col-span-7) -->
+                    <div class="lg:col-span-7 flex flex-col bg-[#111] rounded-3xl border border-white/5 overflow-hidden shadow-2xl h-[700px]">
+                        <!-- Empty State -->
+                        <div id="userChatEmpty" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 mb-4 animate-glow">
+                                <i data-lucide="message-circle-question" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Need Help with Verification?</h3>
+                            <p class="text-sm text-slate-400 max-w-sm font-inter mb-6">Select an inquiry from your list on the left, or create a new question for our verification and support team.</p>
+                            <button onclick="openNewTicketModal()" class="px-5 py-2.5 bg-brand-500 text-brand-950 font-bold rounded-xl hover:bg-brand-400 transition-all text-xs flex items-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Start New Inquiry
+                            </button>
+                        </div>
+
+                        <!-- Active Conversation -->
+                        <div id="userChatContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                            <!-- Chat Top Bar -->
+                            <div class="p-4 border-b border-white/5 bg-[#151515] flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold">
+                                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="text-sm font-bold text-white leading-tight">WorkHub Support Team</h3>
+                                            <span id="activeTicketStatusBadge" class="px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">OPEN</span>
+                                        </div>
+                                        <p id="activeTicketSubject" class="text-xs text-slate-400 font-inter mt-0.5 truncate max-w-xs sm:max-w-md">Subject details</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Messages Scroll Area -->
+                            <div id="userChatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-[#0a0a0a]/60">
+                                <!-- Messages injected dynamically -->
+                            </div>
+
+                            <!-- Preloaded Quick Messages Bar -->
+                            <div class="border-t border-white/5 bg-[#131313] px-4 py-2 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                                <span class="text-[10px] uppercase font-bold text-brand-500 tracking-wider flex items-center gap-1 flex-shrink-0">
+                                    <i data-lucide="zap" class="w-3 h-3 text-brand-500"></i> Quick:
+                                </span>
+                                <button onclick="insertQuickMessage('💳 I have submitted my ₹99 UTR, please verify my profile.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">💳 Verify UTR</button>
+                                <button onclick="insertQuickMessage('📸 I have attached my bank payment debit screenshot proof.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">📸 Attached Proof</button>
+                                <button onclick="insertQuickMessage('❓ My payment is still showing under review. Can you check?') class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">❓ Check Status</button>
+                                <button onclick="insertQuickMessage('📞 When will hiring partners contact me for job meetings?') class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">📞 Meeting Inquiry</button>
+                                <button onclick="insertQuickMessage('🙏 Thank you! Everything is clear.')" class="text-[11px] bg-white/5 hover:bg-brand-500/20 hover:text-brand-500 text-slate-300 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap transition-all font-inter">🙏 Thank You</button>
+                            </div>
+
+                            <!-- Attached Image Preview Bar -->
+                            <div id="imageAttachmentPreview" class="hidden px-4 py-2 bg-[#161616] border-t border-white/5 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img id="imageAttachmentThumb" src="" alt="Proof Attachment" class="w-12 h-12 rounded-lg object-cover border border-brand-500/40 shadow-sm cursor-pointer" onclick="openImagePreview(this.src)">
+                                    <div>
+                                        <span class="text-xs font-bold text-white block flex items-center gap-1.5">
+                                            <i data-lucide="image" class="w-3.5 h-3.5 text-brand-500"></i> Screenshot Ready to Send
+                                        </span>
+                                        <span id="imageAttachmentSize" class="text-[10px] text-slate-400 font-mono">Base64 Encoded</span>
+                                    </div>
+                                </div>
+                                <button onclick="clearImageAttachment()" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors" title="Remove Screenshot">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Input Bar -->
+                            <div class="p-3 border-t border-white/5 bg-[#151515] flex items-end gap-2.5">
+                                <input type="file" id="ticketImageInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                                <button onclick="document.getElementById('ticketImageInput').click()" class="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-brand-500 border border-white/10 transition-colors flex-shrink-0" title="Attach Screenshot Proof (Base64)">
+                                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                </button>
+
+                                <div class="flex-1 bg-[#1a1a1a] rounded-2xl border border-white/10 focus-within:border-brand-500/50 transition-colors px-4 py-2.5 flex items-center">
+                                    <textarea id="chatInputMessage" rows="1" placeholder="Type your message to support... (Press Enter to Send)" class="w-full bg-transparent text-sm text-white placeholder-slate-500 outline-none resize-none font-inter max-h-28 custom-scrollbar" onkeydown="handleChatInputKeyDown(event)"></textarea>
+                                </div>
+
+                                <button onclick="sendChatMessage()" id="chatSendBtn" class="px-5 py-3 rounded-xl bg-brand-500 text-brand-950 font-bold hover:bg-brand-400 transition-all flex items-center gap-2 flex-shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.25)]">
+                                    <span class="hidden sm:inline">Send</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
+    <!-- MODAL: Create New Support Ticket -->
+    <div id="newTicketModal" class="modal-overlay fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="modal-content bg-[#111] border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full max-w-lg overflow-hidden flex flex-col">
+            <div class="px-6 pt-6 pb-4 border-b border-white/5 flex justify-between items-start bg-[#151515]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-500/10 text-brand-500 rounded-2xl border border-brand-500/20 flex items-center justify-center">
+                        <i data-lucide="message-square-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Ask Verification Support</h2>
+                        <p class="text-xs text-slate-400 font-inter">Direct contact with WorkHub operators</p>
+                    </div>
+                </div>
+                <button onclick="closeNewTicketModal()" class="text-slate-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="newTicketForm" onsubmit="submitNewTicket(event)" class="p-6 space-y-4 font-inter">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Subject / Query Topic *</label>
+                    <input type="text" id="newTicketSubject" required placeholder="e.g. Payment Verification, Document Question" class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors">
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Explain Your Question *</label>
+                    <textarea id="newTicketMessage" rows="3" required placeholder="Describe your question or issue in detail..." class="w-full bg-[#1a1a1a] border border-white/10 text-white rounded-xl py-3 px-4 text-sm focus:border-brand-500 focus:outline-none transition-colors"></textarea>
+                </div>
+
+                <!-- Optional Image upload -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Attach Screenshot (Payment Receipt / ID)</label>
+                    <input type="file" id="newTicketImageInput" accept="image/*" onchange="handleNewTicketImage(event)" class="w-full bg-[#1a1a1a] border border-white/10 text-slate-300 rounded-xl py-2 px-3 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-500 file:text-brand-950 file:cursor-pointer">
+                    <div id="newTicketImagePreviewContainer" class="hidden mt-2 flex items-center gap-3 bg-[#161616] p-2 rounded-xl border border-brand-500/30">
+                        <img id="newTicketImagePreview" src="" class="w-10 h-10 object-cover rounded-lg">
+                        <span class="text-xs text-brand-500 font-bold flex-1">Screenshot attached</span>
+                        <button type="button" onclick="clearNewTicketImage()" class="text-slate-400 hover:text-red-400 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-3 border-t border-white/5">
+                    <button type="button" onclick="closeNewTicketModal()" class="flex-1 py-3 bg-white/5 text-slate-400 rounded-xl font-bold hover:bg-white/10 transition-colors text-sm">Cancel</button>
+                    <button type="submit" id="btnSubmitNewTicket" class="flex-[2] py-3 bg-brand-500 text-brand-950 rounded-xl font-bold hover:bg-brand-400 transition-all shadow-[0_0_15px_rgba(234,179,8,0.3)] text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Submit Query
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Fullscreen Image Preview Lightbox -->
+    <div id="imagePreviewModal" class="modal-overlay fixed inset-0 z-[150] bg-black/90 backdrop-blur-lg flex items-center justify-center p-4" onclick="closeImagePreview()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="absolute -top-12 right-0 flex items-center gap-2">
+                <a id="downloadPreviewImageBtn" href="#" download="workhub-attachment.jpg" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 backdrop-blur-md">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                </a>
+                <button onclick="closeImagePreview()" class="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <img id="fullPreviewImage" src="" alt="Attachment Preview" class="max-w-full max-h-[82vh] object-contain rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script>
+        // Modal & Image Preview helpers outside module
+        window.closeNewTicketModal = () => { document.getElementById('newTicketModal').classList.remove('active'); };
+        window.openNewTicketModal = () => { document.getElementById('newTicketModal').classList.add('active'); };
+        window.closeImagePreview = () => { document.getElementById('imagePreviewModal').classList.remove('active'); };
+        window.openImagePreview = (src) => {
+            const img = document.getElementById('fullPreviewImage');
+            const link = document.getElementById('downloadPreviewImageBtn');
+            if(img) img.src = src;
+            if(link) link.href = src;
+            document.getElementById('imagePreviewModal').classList.add('active');
+        };
+    </script>
+
     <script type="module">
         lucide.createIcons();
-        import { auth, db, doc, getDoc, updateDoc, collection, query, where, addDoc, serverTimestamp, onAuthStateChanged, signOut, onSnapshot } from './firebase.js';
+        import { auth, db, doc, getDoc, updateDoc, collection, query, where, addDoc, serverTimestamp, onAuthStateChanged, signOut, onSnapshot, orderBy } from './firebase.js';
 
         let currentUser = null;
         let profileDocRef = null;
+
+        // Support State
+        let userTickets = [];
+        let activeTicketId = null;
+        let activeTicketMessagesUnsub = null;
+        let currentAttachedBase64 = null;
+        let newTicketAttachedBase64 = null;
+
+        // Audio & Notifications
+        let isAudioMuted = localStorage.getItem('workhub_emp_audio_muted') === 'true';
+        let isInitialLoadTickets = true;
+        let knownTicketTimestamps = new Map();
+
+        // Audio UI updater
+        function updateAudioUI() {
+            const statusText = document.getElementById('soundStatusText');
+            const desktopIcon = document.getElementById('desktopSoundIcon');
+            const mobileIcon = document.getElementById('mobileSoundIcon');
+            const ringWrap = document.getElementById('soundRingWrapper');
+
+            if (isAudioMuted) {
+                if (statusText) statusText.innerText = 'Sound Muted';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-x');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-x');
+                if (ringWrap) {
+                    ringWrap.classList.remove('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.add('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            } else {
+                if (statusText) statusText.innerText = 'Sound ON';
+                if (desktopIcon) desktopIcon.setAttribute('data-lucide', 'volume-2');
+                if (mobileIcon) mobileIcon.setAttribute('data-lucide', 'volume-2');
+                if (ringWrap) {
+                    ringWrap.classList.add('text-brand-500', 'border-brand-500/20', 'bg-brand-500/10');
+                    ringWrap.classList.remove('text-slate-500', 'border-white/10', 'bg-white/5');
+                }
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.toggleAudioNotifications = () => {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem('workhub_emp_audio_muted', isAudioMuted);
+            updateAudioUI();
+            if (!isAudioMuted) playNotificationSound(true);
+        };
+
+        function playFallbackChime() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                const ctx = new AudioContextClass();
+                const tones = [
+                    { freq: 659.25, start: 0.0, dur: 0.35 },
+                    { freq: 880.0, start: 0.15, dur: 0.4 },
+                    { freq: 1046.5, start: 0.35, dur: 0.55 }
+                ];
+                tones.forEach(t => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(t.freq, ctx.currentTime + t.start);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime + t.start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t.start + t.dur);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + t.start);
+                    osc.stop(ctx.currentTime + t.start + t.dur);
+                });
+            } catch(e) {}
+        }
+
+        window.playNotificationSound = (force = false) => {
+            if (isAudioMuted && !force) return;
+            const ringWrap = document.getElementById('soundRingWrapper');
+            if (ringWrap) {
+                ringWrap.classList.add('ring-active');
+                setTimeout(() => ringWrap.classList.remove('ring-active'), 1800);
+            }
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(() => playFallbackChime());
+            } else {
+                playFallbackChime();
+            }
+        };
+
+        document.addEventListener('click', function unlockAudio() {
+            const audioEl = document.getElementById('notificationAudio');
+            if (audioEl) {
+                audioEl.play().then(() => { audioEl.pause(); audioEl.currentTime = 0; }).catch(() => {});
+            }
+            document.removeEventListener('click', unlockAudio);
+        }, { once: true });
+
+        function showToastNotification({ title, message, tab, icon = 'bell' }) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            playNotificationSound();
+
+            const toast = document.createElement('div');
+            toast.className = "toast-enter pointer-events-auto bg-[#141414] border border-brand-500/40 rounded-2xl p-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex items-start gap-3 backdrop-blur-xl transition-all cursor-pointer hover:border-brand-500";
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 border border-brand-500/20 flex items-center justify-center flex-shrink-0 animate-bounce">
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-bold text-white uppercase tracking-wider truncate">${title}</h4>
+                    <p class="text-xs text-slate-300 font-inter mt-0.5 line-clamp-2">${message}</p>
+                </div>
+                <button class="text-slate-500 hover:text-white p-1 toast-close-btn"><i data-lucide="x" class="w-4 h-4"></i></button>
+            `;
+
+            toast.addEventListener('click', (e) => {
+                if (e.target.closest('.toast-close-btn')) {
+                    toast.remove();
+                    return;
+                }
+                if (tab) switchTab(tab);
+                toast.remove();
+            });
+
+            container.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 7000);
+        }
 
         // Mobile Menu Logic
         const sidebar = document.getElementById('sidebar');
@@ -415,6 +793,7 @@
                 document.getElementById('referralLink').value = `https://workhub.example.com/join?ref=${user.uid.substring(0,8).toUpperCase()}`;
 
                 document.getElementById('mainContent').style.display = 'block';
+                updateAudioUI();
 
                 // Populate Profile Form (Read-only fields)
                 document.getElementById('profName').value = data.fullName;
@@ -438,18 +817,14 @@
                         updateProgressUI(1);
                         renderPaymentRequired();
                     } else {
-                        // Get most recent submission
                         const payments = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-                        payments.sort((a, b) => b.submittedAt - a.submittedAt);
+                        payments.sort((a, b) => (b.submittedAt?.seconds || 0) - (a.submittedAt?.seconds || 0));
                         const latestPayment = payments[0];
                         
-                        // Status mapping
                         if (latestPayment.status === 'pending') {
-                            updateProgressUI(2); // Action Req fulfilled -> Pending Review
+                            updateProgressUI(2);
                             renderPendingVerification(latestPayment);
                         } else if (latestPayment.status === 'approved') {
-                            // Defaulting to Verified (Step 4) upon approval. 
-                            // When Admin Panel receives further updates for Meeting/Offers, these will map to 5 & 6.
                             updateProgressUI(4); 
                             renderApproved(latestPayment);
                         } else if (latestPayment.status === 'rejected') {
@@ -459,6 +834,9 @@
                     }
                 }, (error) => { console.error("Error listening to status:", error); });
 
+                // Initialize Support Listener for this employee
+                initEmployeeSupportListener(user.uid);
+
             } catch(e) { console.error("Auth check failed", e); }
         });
 
@@ -466,28 +844,36 @@
         window.switchTab = (tab) => {
             const btnD = document.getElementById('nav-dashboard');
             const btnP = document.getElementById('nav-profile');
-            const iconHTML = tab === 'dashboard' ? '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Application Status' : '<i data-lucide="user-cog" class="w-6 h-6 text-brand-500"></i> Manage Profile';
+            const btnS = document.getElementById('nav-support');
             
-            // Only update header on desktop
-            const titleEl = document.getElementById('headerTitle');
-            if(titleEl) titleEl.innerHTML = iconHTML;
-            lucide.createIcons();
+            const titles = {
+                'dashboard': '<i data-lucide="layout-dashboard" class="w-6 h-6 text-brand-500"></i> Application Status',
+                'profile': '<i data-lucide="user-cog" class="w-6 h-6 text-brand-500"></i> Manage Profile',
+                'support': '<i data-lucide="headphones" class="w-6 h-6 text-brand-500"></i> Verification & Help Desk'
+            };
 
-            document.getElementById('dashboardTab').classList.remove('active');
-            document.getElementById('profileTab').classList.remove('active');
-            document.getElementById(tab + 'Tab').classList.add('active');
-            
-            const activeClass = ['bg-brand-500/10', 'text-brand-500', 'border-brand-500/20'];
-            const inactiveClass = ['text-slate-400', 'border-transparent'];
-            
-            if (tab === 'dashboard') {
-                btnD.classList.add(...activeClass); btnD.classList.remove(...inactiveClass);
-                btnP.classList.add(...inactiveClass); btnP.classList.remove(...activeClass);
-            } else {
-                btnP.classList.add(...activeClass); btnP.classList.remove(...inactiveClass);
-                btnD.classList.add(...inactiveClass); btnD.classList.remove(...activeClass);
+            const titleEl = document.getElementById('headerTitle');
+            if(titleEl && titles[tab]) titleEl.innerHTML = titles[tab];
+
+            ['dashboard', 'profile', 'support'].forEach(t => {
+                const el = document.getElementById(t + 'Tab');
+                const btn = document.getElementById('nav-' + t);
+                if (el) el.classList.remove('active');
+                if (btn) {
+                    btn.classList.remove('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
+            });
+
+            const activeTab = document.getElementById(tab + 'Tab');
+            const activeBtn = document.getElementById('nav-' + tab);
+            if (activeTab) activeTab.classList.add('active');
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-500/10', 'text-brand-500', 'border-brand-500/20');
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
             }
 
+            lucide.createIcons();
             if(window.innerWidth < 768) toggleMobileMenu();
         };
 
@@ -521,12 +907,9 @@
         // Dynamic 6-Step Progress Bar Updater
         function updateProgressUI(step) {
             const line = document.getElementById('progressLine');
-            
-            // Widths for 6 steps: 0, 20, 40, 60, 80, 100%
             const widths = {1: '0%', 2: '20%', 3: '40%', 4: '60%', 5: '80%', 6: '100%'};
             if(line) line.style.width = widths[step] || '0%';
 
-            // Reset all to base styles
             for(let i=2; i<=6; i++) {
                 const iconDiv = document.getElementById(`step${i}-icon`);
                 const textDiv = document.getElementById(`step${i}-text`);
@@ -540,7 +923,6 @@
                 }
             }
 
-            // Helper to activate a step up to the current status
             const activateStep = (num, iconName) => {
                 const iconDiv = document.getElementById(`step${num}-icon`);
                 const textDiv = document.getElementById(`step${num}-text`);
@@ -554,7 +936,6 @@
                 }
             };
 
-            // Apply based on progress
             if(step >= 2) activateStep(2, 'indian-rupee');
             if(step >= 3) activateStep(3, 'clock');
             if(step >= 4) activateStep(4, 'shield-check');
@@ -575,7 +956,7 @@
         // ================= RENDERING STATUS VIEWS =================
         function renderPaymentRequired(errorMsg = null) {
             const container = document.getElementById('statusContainer');
-            const upiId = "demo@upi"; // Demo UPI
+            const upiId = "demo@upi";
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${upiId}&pn=WorkHub&am=99&cu=INR&bgcolor=ffffff&color=000000`;
             
             container.innerHTML = `
@@ -670,7 +1051,7 @@
                         <i data-lucide="shield" class="w-6 h-6 text-brand-500 flex-shrink-0 mt-0.5"></i>
                         <div>
                             <h4 class="font-bold text-white text-sm mb-1">Secure Process</h4>
-                            <p class="text-sm text-slate-400 font-inter leading-relaxed">This manual check ensures platform integrity. Approvals typically complete within 1-2 business hours.</p>
+                            <p class="text-sm text-slate-400 font-inter leading-relaxed">This manual check ensures platform integrity. Approvals typically complete within 1-2 business hours. If you need urgent help, reach out via the <button onclick="switchTab('support')" class="text-brand-500 font-bold underline">Help & Support Desk</button>.</p>
                         </div>
                     </div>
                 </div>
@@ -716,6 +1097,366 @@
             `;
             lucide.createIcons();
         }
+
+        // ================= SUPPORT SYSTEM (EMPLOYEE) =================
+        function initEmployeeSupportListener(uid) {
+            const q = query(collection(db, "supportTickets"), where("userId", "==", uid));
+            onSnapshot(q, (snapshot) => {
+                userTickets = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                userTickets.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+
+                const unreadCount = userTickets.filter(t => t.unreadUser === true).length;
+                const badge = document.getElementById('badge-support');
+                if (badge) {
+                    badge.innerText = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                }
+
+                // Check for new incoming replies from admin
+                if (!isInitialLoadTickets) {
+                    snapshot.docChanges().forEach(change => {
+                        const tData = change.doc.data();
+                        const prevTime = knownTicketTimestamps.get(change.doc.id) || 0;
+                        const currTime = tData.updatedAt?.seconds || tData.createdAt?.seconds || 0;
+
+                        if (currTime > prevTime && tData.lastSender === 'admin') {
+                            knownTicketTimestamps.set(change.doc.id, currTime);
+                            showToastNotification({
+                                title: 'Support Update from WorkHub',
+                                message: tData.lastMessage || 'Our verification operator replied to your inquiry.',
+                                tab: 'support',
+                                icon: 'message-circle'
+                            });
+                        }
+                    });
+                } else {
+                    snapshot.forEach(d => {
+                        const tData = d.data();
+                        knownTicketTimestamps.set(d.id, tData.updatedAt?.seconds || tData.createdAt?.seconds || 0);
+                    });
+                    isInitialLoadTickets = false;
+                }
+
+                renderUserTicketsList();
+
+                if (activeTicketId) {
+                    const currentActive = userTickets.find(t => t.id === activeTicketId);
+                    if (currentActive) {
+                        const badgeEl = document.getElementById('activeTicketStatusBadge');
+                        if (badgeEl) badgeEl.innerText = (currentActive.status || 'open').toUpperCase();
+                    }
+                }
+            });
+        }
+
+        function renderUserTicketsList() {
+            const container = document.getElementById('userTicketsList');
+            if (!container) return;
+
+            if (userTickets.length === 0) {
+                container.innerHTML = `
+                    <div class="p-12 text-center text-slate-500 text-xs font-inter flex flex-col items-center justify-center h-full">
+                        <i data-lucide="message-square" class="w-8 h-8 mb-2 opacity-30"></i>
+                        You have not opened any inquiries yet. Click "New Query" to get support.
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '';
+            userTickets.forEach(ticket => {
+                const isActive = ticket.id === activeTicketId;
+                const isUnread = ticket.unreadUser === true;
+                const date = ticket.updatedAt ? new Date(ticket.updatedAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+
+                let statusBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                if (ticket.status === 'in-progress') statusBadge = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                if (ticket.status === 'resolved') statusBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+
+                const card = document.createElement('div');
+                card.className = `p-4 cursor-pointer transition-all border-l-4 ${isActive ? 'bg-white/10 border-brand-500' : 'hover:bg-white/5 border-transparent'}`;
+                card.onclick = () => selectUserTicket(ticket.id);
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <span class="font-bold text-sm text-white truncate flex-1">${ticket.subject || 'Inquiry'}</span>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            ${isUnread ? '<span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>' : ''}
+                            <span class="text-[11px] text-slate-500 font-mono">${date}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 font-inter truncate mb-2">
+                        ${ticket.lastSender === 'user' ? '<span class="text-slate-300">You: </span>' : '<span class="text-brand-500 font-bold">Support: </span>'}
+                        ${ticket.lastMessage || 'Screenshot proof'}
+                    </p>
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${statusBadge}">${ticket.status || 'open'}</span>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        window.selectUserTicket = async (ticketId) => {
+            activeTicketId = ticketId;
+            const ticket = userTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            document.getElementById('userChatEmpty').classList.add('hidden');
+            const chatContainer = document.getElementById('userChatContainer');
+            chatContainer.classList.remove('hidden');
+
+            document.getElementById('activeTicketSubject').innerText = `ID: ${ticket.id.substring(0,8)} • ${ticket.subject}`;
+            document.getElementById('activeTicketStatusBadge').innerText = (ticket.status || 'open').toUpperCase();
+
+            renderUserTicketsList();
+
+            // Mark unreadUser as false
+            if (ticket.unreadUser) {
+                try {
+                    await updateDoc(doc(db, "supportTickets", ticketId), { unreadUser: false });
+                } catch(e) {}
+            }
+
+            if (activeTicketMessagesUnsub) {
+                activeTicketMessagesUnsub();
+                activeTicketMessagesUnsub = null;
+            }
+
+            const messagesArea = document.getElementById('userChatMessages');
+            messagesArea.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs font-inter"><div class="w-5 h-5 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto mb-2"></div>Loading conversation...</div>';
+
+            const msgsQuery = query(collection(db, "supportTickets", ticketId, "messages"), orderBy("createdAt", "asc"));
+            activeTicketMessagesUnsub = onSnapshot(msgsQuery, (snapshot) => {
+                messagesArea.innerHTML = '';
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = '<div class="p-8 text-center text-slate-500 text-xs font-inter">No messages yet. Send your query below.</div>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const msg = docSnap.data();
+                    const isSelf = msg.senderId === currentUser.uid || msg.senderRole === 'employee';
+                    const time = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
+
+                    const msgEl = document.createElement('div');
+                    msgEl.className = `flex flex-col ${isSelf ? 'items-end' : 'items-start'} space-y-1`;
+
+                    let imageHtml = '';
+                    if (msg.imageBase64) {
+                        imageHtml = `
+                            <div class="mt-2">
+                                <img src="${msg.imageBase64}" alt="Attachment" class="max-w-xs max-h-56 rounded-xl object-cover border border-white/10 shadow-md cursor-pointer hover:opacity-90 transition-opacity" onclick="openImagePreview('${msg.imageBase64.replace(/'/g, "\\'")}')">
+                            </div>
+                        `;
+                    }
+
+                    if (isSelf) {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-white">You</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-white/10 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm text-sm max-w-md shadow-md break-words">
+                                ${msg.text ? `<p class="font-inter text-slate-200 whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    } else {
+                        msgEl.innerHTML = `
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-inter mb-0.5">
+                                <span class="font-bold text-brand-500">${msg.senderName || 'WorkHub Verification Support'}</span>
+                                <span>• ${time}</span>
+                            </div>
+                            <div class="bg-gradient-to-r from-brand-500 to-amber-500 text-brand-950 font-medium px-4 py-2.5 rounded-2xl rounded-tl-sm text-sm max-w-md shadow-[0_0_15px_rgba(234,179,8,0.2)] break-words">
+                                ${msg.text ? `<p class="font-inter whitespace-pre-wrap">${msg.text}</p>` : ''}
+                                ${imageHtml}
+                            </div>
+                        `;
+                    }
+
+                    messagesArea.appendChild(msgEl);
+                });
+
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                lucide.createIcons();
+            });
+        };
+
+        window.insertQuickMessage = (msg) => {
+            const input = document.getElementById('chatInputMessage');
+            if (input) {
+                input.value = msg;
+                input.focus();
+            }
+        };
+
+        function compressImage(base64Str, maxWidth, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
+
+        window.handleImageSelection = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    currentAttachedBase64 = compressed;
+                    const preview = document.getElementById('imageAttachmentPreview');
+                    document.getElementById('imageAttachmentThumb').src = compressed;
+                    const sizeKb = Math.round((compressed.length * 3 / 4) / 1024);
+                    document.getElementById('imageAttachmentSize').innerText = `Screenshot Proof (${sizeKb} KB)`;
+                    preview.classList.remove('hidden');
+                    lucide.createIcons();
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImageAttachment = () => {
+            currentAttachedBase64 = null;
+            document.getElementById('imageAttachmentPreview').classList.add('hidden');
+            document.getElementById('ticketImageInput').value = '';
+        };
+
+        window.handleChatInputKeyDown = (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        };
+
+        window.sendChatMessage = async () => {
+            if (!activeTicketId) return;
+
+            const input = document.getElementById('chatInputMessage');
+            const text = input.value.trim();
+            const imageBase64 = currentAttachedBase64;
+
+            if (!text && !imageBase64) return;
+
+            const btn = document.getElementById('chatSendBtn');
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "supportTickets", activeTicketId, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: document.getElementById('userNameLabel').innerText,
+                    senderRole: 'employee',
+                    text: text || '',
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                await updateDoc(doc(db, "supportTickets", activeTicketId), {
+                    lastMessage: text || 'Attached screenshot proof',
+                    lastSender: 'user',
+                    updatedAt: serverTimestamp(),
+                    unreadAdmin: true
+                });
+
+                input.value = '';
+                clearImageAttachment();
+            } catch(e) {
+                alert("Failed to send message: " + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.handleNewTicketImage = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                compressImage(e.target.result, 1000, 0.8, (compressed) => {
+                    newTicketAttachedBase64 = compressed;
+                    document.getElementById('newTicketImagePreview').src = compressed;
+                    document.getElementById('newTicketImagePreviewContainer').classList.remove('hidden');
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearNewTicketImage = () => {
+            newTicketAttachedBase64 = null;
+            document.getElementById('newTicketImagePreviewContainer').classList.add('hidden');
+            document.getElementById('newTicketImageInput').value = '';
+        };
+
+        window.submitNewTicket = async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('newTicketSubject').value.trim();
+            const message = document.getElementById('newTicketMessage').value.trim();
+            const imageBase64 = newTicketAttachedBase64;
+
+            if (!subject || !message) {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitNewTicket');
+            btn.disabled = true;
+            btn.innerHTML = 'Submitting Query...';
+
+            try {
+                const ticketRef = await addDoc(collection(db, "supportTickets"), {
+                    userId: currentUser.uid,
+                    userName: document.getElementById('userNameLabel').innerText,
+                    userEmail: document.getElementById('profEmail').value,
+                    userRole: 'employee',
+                    subject: subject,
+                    priority: 'normal',
+                    status: 'open',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    lastMessage: message,
+                    lastSender: 'user',
+                    unreadAdmin: true,
+                    unreadUser: false
+                });
+
+                await addDoc(collection(db, "supportTickets", ticketRef.id, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: document.getElementById('userNameLabel').innerText,
+                    senderRole: 'employee',
+                    text: message,
+                    imageBase64: imageBase64 || null,
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('newTicketForm').reset();
+                clearNewTicketImage();
+                closeNewTicketModal();
+
+                switchTab('support');
+                setTimeout(() => selectUserTicket(ticketRef.id), 500);
+
+            } catch (err) {
+                alert("Failed to submit query: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Submit Query';
+                lucide.createIcons();
+            }
+        };
 
         // ================= SMOOTH ANIMATED LOGOUT =================
         document.getElementById('logoutBtn').addEventListener('click', () => { 
