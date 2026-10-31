@@ -1339,14 +1339,15 @@
                     </select>
                 `;
 
+                const currentStage = parseInt(u.pipelineStage || 1, 10);
                 const stageSelect = `
                     <select onchange="instantUpdate('${u.id}', 'pipelineStage', this)" ${u.role !== 'employee' ? 'disabled style="opacity:0.5"' : ''} class="bg-[#1a1a1a] border border-white/10 text-slate-300 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer hover:border-brand-500/50 transition-colors w-full min-w-[140px]">
-                        <option value="1" ${u.pipelineStage==1?'selected':''}>1: Registered</option>
-                        <option value="2" ${u.pipelineStage==2?'selected':''}>2: Action Req</option>
-                        <option value="3" ${u.pipelineStage==3?'selected':''}>3: Under Review</option>
-                        <option value="4" ${u.pipelineStage==4?'selected':''}>4: Verified</option>
-                        <option value="5" ${u.pipelineStage==5?'selected':''}>5: Meeting Set</option>
-                        <option value="6" ${u.pipelineStage==6?'selected':''}>6: Job Offer</option>
+                        <option value="1" ${currentStage === 1 ? 'selected' : ''}>1: Registered</option>
+                        <option value="2" ${currentStage === 2 ? 'selected' : ''}>2: Action Req</option>
+                        <option value="3" ${currentStage === 3 ? 'selected' : ''}>3: Under Review</option>
+                        <option value="4" ${currentStage === 4 ? 'selected' : ''}>4: Verified</option>
+                        <option value="5" ${currentStage === 5 ? 'selected' : ''}>5: Meeting Set</option>
+                        <option value="6" ${currentStage === 6 ? 'selected' : ''}>6: Job Offer</option>
                     </select>
                 `;
 
@@ -1420,8 +1421,38 @@
                 }
 
                 const updateObj = {};
-                updateObj[field] = field === 'pipelineStage' ? parseInt(newValue) : newValue;
+                if (field === 'pipelineStage') {
+                    const stageNum = parseInt(newValue, 10);
+                    updateObj.pipelineStage = stageNum;
+
+                    // If admin resets candidate to Stage 1 (Registered) or Stage 2,
+                    // update any pending/approved payment so state is completely consistent
+                    if (stageNum === 1 || stageNum === 2) {
+                        try {
+                            const paySnap = await getDocs(query(collection(db, "payments"), where("employeeUid", "==", uid)));
+                            for (const pDoc of paySnap.docs) {
+                                if (pDoc.data().status === 'approved' || pDoc.data().status === 'pending') {
+                                    await updateDoc(doc(db, "payments", pDoc.id), { 
+                                        status: 'rejected', 
+                                        adminNotes: `Admin set placement pipeline to Stage ${stageNum}.` 
+                                    });
+                                }
+                            }
+                        } catch(err) {
+                            console.warn("Payment reset sync error:", err);
+                        }
+                    }
+                } else {
+                    updateObj[field] = newValue;
+                }
+
                 await updateDoc(doc(db, "users", uid), updateObj);
+
+                // Update in-memory user cache
+                const userObj = allUsers.find(u => u.id === uid);
+                if (userObj) {
+                    userObj[field] = field === 'pipelineStage' ? parseInt(newValue, 10) : newValue;
+                }
 
                 selectEl.classList.remove('select-success');
                 void selectEl.offsetWidth; 
@@ -1432,120 +1463,14 @@
                     selectEl.classList.add(newValue === 'suspended' ? 'text-red-400' : 'text-emerald-400');
                 }
 
-                logAction(`UPDATE_${field.toUpperCase()}`, `Changed ${field} for ${userName} to [${newValue}].`);
-            } catch (e) { 
-                alert("Database Error: " + e.message); 
-                renderUsers(); 
+                const stageNames = {1: '1: Registered', 2: '2: Action Req', 3: '3: Under Review', 4: '4: Verified', 5: '5: Meeting Set', 6: '6: Job Offer'};
+                const displayVal = field === 'pipelineStage' ? (stageNames[newValue] || newValue) : newValue;
+                logAction(`UPDATE_${field.toUpperCase()}`, `Changed ${field} for ${userName} to [${displayVal}].`);
+            } catch(e) {
+                alert("Database Error: " + e.message);
+                renderUsers();
             }
         };
-
-        // ================= PROFILE INSPECTOR =================
-        window.openProfileModal = async (uid, role) => {
-            const u = allUsers.find(x => x.id === uid);
-            if(!u) return;
-
-            document.getElementById('insp-initial').innerText = (u.fullName || 'U').charAt(0).toUpperCase();
-            document.getElementById('insp-name').innerHTML = `${u.fullName} <span class="px-2 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded text-[10px] uppercase tracking-widest align-middle ml-2">${u.role}</span>`;
-            document.getElementById('insp-email').innerText = u.email;
-            document.getElementById('insp-phone').innerText = u.phone || 'Not provided';
-            document.getElementById('insp-created').innerText = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : 'Unknown';
-
-            const extGrid = document.getElementById('insp-extended-grid');
-            extGrid.innerHTML = '<div class="col-span-1 sm:col-span-2 text-center text-slate-500 text-sm py-4"><div class="w-5 h-5 border-2 border-slate-500/30 border-t-slate-500 rounded-full animate-spin mx-auto mb-2"></div>Fetching database...</div>';
-            document.getElementById('profileModal').classList.add('active');
-
-            try {
-                let html = '';
-                if (role === 'employee') {
-                    const snap = await getDoc(doc(db, "employeeProfiles", uid));
-                    if(snap.exists()) {
-                        const d = snap.data();
-                        html += `
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">City</span><span class="text-white font-bold text-sm">${d.city || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Qualification</span><span class="text-white font-bold text-sm">${d.qualification || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Experience</span><span class="text-white font-bold text-sm">${d.experienceLevel || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Skills</span><div class="flex flex-wrap gap-2 mt-2">${(d.skills||[]).map(s=>`<span class="px-2 py-1 bg-black border border-white/10 rounded text-xs font-bold text-slate-300">${s}</span>`).join('')}</div></div>
-                        `;
-                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No public directory profile found.</div>'; }
-                } else if (role === 'employer') {
-                    const snap = await getDoc(doc(db, "employerProfiles", uid));
-                    if(snap.exists()) {
-                        const d = snap.data();
-                        html += `
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Company Name</span><span class="text-white font-bold text-sm">${d.companyName || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5"><span class="text-slate-500 text-xs block mb-1">Industry</span><span class="text-white font-bold text-sm">${d.industry || '-'}</span></div>
-                            <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 sm:col-span-2"><span class="text-slate-500 text-xs block mb-1">Website</span><span class="text-brand-500 font-bold text-sm">${d.website ? `<a href="${d.website}" target="_blank" class="hover:underline">${d.website}</a>` : '-'}</span></div>
-                        `;
-                    } else { html = '<div class="sm:col-span-2 text-slate-500 text-sm">No employer data found.</div>'; }
-                } else {
-                    html = '<div class="sm:col-span-2 text-slate-500 text-sm">System administrators do not have extended profiles.</div>';
-                }
-                extGrid.innerHTML = html;
-            } catch(e) { extGrid.innerHTML = '<div class="sm:col-span-2 text-red-500 text-sm">Failed to load extended data.</div>'; }
-        };
-
-        // ================= PAYMENTS (UTR) =================
-        function initPaymentsListener() {
-            onSnapshot(query(collection(db, "payments"), where("status", "==", "pending")), (snap) => {
-                const count = snap.size;
-                const badge = document.getElementById('badge-payments');
-                if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
-
-                // Check for new incoming UTR payments to trigger sound & toast
-                if (!isInitialLoadPayments) {
-                    snap.docChanges().forEach(change => {
-                        if (change.type === 'added' && !knownPaymentIds.has(change.doc.id)) {
-                            knownPaymentIds.add(change.doc.id);
-                            const pData = change.doc.data();
-                            const empName = userMap[pData.employeeUid]?.name || 'Professional';
-                            showToastNotification({
-                                title: 'New UTR Payment Received',
-                                message: `UTR: ${pData.utr} (₹${pData.amount}) submitted by ${empName}`,
-                                tab: 'payments',
-                                icon: 'indian-rupee'
-                            });
-                        }
-                    });
-                } else {
-                    snap.forEach(d => knownPaymentIds.add(d.id));
-                    isInitialLoadPayments = false;
-                }
-
-                let rev = 0;
-                getDocs(query(collection(db, "payments"), where("status", "==", "approved"))).then(s => {
-                    s.forEach(d => rev += (d.data().amount || 0));
-                    document.getElementById('metric-revenue').innerText = rev.toLocaleString('en-IN');
-                }).catch(e => console.error(e));
-
-                const tbody = document.getElementById('paymentsBody');
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                if(snap.empty) { 
-                    tbody.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium">Queue empty. No pending verifications.</td></tr>'; 
-                    return; 
-                }
-                
-                snap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const empName = userMap[data.employeeUid]?.name || 'Unknown User';
-                    const date = data.submittedAt ? new Date(data.submittedAt.seconds * 1000).toLocaleDateString() : 'Recent';
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-white/5 transition-colors group">
-                            <td class="p-5 font-bold text-white text-xs md:text-sm">${empName}</td>
-                            <td class="p-5 font-mono font-bold text-white tracking-widest bg-black/40 rounded">${data.utr}</td>
-                            <td class="p-5 text-brand-500 font-bold">₹${data.amount}</td>
-                            <td class="p-5 text-slate-400 text-xs md:text-sm">${date}</td>
-                            <td class="p-5 text-right">
-                                <button onclick="openUtrModal('${docSnap.id}', '${empName.replace(/'/g,"\\'")}', '${data.utr}', '${data.amount}', '${data.employeeUid}')" class="px-4 py-2 bg-brand-500 text-black rounded-xl hover:bg-brand-400 text-xs font-bold transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]">
-                                    Review UTR
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            });
-        }
 
         window.openUtrModal = (payId, name, utr, amount, uid) => {
             currentReviewPaymentId = { id: payId, name: name, uid: uid };
